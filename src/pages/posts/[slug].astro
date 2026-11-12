@@ -1,0 +1,52 @@
+---
+import { render } from "astro:content";
+import Page from "../../layouts/Page.astro";
+import { postLabel, postTopics, publishedPosts } from "../../publishing";
+import { topicHref } from "../../site";
+
+export async function getStaticPaths() {
+  return (await publishedPosts()).map((post) => ({
+    params: { slug: post.data.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { data } = post;
+const { Content } = await render(post);
+const source = data.kind === "interpretation" ? data.source : undefined;
+---
+<Page title={data.title} description={data.summary}>
+  <article class="essay">
+    <a class="back text-link" href="/"><span aria-hidden="true">←</span> 返回首页</a>
+    <header class="essay-header">
+      <p class="essay-meta">
+        <span>{postLabel(post)}</span>
+        {postTopics(post).map((topic) => <a href={topicHref(topic.slug)}>{topic.title}</a>)}
+        <time datetime={data.date}>{data.date}</time>
+      </p>
+      <h1>{data.title}</h1>
+      <p class="essay-lede">{data.summary}</p>
+      {source && <p class="attribution">原始分享 <strong>{source.creator}</strong> · {source.publication}</p>}
+    </header>
+
+    {data.takeaways && data.takeaways.length > 0 && (
+      <aside class="quick-read" aria-labelledby="quick-read-title">
+        <h2 id="quick-read-title">这篇的要点</h2>
+        <ul>{data.takeaways.map((point) => <li>{point}</li>)}</ul>
+      </aside>
+    )}
+
+    <div class="prose"><Content /></div>
+
+    {source && (
+      <footer class="source">
+        <p>原始分享 · {source.publication}</p>
+        {source.title && <h2>{source.title}</h2>}
+        <a class="text-link" href={source.url}>
+          {source.format === "video" ? "观看原视频" : "阅读原文"} <span aria-hidden="true">↗</span>
+        </a>
+      </footer>
+    )}
+  </article>
+</Page>

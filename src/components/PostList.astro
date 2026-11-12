@@ -1,0 +1,26 @@
+---
+import { postLabel, type Post } from "../publishing";
+import { postHref } from "../site";
+
+interface Props {
+  posts: Post[];
+  title: string;
+  empty: string;
+}
+
+const { posts, title, empty } = Astro.props;
+---
+<section class="updates" aria-labelledby="updates-title">
+  <h2 id="updates-title">{title}</h2>
+  {posts.length === 0 && <p class="empty">{empty}</p>}
+  {posts.map((post) => (
+    <article class="entry">
+      <div class="entry-meta">
+        <time datetime={post.data.date}>{post.data.date}</time>
+        <span class:list={["entry-type", post.data.note ? "type-note" : `type-${post.data.kind}`]}>{postLabel(post)}</span>
+      </div>
+      <h3><a href={postHref(post.data.slug)}>{post.data.title}</a></h3>
+      <p>{post.data.summary}</p>
+    </article>
+  ))}
+</section>

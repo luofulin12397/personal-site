@@ -1,0 +1,24 @@
+---
+import type { postsByTopic } from "../publishing";
+import { topicHref, type TopicSlug } from "../site";
+
+interface Props {
+  topics: ReturnType<typeof postsByTopic>;
+  active?: TopicSlug;
+}
+
+const { topics, active } = Astro.props;
+---
+<aside class="topics" aria-labelledby="topics-title">
+  <h2 id="topics-title">在写的主题</h2>
+  <ul class="topic-list">
+    {topics.map((topic) => (
+      <li>
+        <a href={topicHref(topic.slug)} aria-current={active === topic.slug ? "page" : undefined}>
+          <strong>{topic.title}</strong><span class="topic-count">{topic.posts.length} 篇</span>
+          <span class="topic-summary">{topic.description}</span>
+        </a>
+      </li>
+    ))}
+  </ul>
+</aside>

@@ -1,0 +1,28 @@
+---
+import Page from "../../layouts/Page.astro";
+import PostList from "../../components/PostList.astro";
+import TopicIndex from "../../components/TopicIndex.astro";
+import { postsByTopic, publishedPosts } from "../../publishing";
+
+export async function getStaticPaths() {
+  const topics = postsByTopic(await publishedPosts());
+  return topics.map((topic) => ({
+    params: { slug: topic.slug },
+    props: { topic, topics },
+  }));
+}
+
+const { topic, topics } = Astro.props;
+---
+<Page title={topic.title} description={topic.description}>
+  <div class="index topic-page">
+    <div class="updates">
+      <header class="topic-intro">
+        <h1>{topic.title}</h1>
+        <p>{topic.description}</p>
+      </header>
+      <PostList posts={topic.posts} title="文章与笔记" empty="这个主题暂时没有文章。" />
+    </div>
+    <TopicIndex topics={topics} active={topic.slug} />
+  </div>
+</Page>

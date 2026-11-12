@@ -1,0 +1,14 @@
+{
+  "featured": {
+    "slug": "read-failures-first",
+    "reason": "查询结果看起来合理，为什么还是错了？这篇用 Text2SQL 举例，定位误选指标的那一步，再补一条回归检查。",
+    "diagram": {
+      "label": "查询流程示例，错误发生在指标口径环节",
+      "steps": [
+        { "title": "用户问题", "detail": "上月收入" },
+        { "title": "指标口径", "detail": "误选实收金额", "highlight": true },
+        { "title": "查询计划", "detail": "汇总实收金额" }
+      ]
+    }
+  }
+}

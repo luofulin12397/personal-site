@@ -1,0 +1,24 @@
+---
+import Page from "../layouts/Page.astro";
+import { site } from "../site";
+
+const email = import.meta.env.CONTACT_EMAIL?.trim();
+---
+<Page title="关于" active="about">
+  <article class="essay about">
+    <header class="essay-header">
+      <h1>关于{site.name}</h1>
+      <p class="essay-lede">{site.role}</p>
+    </header>
+    <div class="prose">
+      <p>我把这里当作一份公开的技术笔记。写下来是为了弄懂，也为了以后找得回来。</p>
+      <p>{site.description}</p>
+    </div>
+    {(Astro.site || email) && (
+      <ul class="contact-links">
+        {Astro.site && <li><a class="text-link" href="/rss.xml">RSS 订阅</a></li>}
+        {email && <li><a class="text-link" href={`mailto:${email}`}>邮件联系</a></li>}
+      </ul>
+    )}
+  </article>
+</Page>

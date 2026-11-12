@@ -1,0 +1,43 @@
+---
+import Page from "../layouts/Page.astro";
+import PostList from "../components/PostList.astro";
+import TopicIndex from "../components/TopicIndex.astro";
+import FeaturedPost from "../components/FeaturedPost.astro";
+import { z } from "astro/zod";
+import config from "../featured.json";
+import { postsByTopic, publishedPosts } from "../publishing";
+import { site } from "../site";
+
+const posts = await publishedPosts();
+const { featured } = z.object({
+  featured: z.object({
+    slug: z.string(),
+    reason: z.string().trim().min(1),
+    diagram: z.object({
+      label: z.string().trim().min(1),
+      steps: z.array(z.object({
+        title: z.string().trim().min(1),
+        detail: z.string().trim().min(1),
+        highlight: z.boolean().optional(),
+      })).length(3),
+    }).optional(),
+  }).optional(),
+}).parse(config);
+const selection = posts.find((post) => post.data.slug === featured?.slug);
+const recent = posts.filter((post) => post !== selection);
+---
+<Page active="home">
+  <div class:list={["opening", { "opening-with-feature": selection }]}>
+    <section class="intro" aria-labelledby="name">
+      <p class="roman-name">{site.romanName}</p>
+      <h1 id="name">{site.name}</h1>
+      <p class="intro-role">{site.role}</p>
+      <p class="intro-copy">{site.description}</p>
+    </section>
+    {selection && featured && <FeaturedPost post={selection} reason={featured.reason} diagram={featured.diagram} />}
+  </div>
+  <div class="index">
+    <TopicIndex topics={postsByTopic(posts)} />
+    <PostList posts={recent} title="近期分享" empty={selection ? "更多分享会出现在这里。" : "第一篇分享会出现在这里。"} />
+  </div>
+</Page>
