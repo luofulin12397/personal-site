@@ -1,6 +1,6 @@
 /* =========================================================================
    Luo — interaction layer
-   零依赖。三件事：终端、代码高亮、批注联动。任何一块挂掉不影响其余。
+   零依赖。三件事：终端、代码高亮、批注联动。两层页面共用，缺哪块就跳过哪块。
    ========================================================================= */
 (() => {
   'use strict';
@@ -67,6 +67,7 @@
         '  cat tradeoffs.md      四个取舍的摘要',
         '  explain <topic>       perm / hyde / rrf / plan / milvus',
         '  open <repo>           打开仓库，如 open knowledge-base',
+        '  open case             打开 knowledge-base 的架构拆解页',
         '  clear                 清屏',
         '',
         '上下键翻历史，Tab 补全。',
@@ -86,7 +87,7 @@
         '召回  原查询 + HyDE 两路，RRF 再精排。代价：多一次模型调用。',
         '异步  spool 队列 + 单写入边界，串行派发。代价：吞吐被按死。',
         '',
-        '每条都写了失效条件，往上滚能看到全文。',
+        '每条的失效条件都写在下面，往下翻就是全文。',
       ],
 
       perm: () => [
@@ -146,7 +147,7 @@
 
     const NAMES = Object.keys(COMMANDS);
     const TOPICS = ['perm', 'hyde', 'rrf', 'plan', 'milvus'];
-    const SCROLL_TARGETS = { notes: '#notes', code: '#code', system: '#system', tradeoffs: '#tradeoffs', work: '#work' };
+    const SCROLL_TARGETS = { notes: '#notes', craft: '#craft', tradeoffs: '#tradeoffs', work: '#work' };
 
     function resolve(raw) {
       const s = raw.trim().replace(/\s+/g, ' ');
@@ -174,15 +175,16 @@
         return { error: `explain: 没有这个主题 ${topic}。试试 ${TOPICS.join(' / ')}` };
       }
 
-      if (low === 'open') return { error: `open: 用法 open <repo>。可用：github / ${Object.keys(REPOS).join(' / ')}` };
+      if (low === 'open') return { error: `open: 用法 open <repo>。可用：github / case / ${Object.keys(REPOS).join(' / ')}` };
 
       const open = low.match(/^open\s+(\S+)$/);
       if (open) {
         const where = open[1].replace(/\/$/, '');
         if (where === 'github' || where === 'repo') return { key: 'open github' };
+        if (where === 'case' || where === 'rag') return { page: 'projects/rag/index.html' };
         if (REPOS[where]) return { repo: where };
         if (SCROLL_TARGETS[where]) return { scroll: where };
-        return { error: `open: 打不开 ${where}。试试 github / ${Object.keys(REPOS).join(' / ')}` };
+        return { error: `open: 打不开 ${where}。试试 github / case / ${Object.keys(REPOS).join(' / ')}` };
       }
 
       return { error: `zsh: command not found: ${s.split(' ')[0]}` };
@@ -219,6 +221,12 @@
         return;
       }
 
+      if (res.page) {
+        out('正在打开 projects/rag/（knowledge-base 架构拆解）');
+        window.location.href = res.page;
+        return;
+      }
+
       if (res.scroll) {
         const el = $(SCROLL_TARGETS[res.scroll]);
         if (el) {
@@ -242,6 +250,8 @@
         ...NAMES.filter((k) => !k.includes(' ')),
         'clear',
         'open github',
+        'open case',
+        'open rag',
         ...Object.keys(REPOS).map((r) => `open ${r}`),
         ...Object.keys(SCROLL_TARGETS).map((k) => `open ${k}`),
         ...TOPICS.map((t) => `explain ${t}`),
@@ -355,8 +365,8 @@
       ],
     };
     RULES.graph = RULES.python;
-    RULES.query = RULES.python;
-    RULES.compose = RULES.yaml;
+    RULES.perm = RULES.python;
+    RULES.engine = RULES.python;
 
     function highlight(src, rules) {
       const re = new RegExp(rules.map((r) => `(${r.src})`).join('|'), 'gm');
@@ -379,85 +389,96 @@
     const SNIPPETS = {
       graph: {
         lang: 'python',
-        code: `graph = StateGraph(QueryGraphState)
+        code: `query_graph_builder.set_entry_point("node_query_cache")
 
-# 十二个节点。入口是缓存：命中即结束，检索和模型一次都不跑
-graph.set_entry_point("node_query_cache")
+# 缓存命中直接 END，检索和模型一次都不跑
+def node_query_cache_after(state: QueryGraphState):
+    if state.get("cache_hit"):
+        return END
+    return "node_history_compress"
 
 
-def node_perm_filter_after(state):
-    """命中门：只有向量路完全无召回、且未被权限短路时，才允许联网兜底。
-
-    安全不变量：denied 分支绝不联网。否则无权主题换个问法就能
-    从公网拿到同类信息，四维权限边界被兜底旁路掉。
-    """
+def node_access_control_after(state: QueryGraphState):
+    # 认不准问的是哪份文档，就把问题抛回去，不猜
     if state.get("answer"):
-        return "node_answer_output"        # 权限短路，或前面已早退
-    if not state.get("rrf_chunks") and not state.get("reranked_docs"):
-        return "node_web_search_mcp"       # 真的什么都没召回
-    return "node_answer_output"
+        return "node_answer_output"
+    # web 不是第三条并行召回路，降级为命中门之后的兜底
+    return "node_search_embedding", "node_search_embedding_hyde"
 
 
-# 两路召回并行，RRF 融合后精排；精排完才判权限
-graph.add_edge("node_search_embedding", "node_rrf")
-graph.add_edge("node_search_embedding_hyde", "node_rrf")
-graph.add_edge("node_rrf", "node_rerank")
-graph.add_edge("node_rerank", "node_perm_filter")`,
+query_graph_builder.add_edge("node_search_embedding", "node_rrf")
+query_graph_builder.add_edge("node_search_embedding_hyde", "node_rrf")
+query_graph_builder.add_edge("node_rrf", "node_rerank")
+query_graph_builder.add_edge("node_rerank", "node_perm_filter")`,
       },
-      query: {
+      perm: {
         lang: 'python',
-        code: `async def execute(settings, plan, deadline):
-    # plan 不是模型写的 SQL。模型只出意图，SQL 由服务端按白名单编译
-    if not settings.db_password:
-        raise PublicError("configuration_missing", 503, "只读凭据尚未配置")
+        code: `# 位置：node_rerank 之后、node_answer_output 之前
+# 1. 精排切片按四维判定拆成 allowed / denied
+# 2. 仅放行切片保留进 reranked_docs，提示词只含有权内容
+# 3. 拦截切片写 denied_knowledge_ids 供审计，绝不进提示词
+# 4. 全部被拦时短路，跳过 LLM 生成与语义缓存写入
 
-    # 期限跟模型调用、维值查询共用一份，不给每条语句重新发预算
-    if deadline - monotonic() <= 0:
-        raise PublicError("query_timeout", 504, "已超过处理期限", True)
+@node_log("node_perm_filter")
+def node_perm_filter(state):
+    docs = state.get("reranked_docs") or []
+    if not docs:
+        return state
 
-    async with asyncio.timeout_at(min(deadline, monotonic() + 5)):
-        conn = await psycopg.AsyncConnection.connect(url, connect_timeout=5)
+    user_ctx = {
+        "user_id": state.get("user_id", ""),
+        "department_id": state.get("department_id", ""),
+        "role_ids": state.get("roles", []),
+    }
 
-    async with asyncio.timeout_at(deadline):
-        await conn.execute("SET TRANSACTION READ ONLY")
-        if plan.role == "med_lab_reader":
-            # 角色只从服务端固定计划来，模型说不出这个角色名
-            await conn.execute("SET LOCAL ROLE med_lab_reader")
-        await conn.execute("SET LOCAL lock_timeout = '1s'")
-        await conn.execute("SELECT set_config('statement_timeout', %s, true)", (ms,))
-        cursor = await conn.execute(plan.sql, plan.params)
-        return await cursor.fetchall()
-    except (psycopg.errors.QueryCanceled, psycopg.errors.LockNotAvailable):
-        # 锁等不到和语句超时，对用户是同一件事：重试，别去改参数
-        raise PublicError("query_timeout", 504, "查询超时", True) from None`,
+    # file_title 缺失视为数据缺陷：不判定、不进提示词、不计入 denied
+    kb_docs, unattributed_docs = [], []
+    for d in docs:
+        (kb_docs if knowledge_id_of(d.get("file_title", ""))
+         else unattributed_docs).append(d)
+
+    if not kb_docs:
+        state["reranked_docs"] = []
+        return state
+
+    # 无权限记录的知识单元：默认拒绝
+    perms_by_kid = permission_repository.list_by_knowledge_ids(...)
+    for d in kb_docs:
+        (allowed_docs if has_access(user_ctx, perms_by_kid.get(kid))
+         else denied_docs).append(d)`,
       },
-      compose: {
-        lang: 'yaml',
-        code: `services:
-  app:
-    image: \${APP_IMAGE:-medical-query-app:task16}
-    # 只绑回环。外面必须还有一层反代，否则这条等于没写
-    ports: ["127.0.0.1:18080:8000"]
-    secrets: [db_password, deepseek_key]
+      engine: {
+        lang: 'python',
+        code: `def normalize_perms(source: dict | None) -> dict:
+    """任意历史格式统一归一成四维形状。"""
+    if any(k in source for k in _NEW_SHAPE_KEYS):
+        return {
+            "global": bool(source.get("global", False)),
+            "department_ids": list(source.get("department_ids") or []),
+            "role_ids": list(source.get("role_ids") or []),
+            "user_ids": list(source.get("user_ids") or []),
+        }
+    # 略：allowed_roles 等旧格式的兼容分支
+    return _empty_perms()
 
-    read_only: true                      # 根文件系统只读
-    tmpfs: ["/tmp:rw,noexec,nosuid,size=16m,mode=1777"]
-    security_opt: ["no-new-privileges:true"]
-    cap_drop: [ALL]
-    cap_add: [SETUID, SETGID]            # 只在读完 secret 后降权，业务以 10001 跑
 
-    mem_limit: 512m
-    pids_limit: 64
-
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:8000/health', timeout=2)"]
-      interval: 10s
-      retries: 6
-
-    logging:
-      driver: json-file
-      # 日志不设上限，磁盘迟早会在最不该满的时候满
-      options: { max-size: 10m, max-file: "3" }`,
+def has_access(user_ctx: dict | None, perms: dict | None) -> bool:
+    """四维 OR：全局 / 个人 / 部门 / 角色，任一命中即放行；否则默认拒绝。"""
+    p = normalize_perms(perms)
+    if not user_ctx:
+        return False
+    if p["global"]:
+        return True
+    uid = user_ctx.get("user_id")
+    if uid and uid in p["user_ids"]:
+        return True
+    dept = user_ctx.get("department_id")
+    if dept and dept in p["department_ids"]:
+        return True
+    role_ids = user_ctx.get("role_ids") or []
+    if role_ids and set(role_ids) & set(p["role_ids"]):
+        return True
+    return False`,
       },
     };
 

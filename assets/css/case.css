@@ -1,0 +1,264 @@
+/* 二层：项目拆解页。视觉语言与首页同源，只补这一页特有的组件。 */
+
+.case .section { padding-top: clamp(56px, 6vw, 84px); }
+.case .section__head { margin-bottom: 30px; }
+
+/* ---------- 页首 ---------- */
+
+.case-head {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: clamp(48px, 6vw, 80px) var(--pad) 0;
+}
+.crumb {
+  margin: 0 0 26px;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+.crumb a {
+  color: var(--ink-3);
+  text-decoration: none;
+  border-bottom: 1px solid var(--line-2);
+}
+.crumb a:hover { color: var(--accent-ink); border-color: var(--accent); }
+.case-head h1 {
+  margin: 0 0 22px;
+  font-size: clamp(2.2rem, 1.4rem + 2.7vw, 3.1rem);
+  line-height: 1.1;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+.case-lede {
+  margin: 0;
+  max-width: 42rem;
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  color: var(--ink-2);
+}
+.case-meta {
+  margin: 24px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+.case-meta a {
+  font-family: var(--font-mono);
+  color: var(--ink-3);
+  text-decoration: none;
+  border-bottom: 1px solid var(--line-2);
+  padding-bottom: 1px;
+}
+.case-meta a:hover { color: var(--accent-ink); border-color: var(--accent); }
+
+/* ---------- 边界 ---------- */
+
+.boundary { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.boundary__card {
+  border: 1.4px solid var(--wire);
+  background: var(--paper-2);
+  padding: 24px 26px 26px;
+}
+.boundary__card--focus { border-color: var(--accent); background: #fdfbf7; }
+.boundary__tag {
+  margin: 0 0 14px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  color: var(--accent-ink);
+}
+.boundary__card h3 { margin: 0 0 10px; font-size: 1.1875rem; font-weight: 600; }
+.boundary__card > p:not(.boundary__tag):not(.boundary__file) {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.72;
+  color: var(--ink-2);
+}
+.boundary__file {
+  margin: 18px 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--ink-3);
+  overflow-wrap: anywhere;
+}
+.infra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px 24px;
+  margin-top: 12px;
+  padding: 14px 18px;
+  border: 1.4px solid var(--line);
+}
+.infra__label { font-size: 0.8125rem; color: var(--ink-3); }
+.infra ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.infra li { font-family: var(--font-mono); font-size: 0.75rem; color: var(--ink-2); }
+
+/* ---------- 阶段条 ---------- */
+
+.subhead { margin: 0 0 16px; font-size: 1rem; font-weight: 600; color: var(--ink); }
+.stages {
+  list-style: none;
+  margin: 0 0 44px;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.stages li {
+  flex: 1 1 calc(25% - 10px);
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1.4px solid var(--wire);
+  background: var(--paper-2);
+}
+.stages__no {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--accent-ink);
+}
+.stages b {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.stages small {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--ink-3);
+  overflow-wrap: anywhere;
+}
+
+/* ---------- 查询链路：竖线、分叉、一道门 ---------- */
+
+.flow { max-width: 720px; }
+.flow__stem { width: 1.4px; height: 18px; margin: 0 auto; background: var(--wire); }
+.flow__stem--join { height: 9px; }
+.flow__tag {
+  margin: 0 0 8px;
+  font-size: 0.75rem;
+  color: var(--accent-ink);
+  text-align: center;
+}
+.flow__stage {
+  padding: 11px 16px;
+  border: 1.4px solid var(--wire);
+  background: var(--paper-2);
+}
+.flow__stage b {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.flow__stage span {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--ink-3);
+}
+.flow__stage--gate { border-color: var(--accent); background: #fdfbf7; }
+.flow__stage--gate b { color: var(--accent-ink); }
+.flow__parallel {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.flow__parallel::before,
+.flow__parallel::after {
+  content: "";
+  position: absolute;
+  left: 25%;
+  right: 25%;
+  height: 9px;
+  border-left: 1.4px solid var(--wire);
+  border-right: 1.4px solid var(--wire);
+}
+.flow__parallel::before { top: -9px; border-top: 1.4px solid var(--wire); }
+.flow__parallel::after { bottom: -9px; border-bottom: 1.4px solid var(--wire); }
+.flow__note {
+  margin: 16px 0 0;
+  padding-left: 14px;
+  border-left: 2px solid var(--accent);
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: var(--ink-2);
+}
+
+/* ---------- 决定 ---------- */
+
+.decisions { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.decisions > li { padding: 24px 0 26px; border-bottom: 1px solid var(--line); }
+.decisions h3 { margin: 0 0 10px; font-size: 1.0625rem; font-weight: 600; line-height: 1.5; }
+.decisions p {
+  margin: 0;
+  max-width: 48rem;
+  font-size: 0.9375rem;
+  line-height: 1.75;
+  color: var(--ink-2);
+}
+.decisions .decisions__fail {
+  margin-top: 12px;
+  color: var(--accent-ink);
+  font-size: 0.875rem;
+}
+
+/* ---------- 证据 ---------- */
+
+.evidence { list-style: none; margin: 0; padding: 0; max-width: 54rem; border-top: 1px solid var(--line); }
+.evidence a {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 24px;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 4px;
+  border-bottom: 1px solid var(--line);
+  text-decoration: none;
+}
+.evidence a:hover { background: var(--paper-2); }
+.evidence__no { font-family: var(--font-mono); font-size: 0.75rem; color: var(--ink-3); }
+.evidence strong { display: block; font-size: 0.9375rem; font-weight: 600; }
+.evidence small {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--ink-3);
+  overflow-wrap: anywhere;
+}
+.evidence i { font-style: normal; font-size: 1rem; color: var(--accent-ink); text-align: right; }
+
+/* ---------- 响应式 ---------- */
+
+@media (max-width: 900px) {
+  .boundary { grid-template-columns: 1fr; }
+  .stages li { flex-basis: calc(50% - 10px); }
+}
+@media (max-width: 620px) {
+  .stages li { flex-basis: 100%; }
+  .flow__parallel { grid-template-columns: 1fr; gap: 10px; }
+  .flow__parallel::before, .flow__parallel::after { display: none; }
+  .flow__stem--join { height: 18px; }
+  .evidence a { grid-template-columns: 26px minmax(0, 1fr) 20px; gap: 10px; }
+}

@@ -102,7 +102,7 @@ a:hover { text-decoration-color: var(--accent); }
 
 code {
   font-family: var(--font-mono);
-  font-size: 0.86em;
+  font-size: 0.94em;
   white-space: nowrap;
   background: var(--paper-3);
   padding: 0.1em 0.34em;
@@ -186,7 +186,7 @@ code {
   white-space: nowrap;
 }
 .masthead__repo:hover { color: var(--accent-ink); }
-.arrow { margin-left: 3px; font-size: 0.9em; }
+.arrow { margin-left: 3px; font-size: 1em; }
 .only-narrow { display: none; }
 @media (max-width: 760px) {
   .only-wide { display: none; }
@@ -199,6 +199,7 @@ code {
   max-width: var(--maxw);
   margin: 0 auto;
   padding: clamp(72px, 9vw, 128px) var(--pad) 0;
+  scroll-margin-top: 76px;
 }
 .section:last-of-type { padding-bottom: clamp(40px, 4.5vw, 64px); }
 
@@ -302,7 +303,7 @@ h1 {
 }
 .term__hint kbd {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   color: var(--term-dim);
   border: 1px solid #34383e;
   border-radius: 2px;
@@ -528,7 +529,7 @@ h1 {
 }
 .note__mark {
   font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   line-height: 19px;
   height: 19px;
   width: 19px;
@@ -599,7 +600,7 @@ h1 {
   line-height: 1.78;
   tab-size: 4;
   color: var(--ink);
-  min-height: 662px;
+  min-height: 850px;
 }
 .code code { background: none; padding: 0; font-size: inherit; white-space: inherit; }
 .c-com { color: var(--c-comment); }
@@ -634,6 +635,43 @@ h1 {
   height: 1.5px;
   background: var(--wire);
 }
+
+/* ---------- craft ---------- */
+
+.craft {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-width: 54rem;
+  border-top: 1px solid var(--line);
+}
+.craft__item {
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr);
+  gap: 6px 28px;
+  padding: 18px 0 20px;
+  border-bottom: 1px solid var(--line);
+}
+.craft__key {
+  margin: 2px 0 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--accent-ink);
+}
+.craft__val {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.72;
+  color: var(--ink-2);
+}
+.proj__link { margin: 10px 0 0; font-size: 0.8125rem; }
+.proj__link a {
+  color: var(--accent-ink);
+  text-decoration: none;
+  border-bottom: 1px solid var(--line-2);
+  padding-bottom: 1px;
+}
+.proj__link a:hover { border-color: var(--accent); }
 
 /* ---------- repos ---------- */
 
@@ -733,6 +771,7 @@ h1 {
   .trade { grid-template-columns: 1fr; gap: 8px; }
   .trade__tag { margin-bottom: 2px; }
   .proj__item { grid-template-columns: 1fr; gap: 10px; }
+  .craft__item { grid-template-columns: 1fr; gap: 4px; }
 }
 
 @media (max-width: 760px) {
