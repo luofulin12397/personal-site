@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>罗富麟 — 后端，检索与异步系统</title>
+<meta name="description" content="罗富麟（luofulin12397）的后端主页：四个真做过的取舍，每个都写了放弃什么、代价是什么、什么时候失效；五个能跑起来的仓库，数字是数出来的。">
+<meta name="color-scheme" content="light">
+<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+
+<header class="masthead">
+  <div class="masthead__in">
+    <a class="wordmark" href="#top">罗富麟</a>
+    <nav class="nav" aria-label="页面章节">
+      <a href="#tradeoffs">取舍</a>
+      <a href="#system">系统</a>
+      <a href="#code">代码</a>
+      <a href="#work">仓库</a>
+      <a href="#notes">在写</a>
+    </nav>
+    <a class="masthead__repo" href="https://github.com/luofulin12397" rel="me noopener">GitHub<span class="arrow" aria-hidden="true">↗</span></a>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" id="top">
+    <div class="hero__text">
+      <h1>先画边界，<br>再写代码。</h1>
+      <p class="lede">罗富麟，后端。方向是检索链路和异步任务。这里不放技能条：四个真做过的取舍，每个都写了放弃什么、代价是什么、什么时候失效；六个能跑的项目都能点开看源码。</p>
+      <p class="hero__meta">
+        <a href="https://github.com/luofulin12397" rel="me noopener">github.com/luofulin12397</a>
+        <span class="hero__meta-sep" aria-hidden="true">/</span>
+        <span>21 章 AI 笔记在一个静态站里</span>
+      </p>
+    </div>
+
+    <div class="hero__artifact">
+      <div class="term" id="term">
+        <div class="term__bar">
+          <span class="term__title">zsh</span>
+          <span class="term__hint">可以敲命令，<kbd>help</kbd> 看有哪些</span>
+        </div>
+        <div class="term__body">
+          <div class="term__log" id="termLog" role="log" aria-live="polite" aria-label="终端输出">
+            <p><span class="t-prompt">luo@local ~ %</span> <span class="t-cmd">whoami</span></p>
+            <p class="t-out">罗富麟 — 后端。检索链路、异步任务、静态站。</p>
+            <p><span class="t-prompt">luo@local ~ %</span> <span class="t-cmd">ls</span></p>
+            <p class="t-out">ai-learning-site/  knowledge-base/  smart-bi/  risk-engine/  log-patrol/  personal-site/</p>
+            <p><span class="t-prompt">luo@local ~ %</span> <span class="t-cmd">cat stack.json</span></p>
+            <p class="t-out">{
+  "lang":  ["Python", "TypeScript"],
+  "api":   ["FastAPI", "LangGraph"],
+  "db":    ["PostgreSQL", "psycopg3"],
+  "vec":   ["Milvus", "MongoDB"],
+  "infra": ["Docker", "MinIO", "Redis"],
+  "check": ["mypy strict", "pytest"]
+}</p>
+          </div>
+          <form class="term__form" id="termForm" autocomplete="off">
+            <label class="sr-only" for="termInput">输入命令</label>
+            <span class="term__prompt" aria-hidden="true">luo@local ~ %</span>
+            <input class="term__input" id="termInput" type="text" placeholder="试试 explain perm"
+                   autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"
+                   aria-describedby="termHint">
+            <span class="sr-only" id="termHint">可用命令：help、whoami、ls、cat stack.json、explain perm|hyde|rrf|plan|milvus、open knowledge-base、clear。上下方向键翻历史，Tab 补全。</span>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="tradeoffs">
+    <div class="section__head">
+      <h2>四个取舍</h2>
+      <p class="section__intro">都来自上面那几个仓库，改动前后的代码都还在。<a href="#code">代码</a>里能对上。</p>
+    </div>
+
+    <ol class="trades">
+      <li class="trade">
+        <p class="trade__tag">权限 · 知识库</p>
+        <div class="trade__body">
+          <h3>权限判定放在精排之后，denied 绝不联网兜底</h3>
+          <dl class="spec">
+            <dt>选了</dt>
+            <dd><code>rerank</code> → <code>perm_filter</code> → <code>answer</code>。只有放行的切片进提示词；全部被拦就短路出拒绝文案，跳过模型生成和缓存写入。联网兜底只在「向量路完全无召回、且未被权限短路」时触发。</dd>
+            <dt>没选</dt>
+            <dd>召回前先按权限过滤（省算力），或者把 web 检索当成第三条并行召回。</dd>
+            <dt>代价</dt>
+            <dd>无权内容也会被检索和精排一遍，算力白花；两道门（权限短路 / 无召回兜底）要一起维护，改一处得看另一处。</dd>
+            <dt>失效</dt>
+            <dd>知识库本身不做分级，或权限只有单一维度时，这套是纯多余的 300 行。</dd>
+          </dl>
+        </div>
+      </li>
+
+      <li class="trade">
+        <p class="trade__tag">查询 · smart-bi</p>
+        <div class="trade__body">
+          <h3>不让模型写 SQL，只让它说意图</h3>
+          <dl class="spec">
+            <dt>选了</dt>
+            <dd>模型输出 <code>Intent</code>，服务端按白名单指标和枚举维值编译成 <code>QueryPlan</code>。执行侧固定只读事务、固定角色、绝对期限。</dd>
+            <dt>没选</dt>
+            <dd>让模型直接生成 SQL 再执行，出了问题再靠提示词约束。</dd>
+            <dt>代价</dt>
+            <dd>每加一个指标都要写代码和测试，17 个测试文件是这么长出来的。问法超出白名单就只能追问。</dd>
+            <dt>失效</dt>
+            <dd>探索式分析：用户自己都还没想好切哪个维度时，白名单只会挡住路。</dd>
+          </dl>
+        </div>
+      </li>
+
+      <li class="trade">
+        <p class="trade__tag">召回 · 知识库</p>
+        <div class="trade__body">
+          <h3>两路召回，融合之后再精排</h3>
+          <dl class="spec">
+            <dt>选了</dt>
+            <dd>原查询一路、HyDE 假想答案一路，并行跑，进 <code>rrf</code> 按排名融合，再交给交叉编码器精排。</dd>
+            <dt>没选</dt>
+            <dd>单路向量召回，靠调大 <code>top_k</code> 补准确率；或者把 web 检索并进来凑第三路。</dd>
+            <dt>代价</dt>
+            <dd>每次查询多一次 HyDE 的模型调用；融合和精排各多一个调参点，参数之间会互相盖住。</dd>
+            <dt>失效</dt>
+            <dd>问题里是精确术语（型号、编码、人名）时，HyDE 会把原词改写掉，召回反而变差。</dd>
+          </dl>
+        </div>
+      </li>
+
+      <li class="trade">
+        <p class="trade__tag">异步 · log-patrol</p>
+        <div class="trade__body">
+          <h3>写入口只留一个，用队列把它串起来</h3>
+          <dl class="spec">
+            <dt>选了</dt>
+            <dd>文件 spool（<code>pending/</code> → <code>done/</code>）当队列，常驻宿主一次只拉一个 run，串行跑完后移走。写入边界只有一处。</dd>
+            <dt>没选</dt>
+            <dd>并发跑多个 run，靠锁和事务解决冲突。</dd>
+            <dt>代价</dt>
+            <dd>吞吐被串行按死，积压时延迟线性上涨；单点，宿主挂了就不动了。</dd>
+            <dt>失效</dt>
+            <dd>单次 run 的耗时接近任务到达间隔时，队列永远追不上，串行成了瓶颈而不是保护。</dd>
+          </dl>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <section class="section" id="system">
+    <div class="section__head">
+      <h2>一次提问走过的十二个节点</h2>
+      <p class="section__intro">
+        <span class="only-wide">这是 knowledge-base 里那张 LangGraph 查询图的真实形状。实线是主路径，虚线是两条旁路：命中缓存直接结束，无召回才去联网。</span>
+        <span class="only-narrow">五个批注，对应一次提问路上的五个决定。图在宽屏上更清楚，这里先给结论。</span>
+      </p>
+    </div>
+
+    <div class="schematic">
+      <figure class="schematic__canvas">
+        <svg class="topo" viewBox="0 0 460 568" role="img" aria-labelledby="topoTitle topoDesc">
+          <title id="topoTitle">knowledge-base 的检索查询图</title>
+          <desc id="topoDesc">请求先查两级缓存，命中即结束；未命中依次经过历史压缩、主体确认、权限校验，然后原查询与 HyDE 两路并行召回，RRF 融合后精排，精排完做四维权限过滤，只有完全无召回时才走联网兜底，最后生成答案并写回缓存。</desc>
+
+          <defs>
+            <marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M1 1 L9 5 L1 9 Z" fill="#8a9094"/>
+            </marker>
+            <marker id="arw-dash" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M1 1 L9 5 L1 9 Z" fill="#63686f"/>
+            </marker>
+          </defs>
+
+          <g class="topo__wires" aria-hidden="true">
+            <path class="wire" d="M134 52 L134 68"/>
+            <path class="wire" d="M134 108 L134 124"/>
+            <path class="wire" d="M134 164 L134 180"/>
+            <path class="wire" d="M134 220 L134 228 L82 228 L82 236"/>
+            <path class="wire" d="M134 228 L186 228 L186 236"/>
+            <path class="wire wire--plain" d="M82 276 L82 284 L134 284"/>
+            <path class="wire" d="M186 276 L186 284 L134 284 L134 292"/>
+            <path class="wire" d="M134 332 L134 348"/>
+            <path class="wire" d="M134 388 L134 404"/>
+            <path class="wire" d="M134 444 L134 516"/>
+            <path class="wire" d="M232 536 L268 536"/>
+            <path class="wire wire--dash wire--plain" d="M232 32 L258 32"/>
+            <path class="wire wire--dash wire--plain" d="M232 200 L258 200"/>
+            <path class="wire wire--dash" d="M232 424 L268 424"/>
+            <path class="wire wire--dash" d="M358 444 L358 486 L170 486 L170 516"/>
+          </g>
+
+          <g class="ends" aria-hidden="true">
+            <text class="wire-label" x="264" y="36">命中 → END</text>
+            <text class="wire-label" x="264" y="204">无主体 → 早退</text>
+          </g>
+
+          <g class="node" data-ref="a" tabindex="0" role="button" aria-label="query_cache，两级缓存，批注 A">
+            <rect x="36" y="12" width="196" height="40"/>
+            <text class="node__name" x="134" y="30">query_cache</text>
+            <text class="node__sub" x="134" y="44">两级缓存 · 命中即返回</text>
+          </g>
+
+          <g class="node" tabindex="0" role="button" aria-label="history_compress，历史压缩">
+            <rect x="36" y="68" width="196" height="40"/>
+            <text class="node__name" x="134" y="86">history_compress</text>
+            <text class="node__sub" x="134" y="100">多轮对话压成一段</text>
+          </g>
+
+          <g class="node" tabindex="0" role="button" aria-label="item_name_confirm，确认问的是哪个知识单元">
+            <rect x="36" y="124" width="196" height="40"/>
+            <text class="node__name" x="134" y="142">item_name_confirm</text>
+            <text class="node__sub" x="134" y="156">问的到底是哪份文档</text>
+          </g>
+
+          <g class="node" data-ref="b" tabindex="0" role="button" aria-label="access_control，前置鉴权，批注 B">
+            <rect x="36" y="180" width="196" height="40"/>
+            <text class="node__name" x="134" y="198">access_control</text>
+            <text class="node__sub" x="134" y="212">判不出来就把问题抛回去</text>
+          </g>
+
+          <g class="node" data-ref="c" tabindex="0" role="button" aria-label="两路召回，批注 C">
+            <rect x="36" y="236" width="92" height="40"/>
+            <text class="node__name" x="82" y="254">search</text>
+            <text class="node__sub" x="82" y="268">原查询向量</text>
+          </g>
+          <g class="node" data-ref="c" tabindex="0" role="button" aria-label="HyDE 召回，批注 C">
+            <rect x="140" y="236" width="92" height="40"/>
+            <text class="node__name" x="186" y="254">hyde</text>
+            <text class="node__sub" x="186" y="268">假想答案向量</text>
+          </g>
+
+          <g class="node" tabindex="0" role="button" aria-label="rrf，按排名融合">
+            <rect x="36" y="292" width="196" height="40"/>
+            <text class="node__name" x="134" y="310">rrf</text>
+            <text class="node__sub" x="134" y="324">按排名融合两路结果</text>
+          </g>
+
+          <g class="node" tabindex="0" role="button" aria-label="rerank，交叉编码器精排">
+            <rect x="36" y="348" width="196" height="40"/>
+            <text class="node__name" x="134" y="366">rerank</text>
+            <text class="node__sub" x="134" y="380">交叉编码器重打分</text>
+          </g>
+
+          <g class="node" data-ref="d" tabindex="0" role="button" aria-label="perm_filter，四维权限过滤，批注 D">
+            <rect x="36" y="404" width="196" height="40"/>
+            <text class="node__name" x="134" y="422">perm_filter</text>
+            <text class="node__sub" x="134" y="436">四维判定 · denied 短路</text>
+          </g>
+
+          <g class="node" tabindex="0" role="button" aria-label="web_search_mcp，联网兜底">
+            <rect x="268" y="404" width="180" height="40"/>
+            <text class="node__name" x="358" y="422">web_search_mcp</text>
+            <text class="node__sub" x="358" y="436">无召回才走 · 兜底</text>
+          </g>
+
+          <g class="node" tabindex="0" role="button" aria-label="answer_output，生成答案">
+            <rect x="36" y="516" width="196" height="40"/>
+            <text class="node__name" x="134" y="534">answer_output</text>
+            <text class="node__sub" x="134" y="548">只有放行的切片进提示词</text>
+          </g>
+
+          <g class="node" data-ref="e" tabindex="0" role="button" aria-label="save_cache，写语义缓存，批注 E">
+            <rect x="268" y="516" width="180" height="40"/>
+            <text class="node__name" x="358" y="534">save_cache</text>
+            <text class="node__sub" x="358" y="548">只写成功生成的答案</text>
+          </g>
+
+          <g class="marks" aria-hidden="true">
+            <g class="mark" data-ref="a"><rect x="8" y="23" width="18" height="18"/><text x="17" y="36">A</text></g>
+            <g class="mark" data-ref="b"><rect x="8" y="191" width="18" height="18"/><text x="17" y="204">B</text></g>
+            <g class="mark" data-ref="c"><rect x="8" y="247" width="18" height="18"/><text x="17" y="260">C</text></g>
+            <g class="mark" data-ref="d"><rect x="8" y="415" width="18" height="18"/><text x="17" y="428">D</text></g>
+            <g class="mark" data-ref="e"><rect x="8" y="527" width="18" height="18"/><text x="17" y="540">E</text></g>
+          </g>
+        </svg>
+        <figcaption class="schematic__cap">
+          <span class="legend">
+            <span class="legend__item"><i class="legend__line" aria-hidden="true"></i>主路径</span>
+            <span class="legend__item"><i class="legend__line legend__line--dash" aria-hidden="true"></i>旁路 / 兜底</span>
+          </span>
+          <span class="schematic__note">12 个节点，两次条件分叉。</span>
+        </figcaption>
+      </figure>
+
+      <ol class="notes" id="annoList">
+        <li class="note" data-ref="a">
+          <span class="note__mark" aria-hidden="true">A</span>
+          <div class="note__body">
+            <h3>入口先查缓存，两级</h3>
+            <p>人工审核过的 FAQ 优先，语义缓存其次。命中任何一个都直接返回，后面的检索和模型一次都不跑。省的不是毫秒，是整套调用链的钱。</p>
+          </div>
+        </li>
+        <li class="note" data-ref="b">
+          <span class="note__mark" aria-hidden="true">B</span>
+          <div class="note__body">
+            <h3>判不出来就问回去，不猜</h3>
+            <p>认不准用户在问哪份文档时，这一层直接把问题抛回给用户，不往下走。猜错的代价是拿错文档编答案，比多问一句贵得多。</p>
+          </div>
+        </li>
+        <li class="note" data-ref="c">
+          <span class="note__mark" aria-hidden="true">C</span>
+          <div class="note__body">
+            <h3>两路召回不是冗余</h3>
+            <p>一路拿原问题去查，一路先让模型写个假想答案再拿它去查。两路错的方式不一样，RRF 按排名融合才比单路稳。</p>
+          </div>
+        </li>
+        <li class="note" data-ref="d">
+          <span class="note__mark" aria-hidden="true">D</span>
+          <div class="note__body">
+            <h3>权限卡在精排之后，denied 不联网</h3>
+            <p>四维（全局 / 部门 / 角色 / 个人）默认拒绝，只放行的切片进提示词。被拒的请求一律短路，不许走联网兜底，否则换个问法就能从公网拿到无权内容。</p>
+          </div>
+        </li>
+        <li class="note" data-ref="e">
+          <span class="note__mark" aria-hidden="true">E</span>
+          <div class="note__body">
+            <h3>只缓存生成成功的答案</h3>
+            <p>权限短路的拒绝文案不写进缓存。把「你无权查看」缓存成答案，下一个人问同一句话就会拿到它，而且再也纠不回来。</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" id="code">
+    <div class="section__head">
+      <h2>同样的事，写在代码里</h2>
+      <p class="section__intro">三个文件都来自仓库，为了放进一屏，删了无关的 import、参数和空行。注释写的是为什么不这么写，不是这段在干什么。</p>
+    </div>
+
+    <div class="codepanel">
+      <div class="codepanel__bar" role="tablist" aria-label="代码片段">
+        <button class="tab" role="tab" id="tab-graph" aria-controls="codeBody" aria-selected="true" data-lang="graph">graph.py</button>
+        <button class="tab" role="tab" id="tab-query" aria-controls="codeBody" aria-selected="false" tabindex="-1" data-lang="query">query.py</button>
+        <button class="tab" role="tab" id="tab-compose" aria-controls="codeBody" aria-selected="false" tabindex="-1" data-lang="compose">compose.yml</button>
+      </div>
+      <pre class="code" id="codeBody" role="tabpanel" aria-labelledby="tab-graph" tabindex="0"><code id="codeText"></code></pre>
+    </div>
+  </section>
+
+  <section class="section" id="work">
+    <div class="section__head">
+      <h2>六个能跑的项目</h2>
+      <p class="section__intro">分布在四个仓库里，另外两个仓库还是空的，就不列了。数字是数出来的，不是估的；点名字进仓库，代码、测试、部署文件都在里面。</p>
+    </div>
+
+    <ul class="proj">
+      <li class="proj__item">
+        <div class="proj__id">
+          <a class="proj__name" href="https://github.com/luofulin12397/ai-learning-site" rel="noopener">ai-learning-site<span class="arrow" aria-hidden="true">↗</span></a>
+          <p class="proj__lang">HTML · JavaScript</p>
+        </div>
+        <div class="proj__body">
+          <p class="proj__desc">把一本 407 页的教程拆成可跳转的静态知识库：四块主线互相引用，公式推导单独成页。零依赖、零构建，push 就到 Pages 和 Vercel。</p>
+          <p class="proj__facts">7 个页面 · 5,024 行手写 HTML/JS/CSS · 21 章 · 双渠道自动发布</p>
+        </div>
+      </li>
+
+      <li class="proj__item">
+        <div class="proj__id">
+          <a class="proj__name" href="https://github.com/luofulin12397/self" rel="noopener">knowledge-base<span class="arrow" aria-hidden="true">↗</span></a>
+          <p class="proj__lang">Python · FastAPI · LangGraph</p>
+          <p class="proj__path">self / public/knowledge-base</p>
+        </div>
+        <div class="proj__body">
+          <p class="proj__desc">带权限的 RAG 知识库。查询图十二个节点，双路召回 + RRF + 精排 + 四维权限；导入侧吃 PDF 和网页，切完推进 Milvus。SSE 流式返回，每段耗时都埋了点。</p>
+          <p class="proj__facts">143 个文件 · 12,172 行 · 23 条路由 · Milvus + MongoDB + MinIO + Redis</p>
+        </div>
+      </li>
+
+      <li class="proj__item">
+        <div class="proj__id">
+          <a class="proj__name" href="https://github.com/luofulin12397/self" rel="noopener">smart-bi<span class="arrow" aria-hidden="true">↗</span></a>
+          <p class="proj__lang">Python · PostgreSQL</p>
+          <p class="proj__path">self / public/smart-bi</p>
+        </div>
+        <div class="proj__body">
+          <p class="proj__desc">用自然语言问经营指标。模型只输出意图，服务端按白名单编译查询计划；数据库侧只读事务、固定角色、绝对期限。mypy strict 全绿，测试里有一条专门跑浏览器端到端。</p>
+          <p class="proj__facts">49 个文件 · 6,592 行 · 108 个测试 · 17 个测试文件 · strict mypy</p>
+        </div>
+      </li>
+
+      <li class="proj__item">
+        <div class="proj__id">
+          <a class="proj__name" href="https://github.com/luofulin12397/AI_RISK_HEALTH" rel="noopener">AI_RISK_HEALTH<span class="arrow" aria-hidden="true">↗</span></a>
+          <p class="proj__lang">Python · XGBoost</p>
+        </div>
+        <div class="proj__body">
+          <p class="proj__desc">医疗风控：规则引擎和 XGBoost 双轨打分，四条决策流水线复用电商风控的抽象，业务层整套重写成医保结算、处方审核、挂号、药品代购四个场景。</p>
+          <p class="proj__facts">92 个文件 · 17,607 行 · 25 维特征 · 19 条规则 · 40 个测试文件</p>
+        </div>
+      </li>
+
+      <li class="proj__item">
+        <div class="proj__id">
+          <a class="proj__name" href="https://github.com/luofulin12397/self" rel="noopener">log-patrol<span class="arrow" aria-hidden="true">↗</span></a>
+          <p class="proj__lang">Node · 无框架</p>
+          <p class="proj__path">self / public/log-patrol</p>
+        </div>
+        <div class="proj__body">
+          <p class="proj__desc">让模型定时巡逻日志并出结论。文件 spool 当队列，常驻宿主串行派发，单次运行是独立子进程；模型 provider 可换，DeepSeek 和 ZAI 各接了一个。</p>
+          <p class="proj__facts">spool 队列 · 单写入边界 · 可换 provider · 自带 selftest</p>
+        </div>
+      </li>
+
+      <li class="proj__item">
+        <div class="proj__id">
+          <a class="proj__name" href="https://github.com/luofulin12397/personal-site" rel="noopener">personal-site<span class="arrow" aria-hidden="true">↗</span></a>
+          <p class="proj__lang">Astro · TypeScript</p>
+        </div>
+        <div class="proj__body">
+          <p class="proj__desc">这个主页旁边那条正经的博客线：Markdown 进内容集合，出 RSS、主题页和精选位。发布规则写成了会跑的测试，不是一句「记得改 draft」。</p>
+          <p class="proj__facts">Astro 6 · 内容集合 · RSS · 发布规则有测试</p>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <section class="section" id="notes">
+    <div class="section__head">
+      <h2>在写的东西</h2>
+      <p class="section__intro">都没写完，所以放在最后。写完会挪到前面。</p>
+    </div>
+    <ul class="log">
+      <li class="log__item"><b>AI 全栈笔记</b>：21 章已经落到静态站上，还在补推导链和交叉引用。写得慢，因为每章都要先在本地跑一遍。</li>
+      <li class="log__item"><b>HNSW 参数实验</b>：Docker 里跑 Milvus 2.6 和 MinIO，调 <code>M</code> 与 <code>efConstruction</code>，看召回率和内存怎么互相挤。数据还没攒够，不敢下结论。</li>
+      <li class="log__item"><b>读 SkillOpt 的源码</b>：看它怎么组织技能、怎么决定一次工具调用该不该发生。还没形成结论。</li>
+    </ul>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="footer__in">
+    <p class="footer__line">罗富麟 · 后端 · 检索与异步系统</p>
+    <p class="footer__line footer__line--dim">没有表单，也没有订阅框。要聊就<a href="https://github.com/luofulin12397">在仓库开 issue</a>。</p>
+  </div>
+</footer>
+
+<script src="assets/js/app.js"></script>
+</body>
+</html>
