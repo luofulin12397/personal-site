@@ -87,8 +87,19 @@ node scripts/shoot.js --out .shots
 
 四个必须过：正文对比度 ≥ 4.5:1、`scrollWidth` 不超过视口、控制台零报错、标签页切换不跳高度。
 
+## 部署
+
+线上地址：<https://luofulin12397.github.io/personal-site/>
+
+- 仓库：`github.com/luofulin12397/personal-site`，`main` 分支根目录开 GitHub Pages。
+- `.nojekyll` 让 Pages 跳过 Jekyll，按原样发布静态文件。
+- 改完 `git add -A && git commit -m "..." && git push origin main`，约几十秒后生效。没有构建步骤。
+- 页面里所有资源都是相对路径（`assets/...`），换域名或换子路径不用改 HTML。
+- 这个仓库原有的 Astro 脚手架已被本次替换覆盖，但仍在 `6b47fec` 这条历史里，随时能查回或回退。
+
 ## 已知的取舍
 
+- **URL 带 `/personal-site/` 子路径**，因为仓库名就是这个。想要根域名 `luofulin12397.github.io`，得把仓库改成同名；改名会让现有链接失效，所以没擅自做。
 - **只有浅色**，不跟随系统深色。理由写在 `DESIGN.md` 里；如果常在深夜看，这条会硌到你，可以商量。
 - 中文只覆盖页面当前用到的字，加新文案要重新子集化。
 - 系统图在 760px 以下直接隐藏，只留批注列表——12 个节点的图缩到手机宽度后字会小于 12px，那比没有更糟。
