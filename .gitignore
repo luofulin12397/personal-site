@@ -1,6 +1,10 @@
 node_modules/
+dist/
+.vercel/
 .shots/
+.shots-pages/
 .build/
 .gh/
 .workbuddy/
 .DS_Store
+*.tsbuildinfo

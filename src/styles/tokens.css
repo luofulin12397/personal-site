@@ -1,0 +1,219 @@
+/* =========================================================================
+   v3 视觉系统 · tokens
+   石墨绿黑地面 + 单一信号芽绿 + 暖纸白文字。直角、细线、等宽标注。
+   颜色只承担状态与阅读分区，不承担无意义装饰。
+   ========================================================================= */
+
+@font-face {
+  font-family: "Archivo";
+  src: url("/fonts/archivo.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Azeret Mono";
+  src: url("/fonts/azeret.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Noto Sans SC";
+  src: url("/fonts/noto-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Noto Sans SC";
+  src: url("/fonts/noto-500.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Noto Sans SC";
+  src: url("/fonts/noto-700.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* 信号 */
+  --signal: #d2f343;
+  --signal-dim: #a6c235;
+  --signal-ink: #0c120e;
+
+  /* 石墨绿黑 */
+  --ground: #0c120e;
+  --surface: #131c16;
+  --surface-2: #18231b;
+  --surface-3: #1e2f22;
+  --line: #2c3a2f;
+  --line-2: #3a4b3d;
+  --wire: #546654;
+
+  /* 暖纸白 */
+  --paper: #f8f7ee;
+  --paper-2: #edecdf;
+  --muted: #b7bdb1;
+  --muted-2: #98a093;
+
+  --font-sans: "Archivo", "Noto Sans SC", sans-serif;
+  --font-mono: "Azeret Mono", "Noto Sans SC", monospace;
+
+  --maxw: 1520px;
+  --pad: clamp(20px, 3.4vw, 48px);
+  --rule: 1px solid var(--line);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 84px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--ground);
+  color: var(--paper);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.8;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, p, dl, dd, ol, ul, figure, pre { margin: 0; }
+ol, ul { padding: 0; list-style: none; }
+a { color: inherit; text-decoration: none; }
+button { color: inherit; font: inherit; background: none; border: 0; cursor: pointer; }
+code, kbd { font-family: var(--font-mono); }
+svg { display: block; }
+::selection { background: var(--signal); color: var(--signal-ink); }
+:focus-visible { outline: 2px solid var(--signal); outline-offset: 4px; }
+
+code {
+  font-size: 0.92em;
+  color: var(--signal);
+  background: rgba(210, 243, 67, 0.07);
+  padding: 0 0.28em;
+  border-radius: 1px;
+}
+
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: 10px 18px;
+  background: var(--signal);
+  color: var(--signal-ink);
+  font-weight: 700;
+}
+.skip:focus { left: 12px; top: 12px; }
+
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.wrap { max-width: var(--maxw); margin: 0 auto; padding-inline: var(--pad); }
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  color: var(--signal);
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.eyebrow .x { color: var(--muted-2); }
+
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: var(--muted-2);
+  text-transform: uppercase;
+}
+
+.display {
+  font-size: clamp(46px, 4.5vw, 68px);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+}
+.display .soft { color: #929b8d; }
+
+.headline {
+  font-size: clamp(30px, 3.4vw, 46px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.028em;
+}
+
+.section { border-top: var(--rule); padding-top: clamp(58px, 7vw, 96px); }
+
+.section__head { margin-bottom: 44px; }
+.section__head h2 {
+  font-size: clamp(26px, 2.5vw, 34px);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+.section__intro {
+  margin-top: 14px;
+  max-width: 62ch;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.85;
+}
+.section__intro a {
+  color: var(--signal);
+  border-bottom: 1px solid var(--line-2);
+}
+.section__intro a:hover { border-color: var(--signal); }
+
+.subhead {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin-bottom: 18px;
+}
+
+.tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  border: 1px solid var(--line-2);
+  padding: 6px 11px;
+}
+
+.arrow { font-family: var(--font-mono); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
