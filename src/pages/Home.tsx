@@ -30,7 +30,12 @@ export default function Home() {
                 <span>{HERO.meta}</span>
               </p>
             </div>
-            <p className="hero__lede">{HERO.lede}</p>
+            <div>
+              <p className="hero__lede">{HERO.lede}</p>
+              <a className="primary-action hero__cta" href={BRANCH.href}>
+                <span>{BRANCH.cta}</span><span className="arrow" aria-hidden="true">↗</span>
+              </a>
+            </div>
           </div>
 
           <div className="hero__bench">
@@ -43,11 +48,6 @@ export default function Home() {
                 <dl className="facts">
                   {FACTS.map(([n, label]) => <div key={label}><dt>{label}</dt><dd>{n}</dd></div>)}
                 </dl>
-              </div>
-              <div className="bench__cta">
-                <a className="primary-action" href={BRANCH.href}>
-                  <span>{BRANCH.cta}</span><span className="arrow" aria-hidden="true">↗</span>
-                </a>
               </div>
             </div>
           </div>
