@@ -143,7 +143,7 @@ SHOOT_PREFIX=personal-site node scripts/shoot.cjs --out .shots-pages
 - 内容原则已放宽（不再要求每个数字可核验），但目前页面仍全部沿用 v2 已核验事实，没有主动加入未核数字。
 - 中文只覆盖当前用字，加新文案要重新子集化。
 - 代码面板固定 `height: 560px` 并内部滚动，短片段下方会留白——换「切换不跳高度」付的代价。
-- 窄屏（≤620px）System Map 隐藏 SVG 连线，9 个绝对定位节点降级成双列流程卡片，最后一个兜底节点跨整行；方向键按方位导航只在桌面宽屏有意义。
+- 窄屏（≤620px）System Map 隐藏 SVG 连线，9 个节点改为双列卡片，最后一个兜底节点跨整行。自由探索时，选中卡片下方有「查看详情」；选择节点或用方向键切换不会跳到详情，只有打开这个链接才会跳转。
 - ≤980px 隐藏页面内锚点导航，≤760px 顶栏变两行让分区切换器独占一行；`html` 的 `scroll-padding-top` 在窄屏提到 116px，避免锚点被压住。
 - `assets/`、`assets/css/main.css`、`assets/js/app.js`、`.nojekyll` 是 v2 遗留，不参与 v3 构建，保留未删。
 - 站内链接不能写死根路径：Pages 在 `/personal-site/` 子路径下，`href="/projects/rag/"` 会跳出站点。所有内部链接经 `site()` 生成，外部 GitHub 链接不受影响。

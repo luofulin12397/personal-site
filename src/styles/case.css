@@ -147,6 +147,8 @@
   font-family: var(--font-mono); font-size: 12px; color: var(--muted-2);
 }
 .map__help span { color: var(--signal); }
+.map__item { display: contents; }
+.map__details { display: none; }
 
 /* Evidence Inspector */
 .inspector {
@@ -354,16 +356,24 @@
     padding: 12px;
   }
   .map__wires { display: none; }
+  .map__item { display: flex; flex-direction: column; min-width: 0; }
+  .map__item:last-child { grid-column: 1 / -1; }
   .map-node {
     position: static;
     left: auto; top: auto;
-    width: auto; height: auto;
+    width: auto; height: auto; flex: 1;
     min-height: 78px;
     padding: 10px 11px;
     justify-content: flex-start;
     gap: 3px;
   }
-  .map-node:last-child { grid-column: 1 / -1; }
+  .map__details {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    min-height: 44px; padding: 6px 11px;
+    border: 1px solid var(--line-2); border-top: 0;
+    color: var(--signal); background: var(--surface-2); font-size: 13px;
+  }
+  .map__details:hover { background: var(--surface); text-decoration: underline; }
   .map-node .node__corner { display: none; }
   .map-node .node__label { display: block; }
   .map-node.is-selected { box-shadow: 3px 3px 0 rgba(210, 243, 67, 0.18); }
