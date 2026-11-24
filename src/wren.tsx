@@ -195,7 +195,7 @@ createRoot(document.getElementById('root')!).render(
           <p>Wren 的<a href={source('core/wren/src/wren/connector/duckdb.py#L80-L103')}>连接器</a>把展开后的 SQL 交给 DuckDB。真正读取三条订单、分组并计数的是 DuckDB。结果和开头手数的一样：</p>
           <figure className="wren-code"><figcaption>只读查询实测 · 两行结果</figcaption><pre><code>{WREN_STEPS[2].output}</code></pre></figure>
           <p><strong>Wren 按模型找到数据，DuckDB 执行查询。</strong> 如果业务要求不算取消订单，这条 <code>COUNT(*)</code> 还没有表达那个要求。</p>
-          <p><a href={site('diagrams/wren-query.html')}>回看查询时序图</a></p>
+          <p><a href={site('diagrams/wren-query.html')} target="_blank" rel="noopener">查看查询时序图（新标签页）</a></p>
         </section>
         <section className="section" id="control">
           <h2>05 / 表还在，为什么同一条查询却失败了？</h2>
@@ -210,10 +210,16 @@ createRoot(document.getElementById('root')!).render(
         </section>
         <section className="section" id="limits">
           <h2 id="architecture">06 / 回到全景：这个例子走了哪一段？</h2>
-          <p>沿图走一遍：从 CLI 进入 WrenEngine，模型清单和连接配置分别提供输入，最后经连接器到 DuckDB。其他分支可以先略过。</p>
+          <p>对照下面四步，在图中找同名方框。不需要顺着每条箭头读。</p>
+          <ol className="wren-diagram-steps">
+            <li><a href="#path">输入</a>：找 <strong>Wren CLI / Python SDK</strong>。本例从 CLI 传入写着 <code>FROM orders</code> 的查询。</li>
+            <li><a href="#policy">检查</a>：找 <strong>SQL policy / read-only</strong>。只读入口检查 <code>orders</code> 是否已定义；找不到模型就在这里停下。</li>
+            <li><a href="#source">展开</a>：找 <strong>WrenEngine</strong>。概览图把重写归在引擎里；引擎按模型把取数指向 <code>fixture.public.raw_orders</code>。</li>
+            <li><a href="#result">执行</a>：找 <strong>Connector catalog → 目标数据库</strong>。本例走 DuckDB 连接器，聚合在 DuckDB 完成。</li>
+          </ol>
           <figure className="wren-architecture">
             <img src={site('diagrams/overview.png')} width={2298} height={3710} loading="lazy" alt="CLI 将 SQL 交给引擎；模型清单提供数据定义，连接配置指定数据库；引擎规划后由连接器访问数据库。" />
-            <figcaption>LikeC4 · 系统概览。<a className="text-action" href={site('diagrams/index.png')}>查看完整架构与标注 ↗</a></figcaption>
+            <figcaption>LikeC4 · 系统概览。<a className="text-action" href={site('diagrams/index.png')} target="_blank" rel="noopener">查看完整架构与标注（新标签页）</a></figcaption>
           </figure>
           <p>换成 AI 生成 SQL，变化发生在这条路线前面：AI 得先理解问题，再写查询。本例从手写 SQL 开始，只验证直接 CLI 的显式只读入口，不代表 Agent Service、MCP 或其他连接器的行为。</p>
           <p><strong>WrenAI 不替你决定订单数的业务口径；它让查询引用明确的模型，再按模型找到数据，交给数据库执行。</strong></p>

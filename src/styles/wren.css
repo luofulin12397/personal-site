@@ -58,6 +58,9 @@
 .wren-architecture { max-width: 520px; margin: 0; }
 .wren-architecture img { display: block; width: 100%; height: auto; border: var(--rule); }
 .wren-architecture figcaption { margin-top: 8px; color: var(--muted); }
+.wren-diagram-steps { list-style: decimal; padding-inline-start: 1.5em; margin-block: 16px 24px; line-height: 1.65; overflow-wrap: anywhere; }
+.wren-diagram-steps li + li { margin-block-start: 8px; }
+.wren-diagram-steps li::marker { color: var(--signal); }
 .wren-subsection summary { padding-block: 12px; cursor: pointer; }
 .wren-case .case-head, .wren-reading, .wren-case .wren-toc { max-width: 76ch; margin-inline: auto; }
 .wren-case .case-head .display { max-width: none; font-size: clamp(25px, 8vw, 58px); }
