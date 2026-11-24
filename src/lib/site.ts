@@ -9,6 +9,8 @@ export function site(path = ''): string {
 
 export const HOME_URL = site();
 export const CASE_URL = site('projects/rag/');
+export const PROJECTS_URL = site('projects/');
+export const RISK_CASE_URL = site('projects/ai-risk-health/');
 
 /* 03 文章：列表页是目录，详情靠 ?p=slug 取。
    Pages 是静态托管、没有 SPA 回退，所以不用 /writing/slug 这种深路径：

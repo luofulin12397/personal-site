@@ -1,5 +1,5 @@
 import { GH } from '../data/home';
-import { CASE_URL, HOME_URL, WRITING_URL } from '../lib/site';
+import { HOME_URL, PROJECTS_URL, WRITING_URL } from '../lib/site';
 
 type NavItem = { label: string; href: string };
 export type Branch = 'home' | 'case' | 'writing';
@@ -11,7 +11,7 @@ export function SkipLink() {
 /* 站点级分区：不是页面内锚点，是三层之间的切换，常驻顶栏且当前分区实心高亮 */
 const BRANCHES: Array<{ key: Branch; no: string; label: string; href: string }> = [
   { key: 'home', no: '01', label: '主页', href: HOME_URL },
-  { key: 'case', no: '02', label: '项目拆解', href: CASE_URL },
+  { key: 'case', no: '02', label: '项目拆解', href: PROJECTS_URL },
   { key: 'writing', no: '03', label: '文章', href: WRITING_URL },
 ];
 

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { COMMANDS, GH, REPOS, SCROLL_TARGETS, STACK, TOPICS } from '../data/home';
-import { CASE_URL } from '../lib/site';
+import { CASE_URL, PROJECTS_URL } from '../lib/site';
 
 type Line = { text: string; kind: 'cmd' | 'out' | 'head' | 'err' };
 type Resolved =
@@ -43,7 +43,8 @@ function resolve(raw: string): Resolved {
   if (open) {
     const where = open[1].replace(/\/$/, '');
     if (where === 'github' || where === 'repo') return { kind: 'github' };
-    if (where === 'case' || where === 'rag') return { kind: 'page', href: CASE_URL };
+    if (where === 'case') return { kind: 'page', href: PROJECTS_URL };
+    if (where === 'rag') return { kind: 'page', href: CASE_URL };
     if (REPOS[where]) return { kind: 'repo', name: where };
     if (SCROLL_TARGETS[where]) return { kind: 'scroll', target: SCROLL_TARGETS[where] };
     return { kind: 'error', message: `open: 打不开 ${where}。试试 github / case / ${Object.keys(REPOS).join(' / ')}` };

@@ -18,6 +18,8 @@ export default defineConfig({
       input: {
         home: resolve(process.cwd(), 'index.html'),
         case: resolve(process.cwd(), 'projects/rag/index.html'),
+        projects: resolve(process.cwd(), 'projects/index.html'),
+        risk: resolve(process.cwd(), 'projects/ai-risk-health/index.html'),
         writing: resolve(process.cwd(), 'writing/index.html'),
       },
     },

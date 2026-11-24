@@ -1,7 +1,7 @@
 // 首页内容。文案沿用 v2 已核验事实；只把「这一页本身」改写为 v3 真实情况。
 // 顺序原则：先讲这个人，再讲做的项目与想分享的东西，技术取舍与实现细节靠后。
 
-import { CASE_URL, WRITING_URL } from '../lib/site';
+import { CASE_URL, PROJECTS_URL, RISK_CASE_URL, WRITING_URL } from '../lib/site';
 
 export const GH = 'https://github.com/luofulin12397';
 
@@ -34,13 +34,13 @@ export const ABOUT = {
 // 项目拆解不是项目列表里的一行小字，是和 01 主页并列的一层。
 export const BRANCH = {
   kicker: 'BRANCH 02 / PROJECT BREAKDOWN',
-  eyebrow: '这个站分两处',
+  eyebrow: '从项目看系统设计',
   title: '项目拆解',
-  desc: '01 主页讲我这个人和做了什么；02 这里只讲一个项目怎么搭：边界在哪、链路怎么走、为什么偏偏在那几个地方设门、代码长什么样。工作台里每个节点都能点开看当时的决定，也能直接跳到源码。',
-  meta: 'knowledge-base · 12 节点查询图 · 3 处条件分叉 · 5 条源码证据',
+  desc: '沿着真实代码看系统怎么搭：业务边界在哪、请求怎么走、为什么在关键位置设门。每篇拆解都给出可以回到源码核对的证据。',
+  meta: '带权限的 RAG 知识库 · 规则与模型双轨的医疗风控',
   cta: '看 RAG 项目拆解',
-  href: CASE_URL,
-  note: '不是项目列表里的一行链接，是和主页并列的另一层',
+  href: PROJECTS_URL,
+  note: '按项目读，按源码核对',
 };
 
 export const FACTS = [
@@ -110,7 +110,7 @@ export type Project = {
   path?: string;
   desc: string;
   facts: string;
-  case?: boolean;
+  caseHref?: string;
 };
 
 export const PROJECTS: Project[] = [
@@ -122,7 +122,7 @@ export const PROJECTS: Project[] = [
   {
     name: 'knowledge-base', href: `${GH}/self`, lang: 'Python · FastAPI · LangGraph', path: 'self / public/knowledge-base',
     desc: '带权限的 RAG 知识库。查询图十二个节点，双路召回 + RRF + 精排 + 四维权限；导入侧吃 PDF 和网页，切完推进 Milvus。SSE 流式返回，每段耗时都埋了点。',
-    facts: '143 个文件 · 12,172 行 · 23 条路由 · Milvus + MongoDB + MinIO + Redis', case: true,
+    facts: '143 个文件 · 12,172 行 · 23 条路由 · Milvus + MongoDB + MinIO + Redis', caseHref: CASE_URL,
   },
   {
     name: 'smart-bi', href: `${GH}/self`, lang: 'Python · PostgreSQL', path: 'self / public/smart-bi',
@@ -131,8 +131,8 @@ export const PROJECTS: Project[] = [
   },
   {
     name: 'AI_RISK_HEALTH', href: `${GH}/AI_RISK_HEALTH`, lang: 'Python · XGBoost',
-    desc: '医疗风控：规则引擎和 XGBoost 双轨打分，四条决策流水线复用电商风控的抽象，业务层整套重写成医保结算、处方审核、挂号、药品代购四个场景。',
-    facts: '92 个文件 · 17,607 行 · 25 维特征 · 19 条规则 · 40 个测试文件',
+    desc: '医疗风控：复用电商风控的决策引擎，重写医保结算、处方审核、挂号、药品代购四个业务场景，由规则和 XGBoost 共同评分。',
+    facts: '92 个文件 · 17,607 行 · 25 维特征 · 19 条规则 · 40 个测试文件', caseHref: RISK_CASE_URL,
   },
   {
     name: 'log-patrol', href: `${GH}/self`, lang: 'Node · 无框架', path: 'self / public/log-patrol',

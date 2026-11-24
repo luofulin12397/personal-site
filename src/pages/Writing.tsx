@@ -1,6 +1,6 @@
 import { Footer, Masthead, SkipLink } from '../components/Shell';
 import { ARTICLES, LEARNING_RESOURCES, QUEUE, STATUS_LABEL, charCount, formatDate, readingMinutes } from '../data/writing';
-import { CASE_URL, HOME_URL, articleUrl } from '../lib/site';
+import { HOME_URL, PROJECTS_URL, articleUrl } from '../lib/site';
 
 const NAV = [
   { label: '已成篇', href: '#list' },
@@ -112,7 +112,7 @@ export default function Writing() {
           </ul>
           <p className="w-back">
             <a className="text-action" href={HOME_URL}>回 01 主页 <span className="arrow" aria-hidden="true">↖</span></a>
-            <a className="text-action" href={CASE_URL}>看 02 项目拆解 <span className="arrow" aria-hidden="true">↗</span></a>
+            <a className="text-action" href={PROJECTS_URL}>看 02 项目拆解 <span className="arrow" aria-hidden="true">↗</span></a>
           </p>
         </section>
       </main>

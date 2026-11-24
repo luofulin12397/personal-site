@@ -6,7 +6,7 @@ import {
   ANNOTATIONS, BOUNDARY, CASE_HERO, DECISIONS, EVIDENCE, IMPORT_STAGES,
   KNOWN, QUERY_FLOW, RAG_ROOT,
 } from '../data/rag';
-import { HOME_URL } from '../lib/site';
+import { PROJECTS_URL } from '../lib/site';
 
 const NAV = [
   { label: '工作台', href: '#workbench' },
@@ -29,10 +29,10 @@ export default function Case() {
           <div className="branch-badge">
             <span className="branch-badge__no">02</span>
             <span className="branch-badge__name">项目拆解 / PROJECT BREAKDOWN</span>
-            <span className="branch-badge__hint">这个站的第二条主线，与 01 主页并列</span>
+            <span className="branch-badge__hint">项目案例 / RAG 知识库</span>
           </div>
           <p className="crumb">
-            <a href={HOME_URL}>← 返回 01 主页</a>
+            <a href={PROJECTS_URL}>← 返回项目拆解目录</a>
             <span className="crumb__sep" aria-hidden="true">/</span>
             <span>{CASE_HERO.crumb}</span>
           </p>
@@ -176,7 +176,7 @@ export default function Case() {
           </ul>
         </section>
       </main>
-      <Footer left="罗富麟 · 02 项目拆解 / knowledge-base" back={{ label: '← 返回 01 主页', href: HOME_URL }} />
+      <Footer left="罗富麟 · 02 项目拆解 / knowledge-base" back={{ label: '← 返回项目拆解目录', href: PROJECTS_URL }} />
     </>
   );
 }

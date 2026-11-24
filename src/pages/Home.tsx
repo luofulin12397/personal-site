@@ -1,6 +1,7 @@
 import Terminal from '../components/Terminal';
 import { Footer, Masthead, SkipLink } from '../components/Shell';
 import { ABOUT, BRANCH, CRAFT, FACTS, GH, HERO, NOTES, PROJECTS, TRADEOFFS } from '../data/home';
+import { CASE_URL } from '../lib/site';
 import { WRITING_URL } from '../lib/site';
 
 const NAV = [
@@ -32,7 +33,7 @@ export default function Home() {
             </div>
             <div>
               <p className="hero__lede">{HERO.lede}</p>
-              <a className="primary-action hero__cta" href={BRANCH.href}>
+              <a className="primary-action hero__cta" href={CASE_URL}>
                 <span>{BRANCH.cta}</span><span className="arrow" aria-hidden="true">↗</span>
               </a>
             </div>
@@ -89,8 +90,8 @@ export default function Home() {
                 <div>
                   <p className="proj__desc">{p.desc}</p>
                   <p className="proj__facts">{p.facts}</p>
-                  {p.case && (
-                    <a className="proj__case" href={BRANCH.href}>
+                  {p.caseHref && (
+                    <a className="proj__case" href={p.caseHref}>
                       <span className="proj__case-tag">BRANCH 02</span>
                       <span>项目拆解：看边界、决定与源码</span>
                       <span className="arrow" aria-hidden="true">→</span>
@@ -144,7 +145,7 @@ export default function Home() {
             <div className="branch-entry__go">
               <span className="branch-entry__no" aria-hidden="true">02</span>
               <a className="primary-action" href={BRANCH.href}>
-                <span>{BRANCH.cta}</span><span className="arrow" aria-hidden="true">↗</span>
+                <span>查看项目拆解目录</span><span className="arrow" aria-hidden="true">↗</span>
               </a>
             </div>
           </div>
