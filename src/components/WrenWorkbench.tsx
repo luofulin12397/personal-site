@@ -77,7 +77,6 @@ function WrenViewSection({ view, selectedId, onSelect }: {
   return (
     <section className="wren-view" id={`view-${view.id}`} aria-labelledby={`view-${view.id}-title`}>
       <div className="wren-view__head">
-        <p className="kicker">{view.no} / {view.labelEn}</p>
         <h3 id={`view-${view.id}-title`}>{view.label}</h3>
         <p className="section__intro">{view.hint}</p>
       </div>
@@ -149,9 +148,8 @@ export default function WrenWorkbench({ children }: { children: ReactNode }) {
   return (
     <section className="section workbench" id="workbench" aria-labelledby="wren-workbench-title">
       <div className="section__head">
-        <p className="kicker">01 / SYSTEM PROFILE</p>
         <h2 id="wren-workbench-title">系统剖面</h2>
-        <p className="section__intro">Wren 不是一个单步改写器。构建、查询和运行边界是三条不同路径；下面连续展开，先读结构，再进入细节。</p>
+        <p className="section__intro">按构建、查询和运行边界查阅节点；每个节点都附有可核对的源码。</p>
       </div>
       {WREN_VIEWS.map((view) => (
         <WrenViewSection key={view.id} view={view} selectedId={selection[view.id]} onSelect={select} />

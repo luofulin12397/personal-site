@@ -14,6 +14,7 @@ const NAV = [
   { label: '失败对照', href: '#control' },
   { label: '架构图', href: '#architecture' },
   { label: '动手复现', href: '#evidence' },
+  { label: '工作台', href: '#workbench' },
 ];
 
 const source = (path: string) => `${WREN_COMMIT.replace('/tree/', '/blob/')}/${path}`;
@@ -49,6 +50,7 @@ function CodeKeyboard() {
     const frame = requestAnimationFrame(sync);
     const observer = new MutationObserver(sync);
     observer.observe(root, { childList: true, subtree: true });
+    root.addEventListener('toggle', sync, true);
     window.addEventListener('resize', sync);
     document.fonts?.ready.then(sync).catch(() => {});
 
@@ -71,6 +73,7 @@ function CodeKeyboard() {
     return () => {
       cancelAnimationFrame(frame);
       observer.disconnect();
+      root.removeEventListener('toggle', sync, true);
       window.removeEventListener('resize', sync);
       root.removeEventListener('keydown', onKey);
     };
@@ -99,12 +102,8 @@ function Experiment() {
   return (
     <div className="wren-subsection" id="experiment" aria-labelledby="experiment-title">
       <div className="wren-subsection__head">
-        <p className="kicker">05.1 / COMMANDS</p>
         <h3 id="experiment-title">同一句 SQL，三种证据</h3>
         <p className="section__intro">这是三个独立命令的实测记录，不是执行一次查询前必须手动跑的三个步骤。</p>
-      </div>
-      <div className="workbench__head">
-        <span className="workbench__label">FEATURED EVIDENCE / QUERY PLANNING</span>
       </div>
       <fieldset className="wren-switch">
         <legend>选择要查看的命令</legend>
