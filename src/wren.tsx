@@ -1,7 +1,7 @@
-import { StrictMode, useState } from 'react';
+import { StrictMode, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Footer, Masthead, SkipLink } from './components/Shell';
-import { EXPANDED_SQL, INPUT_SQL, MODEL_REMOVED, PLAN_EXCERPT, WREN_COMMIT, WREN_SOURCE, WREN_STEPS } from './data/wren';
+import { EXPANDED_SQL, INPUT_SQL, MANIFEST_DIFF, MODEL_REMOVED, PLAN_EXCERPT, TABLE_CHECK, WREN_COMMIT, WREN_SOURCE, WREN_STEPS } from './data/wren';
 import { PROJECTS_URL } from './lib/site';
 import './styles/tokens.css';
 import './styles/shell.css';
@@ -14,11 +14,12 @@ const NAV = [
   { label: '实测', href: '#experiment' },
   { label: '对照', href: '#control' },
   { label: '源码', href: '#source' },
-  { label: '未验证', href: '#limits' },
+  { label: '证明与边界', href: '#limits' },
 ];
 
 const STEP_SLUGS = ['dry-plan', 'dry-run', 'query'] as const;
 const DEFAULT_STEP = 2;
+const PLAN_HEAD = `${EXPANDED_SQL.split('\n').slice(0, 6).join('\n')}\n…`;
 
 function readStepIndex() {
   const step = new URLSearchParams(window.location.search).get('step');
@@ -26,15 +27,62 @@ function readStepIndex() {
   return index < 0 ? DEFAULT_STEP : index;
 }
 
+function CodeKeyboard() {
+  useEffect(() => {
+    const root = document.getElementById('main');
+    if (!root) return;
+    const sync = () => {
+      root.querySelectorAll<HTMLPreElement>('pre').forEach((pre) => {
+        pre.tabIndex = pre.scrollWidth > pre.clientWidth ? 0 : -1;
+      });
+    };
+    const frame = requestAnimationFrame(sync);
+    const observer = new MutationObserver(sync);
+    observer.observe(root, { childList: true, subtree: true });
+    window.addEventListener('resize', sync);
+    document.fonts?.ready.then(sync).catch(() => {});
+
+    const onKey = (event: KeyboardEvent) => {
+      const pre = event.target;
+      if (!(pre instanceof HTMLPreElement) || pre.scrollWidth <= pre.clientWidth) return;
+      const page = Math.max(40, Math.round(pre.clientWidth * 0.8));
+      switch (event.key) {
+        case 'ArrowLeft': pre.scrollLeft -= 40; break;
+        case 'ArrowRight': pre.scrollLeft += 40; break;
+        case 'Home': pre.scrollLeft = 0; break;
+        case 'End': pre.scrollLeft = pre.scrollWidth; break;
+        case 'PageUp': pre.scrollLeft -= page; break;
+        case 'PageDown': pre.scrollLeft += page; break;
+        default: return;
+      }
+      event.preventDefault();
+    };
+    root.addEventListener('keydown', onKey);
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+      window.removeEventListener('resize', sync);
+      root.removeEventListener('keydown', onKey);
+    };
+  }, []);
+  return null;
+}
+
 function Experiment() {
   const [index, setIndex] = useState(readStepIndex);
   const step = WREN_STEPS[index];
   const folded = step.command === 'dry-plan';
 
+  useEffect(() => {
+    if (!new URLSearchParams(window.location.search).has('step') || window.location.hash) return;
+    document.getElementById('experiment')?.scrollIntoView({ behavior: 'instant', block: 'start' });
+  }, []);
+
   function choose(next: number) {
     setIndex(next);
     const url = new URL(window.location.href);
     url.searchParams.set('step', STEP_SLUGS[next]);
+    url.hash = 'experiment';
     window.history.replaceState(window.history.state, '', url);
   }
 
@@ -57,12 +105,13 @@ function Experiment() {
         ))}
       </fieldset>
       <div className="wren-grid wren-result" aria-live="polite">
-        <figure className="wren-code">
+        <figure className={`wren-code${folded ? ' wren-code--wide' : ''}`}>
           <figcaption><code>wren {step.command}</code> · 退出码 0</figcaption>
           {folded ? (
             <div className="wren-collapsed">
-              <p>dry-plan 的输出与上方「实测规划」相同，不再重复整段 SQL。</p>
-              <a className="text-action" href="#query">回到展开 SQL</a>
+              <p>dry-plan 的输出与上方「实测规划」相同。这里保留前几行，完整结果可直接跳到对应代码块。</p>
+              <pre tabIndex={0} aria-label="dry-plan 展开 SQL 摘要"><code>{PLAN_HEAD}</code></pre>
+              <a className="text-action" href="#expanded-sql">查看完整展开 SQL</a>
             </div>
           ) : (
             <pre tabIndex={0} aria-label={`${step.command} 实测输出`}><code>{step.output}</code></pre>
@@ -83,6 +132,7 @@ createRoot(document.getElementById('root')!).render(
     <SkipLink />
     <Masthead items={NAV} branch="case" />
     <main id="main" className="wrap wren-case">
+      <CodeKeyboard />
       <header className="case-head">
         <div className="branch-badge">
           <span className="branch-badge__no">02</span>
@@ -98,6 +148,13 @@ createRoot(document.getElementById('root')!).render(
         </p>
       </header>
 
+      <details className="wren-toc">
+        <summary>目录</summary>
+        <nav aria-label="本文目录">
+          {NAV.map((item) => <a key={item.href} href={item.href}>{item.label}</a>)}
+        </nav>
+      </details>
+
       <section className="section" id="query" aria-labelledby="wren-query-title">
         <div className="section__head">
           <h2 id="wren-query-title">同一条查询，两种写法</h2>
@@ -108,7 +165,7 @@ createRoot(document.getElementById('root')!).render(
         </ol>
         <div className="wren-grid">
           <figure className="wren-code"><figcaption>输入 · 查询逻辑模型 <code>orders</code></figcaption><pre tabIndex={0} aria-label="输入 SQL"><code>{INPUT_SQL}</code></pre></figure>
-          <figure className="wren-code wren-code--wide"><figcaption>实测规划 · 展开到物理表，已排版</figcaption><pre tabIndex={0} aria-label="展开后的 SQL"><code>{EXPANDED_SQL}</code></pre></figure>
+          <figure className="wren-code wren-code--wide" id="expanded-sql"><figcaption>实测规划 · 展开到物理表，已排版</figcaption><pre tabIndex={0} aria-label="展开后的 SQL"><code>{EXPANDED_SQL}</code></pre></figure>
         </div>
       </section>
 
@@ -127,7 +184,17 @@ createRoot(document.getElementById('root')!).render(
       <section className="section" id="control" aria-labelledby="wren-control-title">
         <div className="section__head"><h2 id="wren-control-title">表还在，为什么查询被拒绝？</h2></div>
         <p className="wren-prose">复制 manifest，只从 <code>models</code> 移除 <code>orders</code>。SQL、DuckDB 连接和 <code>query --read-only</code> 调用都不变，只切换 <code>--mdl</code> 指向的文件。</p>
-        <figure className="wren-code wren-control wren-code--wide">
+        <div className="wren-grid wren-control-evidence">
+          <figure className="wren-code wren-code--wide">
+            <figcaption>manifest 差异 · 只移除 models</figcaption>
+            <pre tabIndex={0} aria-label="manifest 差异"><code>{MANIFEST_DIFF}</code></pre>
+          </figure>
+          <figure className="wren-code">
+            <figcaption>直接连接 fixture.duckdb</figcaption>
+            <pre tabIndex={0} aria-label="物理表行数"><code>{TABLE_CHECK}</code></pre>
+          </figure>
+        </div>
+        <figure className="wren-code wren-control wren-code--wrap">
           <figcaption>移除模型后的实测输出 · 退出码 1</figcaption>
           <pre tabIndex={0} aria-label="移除模型后的错误"><code>{MODEL_REMOVED}</code></pre>
         </figure>

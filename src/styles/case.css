@@ -39,6 +39,12 @@
 }
 .case-meta a { color: var(--signal); border-bottom: 1px solid var(--line-2); }
 
+@media (max-width: 760px) {
+  .crumb a, .case-meta a {
+    display: inline-flex; align-items: center; min-height: 44px;
+  }
+}
+
 /* ---------- 工作台 ---------- */
 .workbench { border-top: 2px solid var(--signal); }
 .workbench__head {

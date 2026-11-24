@@ -49,6 +49,9 @@ export const WREN_STEPS = [
     limits: '能查出结果，不代表 COUNT(*) 就符合业务要求，例如取消单要不要计入。' },
 ] as const;
 
+export const MANIFEST_DIFF = `- "models": [ { "name": "orders", … } ]\n+ "models": []`;
+export const TABLE_CHECK = `SELECT COUNT(*) FROM public.raw_orders;\n3`;
+
 export const MODEL_REMOVED = `Error: [MODEL_NOT_FOUND] Table 'orders' is not defined in the MDL manifest. In strict mode, all table references must correspond to MDL models. phase=SQL_POLICY_CHECK`;
 
 // Selected lines from _plan(); the marker represents omitted error handling.

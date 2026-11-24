@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { GH } from '../data/home';
 import { HOME_URL, PROJECTS_URL, WRITING_URL } from '../lib/site';
 
@@ -17,16 +17,54 @@ const BRANCHES: Array<{ key: Branch; no: string; label: string; href: string }> 
 ];
 
 export function Masthead({ items, branch }: { items: NavItem[]; branch: Branch }) {
+  const [activeHash, setActiveHash] = useState<string | null>(null);
+
   useEffect(() => {
     const hash = window.location.hash;
     if (!hash) return;
-    const target = document.getElementById(decodeURIComponent(hash.slice(1)));
+    let id = hash.slice(1);
+    try {
+      id = decodeURIComponent(id);
+    } catch {
+      // A malformed fragment must not unmount the React tree.
+    }
+    const target = document.getElementById(id);
     if (!target) return;
+    setActiveHash(`#${id}`);
     let frame = requestAnimationFrame(() => {
       frame = requestAnimationFrame(() => target.scrollIntoView({ behavior: 'instant', block: 'start' }));
     });
     return () => cancelAnimationFrame(frame);
   }, []);
+
+  useEffect(() => {
+    const targets = items.flatMap((item) => {
+      if (!item.href.startsWith('#')) return [];
+      const target = document.getElementById(item.href.slice(1));
+      return target ? [{ href: item.href, target }] : [];
+    });
+    if (targets.length === 0) return;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      let current: string | null = null;
+      for (const { href, target } of targets) {
+        if (target.getBoundingClientRect().top <= 100) current = href;
+      }
+      setActiveHash(current);
+    };
+    const requestUpdate = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener('scroll', requestUpdate, { passive: true });
+    window.addEventListener('resize', requestUpdate);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', requestUpdate);
+      window.removeEventListener('resize', requestUpdate);
+    };
+  }, [items]);
 
   return (
     <header className="masthead">
@@ -49,7 +87,13 @@ export function Masthead({ items, branch }: { items: NavItem[]; branch: Branch }
           ))}
         </nav>
         <nav className="nav" aria-label="页面章节">
-          {items.map((it) => <a key={it.href} href={it.href}>{it.label}</a>)}
+          {items.map((it) => (
+            <a key={it.href} href={it.href}
+              className={activeHash === it.href ? 'is-current' : ''}
+              aria-current={activeHash === it.href ? 'location' : undefined}>
+              {it.label}
+            </a>
+          ))}
         </nav>
         <a className="masthead__repo" href={GH} target="_blank" rel="me noopener">
           GitHub <span className="arrow" aria-hidden="true">↗</span>
