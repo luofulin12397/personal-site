@@ -176,7 +176,7 @@ SHOOT_PREFIX=personal-site node scripts/shoot.cjs --out .shots-pages
 
 `/projects/`、`/projects/rag/`、`/projects/ai-risk-health/` 和 `/writing/` 都有独立的 `index.html`，不需要 SPA rewrite。新增案例时，登记对应 Vite HTML 入口，并为 `src/data/home.ts` 的项目设置 `caseHref`，案例目录就会列出它。文章详情继续用 `?p=slug`。
 
-医疗风控案例以医保结算为例。窄屏推荐路径直接展开节点说明，完整分支放在自由探索；方向键可切换节点，`?node=decision` 等链接可分享。工作台后用固定版本源码摘录解释一票否决的取舍，并分开记录模型回退局限和未验证的实际效果。RAG 工作台和已有节点链接不变。
+医疗风控案例以医保结算为例，推荐路径按「黑名单检查 → 双轨决策 → 自动拒绝」走完示例，人工审核是另一条分支。窄屏推荐路径给出流程总览并就地展开说明，完整分支在自由探索中分组。`?node=decision` 等链接可分享。工作台后用固定版本源码摘录解释一票否决，并区分模型回退局限与未验证的实际效果。RAG 工作台和已有节点链接不变。
 
 **切 Vercel（尚未执行）**：`vercel.json` 已指定 `buildCommand: npm run build`、`outputDirectory: dist`。切过去时不传 `VITE_BASE`，回到根 base。仍需单独确认：触发 Vercel 部署并验证两层 URL、关闭或保留 Pages 重定向、把新域名填进 GitHub profile 的 Website 字段。
 

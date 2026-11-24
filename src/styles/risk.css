@@ -12,7 +12,8 @@
 .risk-tradeoff dd { margin: 6px 0 0; max-width: 68ch; color: var(--muted); line-height: 1.8; }
 .risk-tradeoff dd .text-action { margin-left: 0.5em; }
 
-.risk-guided-detail, .risk-graph__stage { display: none; }
+.risk-guided-detail, .risk-graph__stage, .risk-route-summary { display: none; }
+.risk-graph__group { display: contents; }
 
 .risk-guided-item { display: flex; flex-direction: column; min-width: 0; }
 .risk-guided-item .guided__option { width: 100%; flex: 1; }
@@ -55,9 +56,13 @@ button.risk-node__tile:hover { border-color: var(--signal); }
 }
 
 @media (max-width: 620px) {
-  .risk-graph { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; gap: 8px; margin: 12px; }
+  .risk-graph { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; gap: 12px; margin: 12px; }
+  .risk-graph__group { display: grid; min-width: 0; gap: 8px; padding: 12px; border: var(--rule); }
   .risk-node { grid-area: auto; padding: 0; }
-  .risk-graph__stage { display: block; margin-top: 10px; color: var(--signal); font-size: 13px; }
+  .risk-graph__stage { display: block; color: var(--signal); font-size: 13px; }
+  .risk-graph__branch { color: var(--muted); }
+  .risk-route-summary { display: block; margin: 0 0 16px; padding: 12px 0; border-block: var(--rule); color: var(--muted); font-size: 14px; line-height: 1.7; }
+  .risk-route-summary strong { display: block; margin-top: 4px; color: var(--paper); }
   .risk-workbench--guided { padding-bottom: 0; }
   .risk-workbench--guided .map, .risk-workbench--guided .inspector:not(:target) { display: none; }
   .risk-guided-detail { display: block; padding: 14px; border: 1px solid var(--line-2); border-top: 0; color: var(--muted); }

@@ -6,14 +6,17 @@ type NodeId = Node['id'];
 
 const NODES = new Map<NodeId, Node>(RISK_NODES.map((node) => [node.id, node]));
 const DEFAULT_NODE = 'blacklist';
-const GUIDED: readonly NodeId[] = ['blacklist', 'decision', 'review'];
+const GUIDED: readonly NodeId[] = ['blacklist', 'decision', 'auto-reject'];
 const MOBILE_STAGES: Partial<Record<NodeId, string>> = {
-  request: '入口：校验后查黑名单',
   blocked: '命中 → 直接结束，不进引擎',
   features: '未命中 → 进入常规检查',
-  rules: '规则和模型分别给分，再汇合',
-  'auto-reject': '按最终决策分流：拒绝、通过或标记、待人工审核',
 };
+const GRAPH_GROUPS = [
+  { label: '入口检查', nodes: RISK_NODES.filter((node) => node.row <= 3) },
+  { label: '规则和模型分别给分，再汇合', nodes: RISK_NODES.filter((node) => node.row === 4 || node.row === 5) },
+  { label: '保存评估，再按结果分流', nodes: RISK_NODES.filter((node) => node.row >= 6) },
+];
+const DECISION_CODE = <a className="text-action" href="#decision-code">为什么在融合后执行否决？</a>;
 const EDGES = [
   ['request', 'blacklist', 'M500 78V100'],
   ['blacklist', 'blocked', 'M655 139H680'],
@@ -108,7 +111,7 @@ export default function RiskWorkbench() {
     <section className="section workbench" id="pipeline" aria-labelledby="risk-map-title">
       <div className="section__head">
         <h2 id="risk-map-title">一次风险检查怎么走</h2>
-        <p className="section__intro">从一笔医保结算请求出发，看黑名单在哪拦截、规则和模型在哪汇合，以及哪些结果交给人。</p>
+        <p className="section__intro">这笔示例请求未命中黑名单，进入常规检查。跟着它看低模型分会不会改变最终结果。</p>
       </div>
       <div className="workbench__head">
         <span className="workbench__label">FEATURED SYSTEM / RISK DECISION</span>
@@ -119,6 +122,10 @@ export default function RiskWorkbench() {
       {!explore && (
         <div className="guided">
           <span className="guided__label">推荐路径 / 3 个关键点</span>
+          <p className="risk-route-summary">
+            黑名单命中就停止；未命中才让规则和模型评分，再按结果分流。
+            <strong>本例触发硬否决，自动拒绝，不进入待审队列。</strong>
+          </p>
           <div className="guided__options">
             {GUIDED.map((nodeId, i) => {
               const node = NODES.get(nodeId)!;
@@ -133,7 +140,7 @@ export default function RiskWorkbench() {
                     <div className="risk-guided-detail" aria-live="polite">
                       <p>{node.detail}</p>
                       <a className="text-action" href={node.href}>查看源码</a>
-                      {'related' in node && <a className="text-action" href={node.related}>查看建案条件</a>}
+                      {node.id === 'decision' && DECISION_CODE}
                       <a className="text-action" href={`?node=${node.id}`}>节点直达链接</a>
                     </div>
                   )}
@@ -152,24 +159,29 @@ export default function RiskWorkbench() {
               {EDGES.map(([from, to, path]) => <path key={`${from}:${to}`} d={path} vectorEffect="non-scaling-stroke"
                 className={`map-wire${id === from || id === to ? ' is-active' : ''}`} markerEnd="url(#risk-arrow)" />)}
             </svg>
-            {RISK_NODES.map((node) => (
-              <Fragment key={node.id}>
-              {MOBILE_STAGES[node.id] && <p className="risk-graph__stage">{MOBILE_STAGES[node.id]}</p>}
-              <div className="risk-node" style={{ '--risk-row': node.row, '--risk-col': node.col } as CSSProperties}>
-                {explore ? (
-                  <button type="button" className={`risk-node__tile${id === node.id ? ' is-selected' : ''}`} data-node={node.id}
-                    aria-pressed={id === node.id} aria-controls="risk-inspector" tabIndex={id === node.id ? 0 : -1}
-                    onClick={() => select(node.id)} onFocus={() => select(node.id)}>
-                    <strong>{node.title}</strong><small>{node.tag}</small>
-                  </button>
-                ) : (
-                  <div className={`risk-node__tile${id === node.id ? ' is-selected' : ''}`}>
-                    <strong>{node.title}</strong><small>{node.tag}</small>
-                  </div>
-                )}
-                {explore && id === node.id && <a className="risk-details" href="#risk-inspector">查看详情 <span aria-hidden="true">↓</span></a>}
+            {GRAPH_GROUPS.map(({ label, nodes }) => (
+              <div className="risk-graph__group" key={label}>
+                <p className="risk-graph__stage">{label}</p>
+                {nodes.map((node) => (
+                  <Fragment key={node.id}>
+                    {MOBILE_STAGES[node.id] && <p className="risk-graph__stage risk-graph__branch">{MOBILE_STAGES[node.id]}</p>}
+                    <div className="risk-node" style={{ '--risk-row': node.row, '--risk-col': node.col } as CSSProperties}>
+                      {explore ? (
+                        <button type="button" className={`risk-node__tile${id === node.id ? ' is-selected' : ''}`} data-node={node.id}
+                          aria-pressed={id === node.id} aria-controls="risk-inspector" tabIndex={id === node.id ? 0 : -1}
+                          onClick={() => select(node.id)} onFocus={() => select(node.id)}>
+                          <strong>{node.title}</strong><small>{node.tag}</small>
+                        </button>
+                      ) : (
+                        <div className={`risk-node__tile${id === node.id ? ' is-selected' : ''}`}>
+                          <strong>{node.title}</strong><small>{node.tag}</small>
+                        </div>
+                      )}
+                      {explore && id === node.id && <a className="risk-details" href="#risk-inspector">查看详情 <span aria-hidden="true">↓</span></a>}
+                    </div>
+                  </Fragment>
+                ))}
               </div>
-              </Fragment>
             ))}
           </div>
           <p className="map__help">{explore ? '选择节点查看详情，方向键可切换节点' : '沿推荐路径阅读，或开启自由探索'}</p>
@@ -182,6 +194,7 @@ export default function RiskWorkbench() {
           </div>
           <div className="risk-inspector-links">
             <a className="text-action" href={selected.href}>查看源码 <span aria-hidden="true">↗</span></a>
+            {id === 'decision' && DECISION_CODE}
             {'related' in selected && <a className="text-action" href={selected.related}>查看建案条件 <span aria-hidden="true">↗</span></a>}
             <a className="text-action" href={`?node=${id}`}>节点直达链接 <span aria-hidden="true">↗</span></a>
           </div>
