@@ -182,7 +182,7 @@ SHOOT_PREFIX=personal-site node scripts/shoot.cjs --out .shots-pages
 
 WrenAI 案例固定上游 `48de0b6`，用一条 `orders` 查询和本地 DuckDB 三条合成订单，实测 `dry-plan`、`dry-run`、`query --read-only` 各证明什么；再仅移除 manifest 中的模型，观察 `SQL_POLICY_CHECK` 拒绝而物理表仍在。页面单独标明这是源码学习案例、只覆盖显式只读入口，不冒充上游官方或旧版 GenBI Classic。系统剖面分「构建 / 查询 / 运行边界」三个连续章节，共 12 个节点，覆盖 MDL 源文件、校验与编译、profile、Skills/Memory、策略检查、CTE 重写、connector 和三条命令；可用 `?view=query&node=rewrite#view-query` 分享。命令选择写入 `?step=query` 等参数，刷新和分享会保留当前证据；章节锚点在 React 挂载后恢复位置。≤980px 使用页内目录，桌面的章节导航会标记当前节。
 
-首屏可直达 `orders` 源码导读或系统架构图。导读按 CLI 输入、只读策略、SQL 展开、DuckDB 执行串起同一个示例。LikeC4 概览图直接嵌入系统剖面，完整图可打开查看标注；查询时序由 `architecture/wrenai/query.sequence.json` 经 Archify 生成。本地 DuckDB 实测仅覆盖直接 CLI。
+Wren 案例正文用单列教程，从三条订单和预期结果讲起，依次解释模型、只读检查、SQL 展开、DuckDB 执行和失败对照。LikeC4 概览图直接嵌入全景一节；完整图、Archify 时序和节点工作台供查阅。文末可下载 `public/labs/wren-orders.py`，用固定版本上游模型在本地复现。
 
 **切 Vercel（尚未执行）**：`vercel.json` 已指定 `buildCommand: npm run build`、`outputDirectory: dist`。切过去时不传 `VITE_BASE`，回到根 base。仍需单独确认：触发 Vercel 部署并验证两层 URL、关闭或保留 Pages 重定向、把新域名填进 GitHub profile 的 Website 字段。
 
