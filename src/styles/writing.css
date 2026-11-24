@@ -69,6 +69,7 @@
 .witem__tags { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px; }
 .witem__tags .tag { font-size: 12px; padding: 4px 9px; }
 
+.w-resources { display: grid; gap: 16px; }
 .w-resource {
   padding: clamp(20px, 3vw, 32px);
   border: 1px solid var(--line-2);

@@ -78,7 +78,7 @@ npm run preview -- --host 127.0.0.1 --port 4173 --strictPort
 | System Map 节点与连线 | `src/data/rag.ts` 的 `SYSTEM_NODES` / `CONNECTIONS`；坐标是 900×500 画布，`Workbench.tsx` 里换算成百分比 |
 | 三段代码与语法高亮 | `src/data/rag.ts` 的 `SNIPPETS`，分词在 `src/components/CodePanel.tsx` |
 | 加一篇新文章 | 在 `src/data/articles/` 新建一个 `.ts`，导出 `Article`，再登记进 `src/data/writing.ts` 的 `ARTICLES`；排队中的题目放 `QUEUE` |
-| 改「学习资源」卡片 | `src/data/writing.ts` 的 `AI_LEARNING_RESOURCE`；目录把它放在已成篇与排队中之间 |
+| 增改「学习资源」卡片 | `src/data/writing.ts` 的 `LEARNING_RESOURCES`；目录把它们放在已成篇与排队中之间 |
 | 长文分组与目录 | 小节写 `{ t:'h', no, text, group }`，`tocGroups()` 自动生成分组目录；顶栏只放分组锚点 |
 | 正文里写代码 / 强调 | 反引号包标识符、`**…**` 加粗；表格、步骤、题面、图注同样支持 |
 | 折叠练习、工序清单、表格列宽 | `t:'quiz'` / `t:'steps'` / `table.widths`；渲染规则在 `src/pages/Article.tsx` |
