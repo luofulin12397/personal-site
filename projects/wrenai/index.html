@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
   <meta name="theme-color" content="#0c120e">
-  <title>WrenAI · Agent 写了 SQL，为什么还要经过 Wren？ — 罗富麟</title>
-  <meta name="description" content="罗富麟的 WrenAI 源码学习案例：同一条 orders 查询如何按 MDL 展开，再用 DuckDB 实测规划、校验和执行的差别。">
+  <title>AI 已经会写 SQL，为什么还需要 WrenAI？ — 罗富麟</title>
+  <meta name="description" content="用三条订单学懂 WrenAI：为什么需要业务模型，Wren 如何检查和展开 SQL，以及 DuckDB 如何执行查询。">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="zh_CN">
   <meta property="og:url" content="https://luofulin12397.github.io/personal-site/projects/wrenai/">
-  <meta property="og:title" content="WrenAI · Agent 写了 SQL，为什么还要经过 Wren？">
-  <meta property="og:description" content="同一条 orders 查询如何按 MDL 展开，再用 DuckDB 实测规划、校验和执行的差别。">
+  <meta property="og:title" content="AI 已经会写 SQL，为什么还需要 WrenAI？">
+  <meta property="og:description" content="从三条订单跟着一次查询走完业务模型、SQL 展开和 DuckDB 执行，再看失败对照和系统架构图。">
   <meta property="og:image" content="https://luofulin12397.github.io/personal-site/share-home.png">
   <meta property="og:image:alt" content="罗富麟 · 后端与大模型应用。先画边界，再写代码。">
   <meta name="twitter:card" content="summary_large_image">
@@ -20,8 +20,8 @@
 <body>
   <div id="root"></div>
   <noscript>
-    <h1>WrenAI · Agent 写了 SQL，为什么还要经过 Wren？</h1>
-    <p>一个源码学习案例：查询写的是 orders，规划后读的是 fixture.public.raw_orders。</p>
+    <h1>AI 已经会写 SQL，为什么还需要 WrenAI？</h1>
+    <p>WrenAI 让 AI 和应用按业务模型查询数据库，而不是自己猜该查哪张表。本例用手写 SQL 查询三条订单，比较 Wren 的规划和 DuckDB 的执行。</p>
     <p>同一句 SELECT customer_id, COUNT(*) AS order_count FROM orders GROUP BY customer_id ORDER BY customer_id 的实测：</p>
     <pre>dry-plan：输出展开后的 SQL，包含物理表 fixture.public.raw_orders
 dry-run：OK

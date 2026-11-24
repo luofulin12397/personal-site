@@ -151,7 +151,7 @@ createRoot(document.getElementById('root')!).render(
           <span className="branch-badge__hint">项目案例 / WrenAI</span>
         </div>
         <p className="crumb"><a href={PROJECTS_URL}>← 返回项目拆解目录</a> <span className="crumb__sep" aria-hidden="true">/</span>WrenAI</p>
-        <h1 className="display">AI 已经会写 SQL，为什么还需要 WrenAI？</h1>
+        <h1 className="display">AI 已经会写 SQL，<wbr /><span>为什么还需要 WrenAI？</span></h1>
         <p className="case-lede">WrenAI 让 AI 和应用按业务模型查询数据库，而不是自己猜该查哪张表、用哪些字段。</p>
         <div className="wren-reading">
           <p>假设你问 AI：<strong>每位客户下了多少单？</strong> 我们手上只有三条订单：</p>
