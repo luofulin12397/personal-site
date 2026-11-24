@@ -10,7 +10,6 @@ import './styles/case.css';
 import './styles/wren.css';
 
 const NAV = [
-  { label: '架构图', href: '#architecture' },
   { label: '系统', href: '#workbench' },
   { label: '边界', href: '#boundary' },
   { label: '路径', href: '#path' },
@@ -162,6 +161,7 @@ createRoot(document.getElementById('root')!).render(
         <p className="crumb"><a href={PROJECTS_URL}>← 返回项目拆解目录</a> <span className="crumb__sep" aria-hidden="true">/</span>WrenAI</p>
         <h1 className="display">Agent 写了 SQL，<br /><span className="soft">为什么还要经过 Wren？</span></h1>
         <p className="case-lede">要查每位客户下了多少单，SQL 写的是 <code>orders</code>，DuckDB 读的却是 <code>fixture.public.raw_orders</code>。中间这一步，决定了查询按什么模型理解数据。</p>
+        <p><a className="text-action" href="#view-query">跟着 <code>orders</code> 走一遍 ↓</a></p>
         <p className="case-meta">
           <a href={WREN_COMMIT}>Canner/WrenAI @ 48de0b6 ↗</a>
           <span>wrenai 0.18.0 · wren-core-py 0.8.2 · DuckDB 1.5.0</span>
@@ -175,24 +175,28 @@ createRoot(document.getElementById('root')!).render(
         </nav>
       </details>
 
-      <div className="wren-overview" id="architecture">
-        <figure className="wren-architecture">
-          <a href={site('diagrams/overview.png')}>
-            <img src={site('diagrams/overview.png')} width={2298} height={3710} alt="Agent 或用户通过 CLI 和 SDK 调用 WrenEngine；模型和连接配置分开，由策略检查和连接器衔接目标数据库。" />
-          </a>
-          <figcaption>LikeC4 · 系统概览。<a className="text-action" href={site('diagrams/index.png')}>打开完整架构图</a></figcaption>
-        </figure>
-        <section aria-labelledby="wren-modules-title">
-          <h2 id="wren-modules-title">改动应该落在哪一层？</h2>
-          <dl className="wren-notes">
-            {MODULES.map(([title, text, path]) => (
-              <div key={title}><dt>{title}</dt><dd>{text} <a className="text-action" href={source(path)}>核对源码</a></dd></div>
-            ))}
-          </dl>
+      <WrenWorkbench>
+        <section className="wren-subsection" id="architecture" aria-labelledby="wren-architecture-title">
+          <div className="wren-subsection__head">
+            <h3 id="wren-architecture-title">一次查询经过哪四层？</h3>
+          </div>
+          <ol className="wren-layer-flow">
+            <li><strong>入口</strong><span>CLI 或 Python SDK 接收逻辑 SQL</span></li>
+            <li><strong>项目上下文</strong><span>加载 manifest 与连接配置</span></li>
+            <li><strong>规划</strong><span>检查模型引用，将逻辑 SQL 展开成目标方言</span></li>
+            <li><strong>执行</strong><span>连接器把 SQL 交给数据库，返回 Arrow 表</span></li>
+          </ol>
+          <p className="wren-links"><a className="text-action" href={site('diagrams/index.png')}>放大查看完整架构与标注 ↗</a></p>
+          <details className="wren-subsection">
+            <summary>模块索引：改动应该落在哪一层？</summary>
+            <dl className="wren-notes">
+              {MODULES.map(([title, text, path]) => (
+                <div key={title}><dt>{title}</dt><dd>{text} <a className="text-action" href={source(path)} aria-label={`核对${title}源码`}>核对源码</a></dd></div>
+              ))}
+            </dl>
+          </details>
         </section>
-      </div>
-
-      <WrenWorkbench />
+      </WrenWorkbench>
 
       <section className="section" id="boundary" aria-labelledby="wren-boundary-title">
         <div className="section__head">
@@ -222,7 +226,11 @@ createRoot(document.getElementById('root')!).render(
           <h2 id="wren-path-title">同一条查询，两种写法</h2>
           <p className="section__intro">Agent 先写面向逻辑模型的 SQL；Wren 按 MDL 展开，DuckDB 才看到物理表。</p>
         </div>
-        <p className="wren-prose wren-path-guide">读源码时按三个断点走：先在 <code>query()</code> 看只读入口如何拒绝未建模引用，再在 <code>_plan()</code> 看 manifest 裁剪与重写，最后到连接器看方言 SQL 如何变成 Arrow 结果。</p>
+        <ol className="wren-path-guide wren-notes">
+          <li><a href={WREN_SOURCE.policy}><code>query()</code></a> 检查只读入口的模型引用 → <a className="text-action" href="#control">查看移除模型后的拒绝结果</a></li>
+          <li><a href={WREN_SOURCE.plan}><code>_plan()</code></a> 裁剪 manifest 并重写 SQL → <a className="text-action" href="#expanded-sql">查看实测展开 SQL</a></li>
+          <li><a href={source('core/wren/src/wren/connector/duckdb.py#L80-L103')}>DuckDB 连接器</a> 执行方言 SQL → <a className="text-action" href="?step=query#experiment">查看只读查询返回的订单计数</a></li>
+        </ol>
         <p className="wren-links"><a className="text-action" href={site('diagrams/wren-query.html')}>打开 Archify 查询时序图</a></p>
         <div className="wren-grid">
           <figure className="wren-code"><figcaption>输入 · 查询逻辑模型 <code>orders</code></figcaption><pre tabIndex={0} aria-label="输入 SQL"><code>{INPUT_SQL}</code></pre></figure>

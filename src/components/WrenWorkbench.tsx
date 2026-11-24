@@ -1,4 +1,5 @@
 import { useEffect, useState, type KeyboardEvent } from 'react';
+import type { ReactNode } from 'react';
 import { WREN_NODES, WREN_VIEWS, type WrenView } from '../data/wren';
 
 const NODES = new Map(WREN_NODES.map((node) => [node.id, node]));
@@ -128,7 +129,7 @@ function WrenViewSection({ view, selectedId, onSelect }: {
   );
 }
 
-export default function WrenWorkbench() {
+export default function WrenWorkbench({ children }: { children: ReactNode }) {
   const [selection, setSelection] = useState<Selection>(initialSelection);
 
   useEffect(() => {
@@ -155,6 +156,7 @@ export default function WrenWorkbench() {
       {WREN_VIEWS.map((view) => (
         <WrenViewSection key={view.id} view={view} selectedId={selection[view.id]} onSelect={select} />
       ))}
+      {children}
     </section>
   );
 }
