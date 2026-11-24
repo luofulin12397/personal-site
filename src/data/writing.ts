@@ -68,6 +68,18 @@ export function tocGroups(a: Article): TocGroup[] {
   return out;
 }
 
+const AI_LEARNING_URL = 'https://ai-learning-site-beta.vercel.app/';
+
+export const AI_LEARNING_RESOURCE = {
+  title: 'AI 全栈知识地图',
+  kind: '交互式学习站',
+  description: '基于左元《大语言模型、强化学习和多模态教程》整理。21 章串起大语言模型、强化学习、对齐和多模态；第一次读，建议从 60 行 microGPT 开始。',
+  links: [
+    { label: '打开学习站', href: AI_LEARNING_URL },
+    { label: '从 microGPT 开始', href: `${AI_LEARNING_URL}llm.html#microgpt` },
+  ],
+};
+
 /* 排队中：真实存在、还没成篇的题目。不写成链接，避免给出打不开的地址。 */
 export const QUEUE: Array<{ title: string; note: string }> = [
   { title: 'MCP 给的不是能力，是检索接口', note: '拿一个内容站点的 MCP 做了实测：只读工具、分区权限、限流藏在 HTTP 200 里。测完了，还没写成篇。' },

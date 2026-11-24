@@ -1,5 +1,5 @@
 import { Footer, Masthead, SkipLink } from '../components/Shell';
-import { ARTICLES, QUEUE, STATUS_LABEL, charCount, formatDate, readingMinutes } from '../data/writing';
+import { AI_LEARNING_RESOURCE, ARTICLES, QUEUE, STATUS_LABEL, charCount, formatDate, readingMinutes } from '../data/writing';
 import { CASE_URL, HOME_URL, articleUrl } from '../lib/site';
 
 const NAV = [
@@ -55,9 +55,28 @@ export default function Writing() {
           </ul>
         </section>
 
+        <section className="section" id="resources">
+          <div className="section__head">
+            <p className="kicker">03.2 / LEARNING RESOURCES</p>
+            <h2>学习资源</h2>
+          </div>
+          <article className="w-resource">
+            <p className="kicker">{AI_LEARNING_RESOURCE.kind}</p>
+            <h3 className="witem__title">{AI_LEARNING_RESOURCE.title}</h3>
+            <p className="witem__lede">{AI_LEARNING_RESOURCE.description}</p>
+            <div className="w-resource__links">
+              {AI_LEARNING_RESOURCE.links.map(({ label, href }, i) => (
+                <a key={href} className={i === 0 ? 'primary-action' : 'text-action'} href={href}>
+                  {label} <span className="arrow" aria-hidden="true">↗</span>
+                </a>
+              ))}
+            </div>
+          </article>
+        </section>
+
         <section className="section" id="queue">
           <div className="section__head">
-            <p className="kicker">03.2 / QUEUE · {QUEUE.length}</p>
+            <p className="kicker">03.3 / QUEUE · {QUEUE.length}</p>
             <h2>排队中</h2>
             <p className="section__intro">还没成篇的题目，按真实进度排。不写成链接——地址打不开的东西不应该出现在目录里。</p>
           </div>
@@ -76,7 +95,7 @@ export default function Writing() {
 
         <section className="section" id="how">
           <div className="section__head">
-            <p className="kicker">03.3 / HOW I WRITE THESE</p>
+            <p className="kicker">03.4 / HOW I WRITE THESE</p>
             <h2>这类文章怎么写</h2>
             <p className="section__intro">不转载、不翻译、不搬运原文段落。原文给的是定义，这里给的是取舍。</p>
           </div>
