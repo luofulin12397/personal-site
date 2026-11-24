@@ -286,6 +286,21 @@
   line-height: 1.85;
 }
 .log__item b { color: var(--paper); font-weight: 700; }
+.log__link { display: block; }
+.log__link b { transition: color 160ms ease-out; }
+.log__link:hover b { color: var(--signal); }
+.log__go {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--signal);
+  white-space: nowrap;
+}
+.log__more { margin-top: 20px; }
 
 @media (max-width: 1000px) {
   .hero__intro { grid-template-columns: 1fr; gap: 18px; }

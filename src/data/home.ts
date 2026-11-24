@@ -1,7 +1,7 @@
 // 首页内容。文案沿用 v2 已核验事实；只把「这一页本身」改写为 v3 真实情况。
 // 顺序原则：先讲这个人，再讲做的项目与想分享的东西，技术取舍与实现细节靠后。
 
-import { CASE_URL } from '../lib/site';
+import { CASE_URL, WRITING_URL } from '../lib/site';
 
 export const GH = 'https://github.com/luofulin12397';
 
@@ -146,7 +146,9 @@ export const PROJECTS: Project[] = [
   },
 ];
 
-export const NOTES = [
+/* href 有值 = 已成篇，在 03 里有全文；没值 = 还在写，只在这里留一句。 */
+export const NOTES: Array<{ title: string; text: string; href?: string }> = [
+  { title: 'Ontology 不是知识图谱的升级版', text: '啃完一门 13 集的本体论实战课，按集记下判据、Turtle / SHACL 代码和验收动作，留了六个自己的判断。三万字，其中一个 Milvus 对照实验还没跑。', href: `${WRITING_URL}?p=ontology-not-an-upgrade` },
   { title: 'AI 全栈笔记', text: '21 章已经落到静态站上，还在补推导链和交叉引用。写得慢，因为每章都要先在本地跑一遍。' },
   { title: 'HNSW 参数实验', text: 'Docker 里跑 Milvus 2.6 和 MinIO，调 M 与 efConstruction，看召回率和内存怎么互相挤。数据还没攒够，不敢下结论。' },
   { title: '读 SkillOpt 的源码', text: '看它怎么组织技能、怎么决定一次工具调用该不该发生。还没形成结论。' },

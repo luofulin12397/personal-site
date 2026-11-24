@@ -18,6 +18,7 @@ export default defineConfig({
       input: {
         home: resolve(process.cwd(), 'index.html'),
         case: resolve(process.cwd(), 'projects/rag/index.html'),
+        writing: resolve(process.cwd(), 'writing/index.html'),
       },
     },
   },

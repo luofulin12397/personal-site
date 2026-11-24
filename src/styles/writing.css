@@ -1,0 +1,562 @@
+/* =========================================================================
+   03 文章：目录 + 详情
+   沿用 v3 语言：直角、细线、等宽标注、单一信号色。
+   正文不设容器宽度，而是给每个文本块设 max-width——
+   这样对照表能吃到整列宽度，段落仍然保持 30~36 字一行的阅读节奏。
+   ========================================================================= */
+
+/* ------------------------------------------------------------------ 目录 */
+
+.w-head { padding-top: clamp(46px, 6vw, 82px); }
+.w-head__in {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: clamp(24px, 5vw, 80px);
+  align-items: end;
+}
+.w-title { margin-top: 24px; max-width: 14ch; text-wrap: balance; }
+.w-lede {
+  max-width: 34ch;
+  padding-bottom: 6px;
+  font-size: clamp(15px, 1.3vw, 17px);
+  line-height: 1.95;
+  color: var(--muted);
+}
+
+.wlist { border-top: 2px solid var(--signal); }
+.witem {
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr);
+  gap: clamp(16px, 3vw, 46px);
+  padding: 28px 0 30px;
+  border-bottom: var(--rule);
+}
+.witem__side { display: flex; flex-direction: column; gap: 8px; }
+.witem__date {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--paper);
+}
+.witem__status {
+  align-self: flex-start;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  padding: 3px 8px;
+  border: 1px solid var(--line-2);
+  color: var(--muted);
+}
+.witem__status.is-wip { color: var(--signal-dim); border-color: var(--signal-dim); }
+.witem__status.is-finished { color: var(--signal-ink); background: var(--signal); border-color: var(--signal); }
+.witem__count {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  color: var(--muted-2);
+}
+.witem__title {
+  font-size: clamp(22px, 2.2vw, 30px);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.022em;
+}
+.witem__title a { border-bottom: 1px solid transparent; padding-bottom: 2px; transition: color 160ms ease-out, border-color 160ms ease-out; }
+.witem__title a:hover { color: var(--signal); border-color: var(--signal); }
+.witem__title .arrow { font-size: 0.62em; margin-left: 10px; color: var(--signal); }
+.witem__lede { margin-top: 14px; max-width: 66ch; font-size: 14.5px; line-height: 1.9; color: var(--muted); }
+.witem__tags { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 8px; }
+.witem__tags .tag { font-size: 12px; padding: 4px 9px; }
+
+/* 排队中：不给链接，只用编号 + 题目 + 现状 */
+.queue { border-top: var(--rule); }
+.queue__item {
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr);
+  gap: clamp(16px, 3vw, 46px);
+  padding: 20px 0;
+  border-bottom: var(--rule);
+}
+.queue__no {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  color: var(--muted-2);
+  padding-top: 2px;
+}
+.queue__title { font-size: 16px; font-weight: 700; color: var(--paper-2); line-height: 1.5; }
+.queue__note { margin-top: 8px; font-size: 13.5px; line-height: 1.85; color: var(--muted); max-width: 62ch; }
+
+/* 写法约定 */
+.rules { border-top: var(--rule); }
+.rules li {
+  padding: 15px 0;
+  border-bottom: var(--rule);
+  font-size: 14px;
+  line-height: 1.9;
+  color: var(--muted);
+  max-width: 68ch;
+}
+.rules li b { color: var(--paper); font-weight: 700; }
+
+.w-back { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 12px 32px; }
+
+/* ------------------------------------------------------------------ 详情 */
+
+.crumb {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--muted-2);
+  margin-bottom: 22px;
+}
+.crumb a:hover { color: var(--signal); }
+
+/* 版心：抬头、正文、文末共用一条 1064 的轴线并居中。
+   正文列固定 660（中文约 40 字一行），多出来的宽度给右栏，而不是留在右侧空着。 */
+.art__head,
+.art__grid,
+.art__src { max-width: 1064px; margin-inline: auto; }
+
+.art__head { border-bottom: var(--rule); padding-bottom: 26px; }
+.art__title { margin-top: 22px; text-wrap: balance; }
+.art__lede {
+  margin-top: 24px;
+  max-width: 56ch;
+  font-size: clamp(15px, 1.3vw, 17px);
+  line-height: 1.95;
+  color: var(--muted);
+}
+.art__meta {
+  margin-top: 28px;
+  padding-top: 14px;
+  border-top: var(--rule);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px clamp(18px, 3vw, 42px);
+}
+.art__meta > div { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+.art__meta dt {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--muted-2);
+}
+.art__meta dd { font-size: 13px; color: var(--paper-2); }
+
+.art__grid {
+  margin-top: clamp(34px, 4vw, 54px);
+  display: grid;
+  /* 正文 660（约 40 字一行）+ 右栏 340。两列贴着排，版心由 .art__grid 自己居中。 */
+  grid-template-columns: minmax(0, 660px) 340px;
+  gap: clamp(32px, 4vw, 64px);
+  align-items: start;
+}
+/* grid 子项默认 min-width:auto，宽表会把整页顶宽。这一行是必须的。 */
+.art__body { min-width: 0; font-size: 16.5px; }
+
+.art__p { line-height: 2.02; color: var(--paper-2); margin-bottom: 22px; }
+.art__p:last-child { margin-bottom: 0; }
+
+.art__h {
+  margin: 46px 0 18px;
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+  font-size: clamp(20px, 1.9vw, 25px);
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: -0.018em;
+  color: var(--paper);
+  scroll-margin-top: 96px;
+}
+.art__hno {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--signal);
+  flex: none;
+  padding-top: 4px;
+}
+
+.art__list { margin: 0 0 24px; border-top: var(--rule); }
+.art__list li {
+  position: relative;
+  padding: 14px 0 14px 22px;
+  border-bottom: var(--rule);
+  font-size: 15px;
+  line-height: 1.9;
+  color: var(--muted);
+}
+.art__list li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 22px;
+  width: 6px;
+  height: 6px;
+  background: var(--signal);
+}
+
+/* 判断块：把「我不同意的地方」从正文里拔出来，靠顶部信号线区分 */
+.judge {
+  max-width: 37em;
+  margin: 26px 0 30px;
+  padding-top: 16px;
+  border-top: 2px solid var(--signal);
+}
+.judge__label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--signal);
+}
+.judge__label span { color: var(--muted-2); font-weight: 400; }
+.judge__title { margin-top: 12px; font-size: 18px; font-weight: 700; line-height: 1.55; color: var(--paper); }
+.judge__body { margin-top: 12px; font-size: 15px; line-height: 1.92; color: var(--paper-2); }
+
+/* 口径/状态备注 */
+.art__note {
+  margin: 22px 0;
+  padding-left: 16px;
+  border-left: 2px solid var(--line-2);
+  max-width: 36em;
+}
+.art__note-label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  color: var(--signal-dim);
+  margin-bottom: 6px;
+}
+.art__note-body { font-size: 14px; line-height: 1.9; color: var(--muted); }
+
+/* 编号步骤：八步建模、Protégé 上手、四层瀑布这类「照着做」的内容。
+   不是卡片网格，是一条可沿着读的工序清单。 */
+.art__steps { margin: 28px 0 30px; border-top: 2px solid var(--line-2); }
+.art__steps figcaption {
+  padding: 12px 0 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--signal);
+}
+.art__steps ol { display: flex; flex-direction: column; }
+.art__steps li {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: var(--rule);
+}
+.art__steps-no {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted-2);
+  padding-top: 3px;
+}
+.art__steps-head { font-size: 15px; font-weight: 700; line-height: 1.6; color: var(--paper); }
+.art__steps-body { margin-top: 5px; font-size: 14px; line-height: 1.85; color: var(--muted); }
+
+/* 每集片尾的动手练习：用原生 details 折叠，零 JS。
+   答案默认收起，读者先自己答，再展开对照。 */
+.art__quiz {
+  margin: 26px 0 30px;
+  border-top: 1px solid var(--line-2);
+  border-bottom: 1px solid var(--line-2);
+}
+.art__quiz summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 12px;
+  padding: 15px 0;
+  cursor: pointer;
+  list-style: none;
+}
+.art__quiz summary::-webkit-details-marker { display: none; }
+.art__quiz-label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--signal);
+  white-space: nowrap;
+}
+.art__quiz-q { font-size: 15px; font-weight: 700; line-height: 1.65; color: var(--paper); }
+.art__quiz-toggle {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted-2);
+  white-space: nowrap;
+}
+.art__quiz[open] .art__quiz-toggle { color: var(--signal); }
+.art__quiz[open] .art__quiz-toggle { font-size: 0; }
+.art__quiz[open] .art__quiz-toggle::after { content: '收起 −'; font-size: 12px; }
+.art__quiz summary:hover .art__quiz-q { color: var(--signal); }
+.art__quiz-in { padding: 0 0 16px; border-top: var(--rule); }
+.art__quiz-hint { margin-top: 14px; font-size: 13.5px; line-height: 1.85; color: var(--muted-2); }
+.art__quiz-answer { margin-top: 10px; font-size: 14.5px; line-height: 1.9; color: var(--paper-2); }
+
+/* 对照表：靠 scroll 容器兜住窄屏，不把页面顶宽 */
+.art__figure { margin: 28px 0 26px; max-width: 48em; }
+.art__tablewrap { overflow-x: auto; min-width: 0; border-top: 2px solid var(--line-2); }
+/* 固定布局 + colgroup 由数据层给列宽（没给就按列数平均），
+   不再用 nth-child 猜列数：这篇里有 3 / 5 / 6 列的表。 */
+.art__table { width: 100%; min-width: 660px; border-collapse: collapse; table-layout: fixed; }
+.art__table th, .art__table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 13px 14px 13px 0;
+  border-bottom: var(--rule);
+  overflow-wrap: anywhere;
+}
+.art__table thead th {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  color: var(--muted-2);
+  padding-top: 12px;
+  padding-bottom: 11px;
+}
+.art__table thead th:last-child { color: var(--signal); }
+.art__table tbody th {
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.55;
+  color: var(--paper);
+}
+.art__table td { font-size: 13.5px; line-height: 1.7; color: var(--muted); }
+.art__table td:last-child { color: var(--paper-2); }
+.art__cap { margin-top: 12px; font-size: 12.5px; line-height: 1.7; color: var(--muted-2); }
+
+/* 代码/伪代码：和终端同一层色，不做高亮主题 */
+.art__code {
+  margin: 26px 0;
+  max-width: none;
+  border: 1px solid var(--line-2);
+  background: #1a251d;
+  box-shadow: 4px 4px 0 rgba(210, 243, 67, 0.1);
+}
+.art__code figcaption {
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--line-2);
+  background: #202d23;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--signal);
+}
+.art__code pre {
+  margin: 0;
+  padding: 16px;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--paper-2);
+  min-width: 0;
+}
+.art__code code { background: none; color: inherit; padding: 0; font-size: inherit; }
+.tone-c { color: var(--muted-2); }
+.tone-k { color: var(--signal); }
+.tone-s { color: var(--paper); }
+
+/* 本文小节：贴在正文右侧，不浮到页面最右 */
+.art__toc {
+  position: sticky;
+  top: 96px;
+  border-left: 1px solid var(--line);
+  padding-left: 20px;
+}
+.art__toc-label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  color: var(--muted-2);
+  margin-bottom: 14px;
+}
+/* 13 集的长目录：靠压缩行高让整份目录装进一屏。
+   不做内部滚动，否则截在组标题处会出现「空组」的错觉。 */
+.art__toc-scroll { padding-right: 2px; }
+.art__toc-group + .art__toc-group { margin-top: 10px; }
+.art__toc-gname {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--signal-dim);
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--line-2);
+}
+.art__toc ol { display: flex; flex-direction: column; }
+.art__toc li { border-bottom: var(--rule); }
+.art__toc a {
+  display: flex;
+  gap: 9px;
+  padding: 7px 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--muted);
+  transition: color 140ms ease-out;
+}
+.art__toc a span {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted-2);
+  flex: none;
+  padding-top: 1px;
+}
+.art__toc a:hover { color: var(--signal); }
+.art__toc a:hover span { color: var(--signal-dim); }
+.art__toc-foot {
+  margin-top: 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  color: var(--muted-2);
+}
+
+/* 正文末尾的「一句话带走」：整篇只留一句，读者关页面前能记住的那句。
+   放在正文里而不放右栏，长文的右栏只承担目录一件事。 */
+.art__takeaway {
+  max-width: 36em;
+  margin: 46px 0 0;
+  padding-top: 18px;
+  border-top: 2px solid var(--signal);
+}
+.art__takeaway-label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--signal);
+  margin-bottom: 10px;
+}
+.art__takeaway p:not(.art__takeaway-label) {
+  font-size: 15.5px;
+  line-height: 1.95;
+  color: var(--paper);
+}
+
+/* 行内强调：正文里的 **…**，用纸白把立论的词拎出来 */
+.art__body strong, .art__src-line strong { color: var(--paper); font-weight: 700; }
+
+/* 文末来源与边界 */
+.art__src {
+  margin-top: clamp(40px, 5vw, 66px);
+  padding-top: 24px;
+  border-top: 2px solid var(--signal);
+}
+.art__src-line {
+  margin-top: 14px;
+  max-width: 62ch;
+  font-size: 14px;
+  line-height: 1.9;
+  color: var(--muted);
+}
+.art__src-line a { color: var(--signal); border-bottom: 1px solid var(--line-2); padding-bottom: 1px; }
+.art__src-line a:hover { border-color: var(--signal); }
+.art__src-line .arrow { font-size: 12px; margin-left: 3px; }
+/* 文末统一致谢：正文不逐条标出处，参照过的材料在这里一次列清 */
+.art__credits { margin-top: 24px; padding-top: 16px; border-top: var(--rule); }
+.art__credits-label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  color: var(--muted-2);
+  margin-bottom: 10px;
+}
+.art__credits ul { display: flex; flex-direction: column; gap: 8px; }
+.art__credits li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; font-size: 13.5px; line-height: 1.75; }
+.art__credits a { color: var(--signal); border-bottom: 1px solid var(--line-2); }
+.art__credits a:hover { border-color: var(--signal); }
+.art__credits-by { color: var(--muted-2); font-size: 12.5px; }
+
+.art__next {
+  margin-top: 26px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 32px;
+  align-items: center;
+}
+
+@media (max-width: 1080px) {
+  .art__grid { grid-template-columns: minmax(0, 1fr); }
+  .art__toc { display: none; }
+}
+
+@media (max-width: 760px) {
+  .w-head__in { grid-template-columns: 1fr; gap: 20px; }
+  .w-lede { max-width: 52ch; }
+  .witem, .queue__item { grid-template-columns: 1fr; gap: 10px; }
+  .witem__side { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .witem__status { align-self: center; }
+  .art__title { max-width: none; font-size: 28px; word-break: keep-all; overflow-wrap: break-word; }
+  .art__body { font-size: 16px; }
+  .art__p { line-height: 1.95; }
+  .art__h { margin-top: 38px; }
+  .judge__body { font-size: 14.5px; }
+}
+
+/* ------------------------------------------------------------------ 窄屏对照表
+   五列在 390px 上只能看到第一列，横向滚动等于没信息。
+   窄屏下改成「每行一块」：行头做标题，其余单元格带列名标签。 */
+@media (max-width: 760px) {
+  .art__figure { max-width: none; }
+  .art__tablewrap { overflow-x: visible; border-top: 0; }
+  .art__table, .art__table tbody, .art__table tr, .art__table th, .art__table td { display: block; }
+  .art__table { min-width: 0; }
+  .art__table thead { display: none; }
+  .art__table tr {
+    padding: 18px 0 14px;
+    border-top: 1px solid var(--line-2);
+    border-bottom: var(--rule);
+  }
+  .art__table tbody th {
+    padding: 0 0 10px;
+    border: 0;
+    font-size: 15.5px;
+    line-height: 1.5;
+  }
+  .art__table td {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: 10px;
+    padding: 5px 0;
+    border: 0;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .art__table td::before {
+    content: attr(data-label);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    color: var(--muted-2);
+    padding-top: 2px;
+  }
+
+  /* 窄屏：步骤编号与正文并排仍可读；练习的「展开答案」换行，不挤掉题面 */
+  .art__steps li { grid-template-columns: 34px minmax(0, 1fr); gap: 8px; }
+  .art__steps-head, .art__quiz-q { font-size: 14.5px; }
+  .art__quiz summary { grid-template-columns: minmax(0, 1fr) auto; row-gap: 8px; }
+  .art__quiz-label { grid-column: 1 / -1; }
+  .art__quiz-toggle { font-size: 12px; }
+  .art__quiz[open] .art__quiz-toggle { font-size: 0; }
+  .art__quiz[open] .art__quiz-toggle::after { content: '收起 −'; font-size: 12px; }
+  .art__credits li { flex-direction: column; gap: 2px; }
+
+  /* 窄屏代码块：长行折行显示，而不是留一段看不见、也不提示的横向滚动。
+     Turtle 与 Python 的缩进靠 pre-wrap 保留，断行只发生在超宽处。 */
+  .art__code pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    overflow-x: visible;
+    font-size: 12.5px;
+    line-height: 1.75;
+  }
+  .art__takeaway { margin-top: 38px; }
+}

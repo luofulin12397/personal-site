@@ -21,7 +21,7 @@ const outIdx = args.indexOf('--out');
 const OUT = path.resolve(ROOT, outIdx >= 0 ? args[outIdx + 1] : '.shots');
 
 const HOME = {
-  name: 'home', url: PREFIX + '/',
+  name: 'home', url: PREFIX + '/', mobSel: '#top',
   sections: [
     ['home-hero', '#top'], ['home-about', '#about'],
     ['home-work', '#work'], ['home-notes', '#notes'],
@@ -30,12 +30,25 @@ const HOME = {
   ],
 };
 const CASE = {
-  name: 'case', url: PREFIX + '/projects/rag/',
+  name: 'case', url: PREFIX + '/projects/rag/', mobSel: '.case-head',
   sections: [
     ['case-head', '.case-head'], ['case-workbench', '#workbench'],
     ['case-boundary', '#boundary'], ['case-pipelines', '#pipelines'],
     ['case-code', '#code'], ['case-thinking', '#thinking'],
     ['case-evidence', '#evidence'],
+  ],
+};
+const WRITING = {
+  name: 'writing', url: PREFIX + '/writing/', mobSel: '.w-head',
+  sections: [
+    ['w-head', '.w-head'], ['w-list', '#list'],
+    ['w-queue', '#queue'], ['w-how', '#how'],
+  ],
+};
+const ARTICLE = {
+  name: 'article', url: PREFIX + '/writing/?p=ontology-not-an-upgrade', mobSel: '.art__head',
+  sections: [
+    ['a-head', '.art__head'], ['a-body', '.art__body'], ['a-src', '.art__src'],
   ],
 };
 
@@ -99,7 +112,7 @@ async function shoot(page, name, selector, dir) {
   });
 
   const problems = [];
-  for (const spec of [HOME, CASE]) {
+  for (const spec of [HOME, CASE, WRITING, ARTICLE]) {
     const page = await browser.newPage();
     await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
     const errors = [];
@@ -162,7 +175,7 @@ async function shoot(page, name, selector, dir) {
     console.log(`--- ${spec.name} 390px --- scrollWidth ${mm.scrollWidth} / ${mm.clientWidth} -> ${mm.scrollWidth > mm.clientWidth ? 'OVERFLOW' : 'ok'}`);
     if (mm.scrollWidth > mm.clientWidth) problems.push(`${spec.name} mobile: horizontal overflow`);
     if (mobErrors.length) problems.push(`${spec.name} mobile: ${mobErrors.length} pageerrors`);
-    await shoot(mob, `m-${spec.name}`, spec.name === 'home' ? '#top' : '.case-head', OUT);
+    await shoot(mob, `m-${spec.name}`, spec.mobSel, OUT);
     await mob.close();
     await page.close();
   }

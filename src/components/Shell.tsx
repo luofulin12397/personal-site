@@ -1,17 +1,18 @@
 import { GH } from '../data/home';
-import { CASE_URL, HOME_URL } from '../lib/site';
+import { CASE_URL, HOME_URL, WRITING_URL } from '../lib/site';
 
 type NavItem = { label: string; href: string };
-export type Branch = 'home' | 'case';
+export type Branch = 'home' | 'case' | 'writing';
 
 export function SkipLink() {
   return <a className="skip" href="#main">跳到正文</a>;
 }
 
-/* 站点级分区：不是页面内锚点，是两层之间的切换，常驻顶栏且当前分区实心高亮 */
+/* 站点级分区：不是页面内锚点，是三层之间的切换，常驻顶栏且当前分区实心高亮 */
 const BRANCHES: Array<{ key: Branch; no: string; label: string; href: string }> = [
   { key: 'home', no: '01', label: '主页', href: HOME_URL },
   { key: 'case', no: '02', label: '项目拆解', href: CASE_URL },
+  { key: 'writing', no: '03', label: '文章', href: WRITING_URL },
 ];
 
 export function Masthead({ items, branch }: { items: NavItem[]; branch: Branch }) {
@@ -52,7 +53,7 @@ export function Footer({ left, back }: { left: string; back?: { label: string; h
       <div className="footer__in">
         <p className="footer__line">{left}</p>
         <p className="footer__line footer__line--dim">
-          {back ? <a href={back.href}>{back.label}</a> : <span>01 主页 / 02 项目拆解 · 两条主线</span>}
+          {back ? <a href={back.href}>{back.label}</a> : <span>01 主页 / 02 项目拆解 / 03 文章 · 三个分区</span>}
           {' · '}
           <a href={GH} target="_blank" rel="noopener">在 GitHub 上继续读</a>
         </p>

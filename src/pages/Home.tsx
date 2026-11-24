@@ -1,6 +1,7 @@
 import Terminal from '../components/Terminal';
 import { Footer, Masthead, SkipLink } from '../components/Shell';
 import { ABOUT, BRANCH, CRAFT, FACTS, GH, HERO, NOTES, PROJECTS, TRADEOFFS } from '../data/home';
+import { WRITING_URL } from '../lib/site';
 
 const NAV = [
   { label: '关于我', href: '#about' },
@@ -36,7 +37,7 @@ export default function Home() {
             <Terminal />
             <div className="bench__aside">
               <p className="bench__label">01 主页 / 从终端开始</p>
-              <p className="bench__claim">这个站分两处：<em>这里讲人和项目</em>，02 讲一个系统怎么搭。</p>
+              <p className="bench__claim">这个站分三处：<em>这里讲人和项目</em>，02 讲一个系统怎么搭，03 放我读和写的东西。</p>
               <p className="bench__note">右边这个终端是真的：能敲 <code>help</code>、<code>explain perm</code>、<code>open case</code>，↑↓ 翻历史，Tab 补公共前缀。</p>
               <div className="bench__facts">
                 <dl className="facts">
@@ -101,16 +102,30 @@ export default function Home() {
           </ul>
         </section>
 
-        {/* 03 在写、想分享的 */}
+        {/* 03 在写、想分享的：已成篇的给出入口，没成篇的只留一句现状 */}
         <section className="section" id="notes">
           <div className="section__head">
-            <p className="kicker">03 / WRITING & NOTES</p>
+            <p className="kicker">03 / WRITING &amp; NOTES</p>
             <h2>在写，也在分享</h2>
-            <p className="section__intro">笔记、实验和正在读的源码。没写完也留着，进度本身就是内容。</p>
+            <p className="section__intro">笔记、实验和正在读的源码。成篇的在<a href={WRITING_URL}>03 文章</a>里有全文，没成篇的就在这儿留一句进度。</p>
           </div>
           <ul className="log">
-            {NOTES.map((n) => <li className="log__item" key={n.title}><b>{n.title}</b>：{n.text}</li>)}
+            {NOTES.map((n) => (
+              <li className="log__item" key={n.title}>
+                {n.href ? (
+                  <a className="log__link" href={n.href}>
+                    <b>{n.title}</b>：{n.text}
+                    <span className="log__go">读全文 <span className="arrow" aria-hidden="true">→</span></span>
+                  </a>
+                ) : (
+                  <><b>{n.title}</b>：{n.text}</>
+                )}
+              </li>
+            ))}
           </ul>
+          <p className="log__more">
+            <a className="text-action" href={WRITING_URL}>03 文章 · 目录与排队中 <span className="arrow" aria-hidden="true">↗</span></a>
+          </p>
         </section>
 
         {/* 站点级第二条分支：整块入口，不藏在列表的一行小字里 */}

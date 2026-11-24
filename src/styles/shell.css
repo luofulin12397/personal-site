@@ -108,7 +108,9 @@
   color: var(--muted-2);
 }
 .footer__in a:hover { color: var(--signal); }
-.footer__line--dim { color: var(--line-2); }
+/* 这一行里是真实链接。原先用 --line-2（#3a4b3d，2.0:1）当文字色，
+   在近黑底上几乎不可读；换成 --muted 后约 9:1，仍与左侧署名保持层级。 */
+.footer__line--dim { color: var(--muted); }
 
 /* 主 CTA：直角、信号色实心、错位投影 */
 .primary-action {
