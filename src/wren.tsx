@@ -144,24 +144,18 @@ createRoot(document.getElementById('root')!).render(
     <main id="main" className="wrap wren-case">
       <CodeKeyboard />
       <header className="case-head">
-        <div className="branch-badge">
-          <span className="branch-badge__no">02</span>
-          <span className="branch-badge__name">项目拆解 / PROJECT BREAKDOWN</span>
-          <span className="branch-badge__hint">项目案例 / WrenAI</span>
+        <div className="wren-hero-copy">
+          <p className="crumb"><a href={PROJECTS_URL}>← 项目拆解</a> <span aria-hidden="true">/</span> WrenAI</p>
+          <h1 className="display">AI 会写 SQL，<span>为什么还需要 WrenAI？</span></h1>
+          <p className="case-lede">WrenAI 让 AI 和应用按业务模型查询数据库，而不是自己猜该查哪张表、用哪些字段。</p>
+          <p className="case-meta"><a href={WREN_COMMIT}>WrenAI @ 48de0b6</a><span>DuckDB 实测</span></p>
         </div>
-        <p className="crumb"><a href={PROJECTS_URL}>← 返回项目拆解目录</a> <span className="crumb__sep" aria-hidden="true">/</span>WrenAI</p>
-        <h1 className="display">AI 已经会写 SQL，<wbr /><span>为什么还需要 WrenAI？</span></h1>
-        <p className="case-lede">WrenAI 让 AI 和应用按业务模型查询数据库，而不是自己猜该查哪张表、用哪些字段。</p>
-        <div className="wren-reading">
-          <p>假设你问 AI：<strong>每位客户下了多少单？</strong> 我们手上只有三条订单：</p>
-          <table className="wren-orders"><thead><tr><th scope="col">订单</th><th scope="col">客户</th></tr></thead><tbody><tr><td>1</td><td>101</td></tr><tr><td>2</td><td>101</td></tr><tr><td>3</td><td>202</td></tr></tbody></table>
-          <p>不用写 SQL 就能看出答案：<strong>客户 101 两单，客户 202 一单。</strong></p>
-          <p>难点不在怎么数，而在于数什么。这里一行是一笔订单；换成订单明细表，一笔订单可能占好几行，直接数行就错了。下面用手写 SQL 演示 Wren 收到查询后做了什么，不测试 AI 写 SQL 的准确率。</p>
-        </div>
-        <p className="case-meta">
-          <a href={WREN_COMMIT}>Canner/WrenAI @ 48de0b6 ↗</a>
-          <span>wrenai 0.18.0 · wren-core-py 0.8.2 · DuckDB 1.5.0</span>
-        </p>
+        <section className="wren-hero-sample" aria-labelledby="wren-sample-title">
+          <h2 id="wren-sample-title">每位客户下了多少单？</h2>
+          <table className="wren-orders" aria-label="三条样例订单"><thead><tr><th scope="col">订单</th><th scope="col">客户</th></tr></thead><tbody><tr><td>1</td><td>101</td></tr><tr><td>2</td><td>101</td></tr><tr><td>3</td><td>202</td></tr></tbody></table>
+          <p><strong>101 两单，202 一单。</strong></p>
+          <p>这里一行是一笔订单。换成订单明细表，直接数行就可能数错。</p>
+        </section>
       </header>
 
       <details className="wren-toc">
@@ -210,17 +204,24 @@ createRoot(document.getElementById('root')!).render(
         </section>
         <section className="section" id="limits">
           <h2 id="architecture">06 / 回到全景：这个例子走了哪一段？</h2>
-          <p>对照下面四步，在图中找同名方框。不需要顺着每条箭头读。</p>
-          <ol className="wren-diagram-steps">
-            <li><a href="#path">输入</a>：找 <strong>Wren CLI / Python SDK</strong>。本例从 CLI 传入写着 <code>FROM orders</code> 的查询。</li>
-            <li><a href="#policy">检查</a>：找 <strong>SQL policy / read-only</strong>。只读入口检查 <code>orders</code> 是否已定义；找不到模型就在这里停下。</li>
-            <li><a href="#source">展开</a>：找 <strong>WrenEngine</strong>。概览图把重写归在引擎里；引擎按模型把取数指向 <code>fixture.public.raw_orders</code>。</li>
-            <li><a href="#result">执行</a>：找 <strong>Connector catalog → 目标数据库</strong>。本例走 DuckDB 连接器，聚合在 DuckDB 完成。</li>
-          </ol>
-          <figure className="wren-architecture">
-            <img src={site('diagrams/overview.png')} width={2298} height={3710} loading="lazy" alt="CLI 将 SQL 交给引擎；模型清单提供数据定义，连接配置指定数据库；引擎规划后由连接器访问数据库。" />
-            <figcaption>LikeC4 · 系统概览。<a className="text-action" href={site('diagrams/index.png')} target="_blank" rel="noopener">查看完整架构与标注（新标签页）</a></figcaption>
-          </figure>
+          <div className="wren-diagram-spread">
+            <ol className="wren-diagram-steps">
+              <li><a href="#path">输入 · CLI</a><br />交给 Wren 的 SQL 写着 <code>FROM orders</code>。</li>
+              <li><a href="#policy">检查 · SQL policy</a><br />只读入口找不到 <code>orders</code> 模型，就在这里停下。</li>
+              <li><a href="#source">展开 · WrenEngine</a><br />按模型把取数指向 <code>fixture.public.raw_orders</code>。</li>
+              <li><a href="#result">执行 · Connector catalog</a><br />连接器发送 SQL，DuckDB 读表并计数。</li>
+            </ol>
+            <figure className="wren-architecture">
+              <div className="wren-diagram-map">
+                <img src={site('diagrams/overview.png')} width={2298} height={3710} loading="lazy" alt="LikeC4 系统图：CLI 接收查询，引擎按模型检查和规划，连接器交给数据库执行。" />
+                <span className="wren-diagram-pin" style={{ left: '43%', top: '24%' }} aria-hidden="true">1</span>
+                <span className="wren-diagram-pin" style={{ left: '71%', top: '55%' }} aria-hidden="true">2</span>
+                <span className="wren-diagram-pin" style={{ left: '34%', top: '55%' }} aria-hidden="true">3</span>
+                <span className="wren-diagram-pin" style={{ left: '43%', top: '73%' }} aria-hidden="true">4</span>
+              </div>
+              <figcaption><a href={site('diagrams/index.png')} target="_blank" rel="noopener">完整架构图（新标签页）</a> · <a href={site('diagrams/wren-query.html')} target="_blank" rel="noopener">查询时序图（新标签页）</a></figcaption>
+            </figure>
+          </div>
           <p>换成 AI 生成 SQL，变化发生在这条路线前面：AI 得先理解问题，再写查询。本例从手写 SQL 开始，只验证直接 CLI 的显式只读入口，不代表 Agent Service、MCP 或其他连接器的行为。</p>
           <p><strong>WrenAI 不替你决定订单数的业务口径；它让查询引用明确的模型，再按模型找到数据，交给数据库执行。</strong></p>
           <p><a href="#workbench">按模块查阅工作台 ↓</a></p>

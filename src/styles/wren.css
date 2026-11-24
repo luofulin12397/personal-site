@@ -58,13 +58,38 @@
 .wren-architecture { max-width: 520px; margin: 0; }
 .wren-architecture img { display: block; width: 100%; height: auto; border: var(--rule); }
 .wren-architecture figcaption { margin-top: 8px; color: var(--muted); }
-.wren-diagram-steps { list-style: decimal; padding-inline-start: 1.5em; margin-block: 16px 24px; line-height: 1.65; overflow-wrap: anywhere; }
-.wren-diagram-steps li + li { margin-block-start: 8px; }
-.wren-diagram-steps li::marker { color: var(--signal); }
-.wren-subsection summary { padding-block: 12px; cursor: pointer; }
-.wren-case .case-head, .wren-reading, .wren-case .wren-toc { max-width: 76ch; margin-inline: auto; }
-.wren-case .case-head .display { max-width: none; font-size: clamp(25px, 8vw, 58px); }
+.wren-case .case-head, .wren-diagram-spread {
+  display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: clamp(20px, 6vw, 90px);
+}
+.wren-case .case-head { max-width: 1120px; margin-inline: auto; align-items: center; }
+.wren-case .case-head .display { max-width: none; font-size: clamp(26px, 4vw, 58px); }
 .wren-case .case-head .display span { display: block; }
+.wren-hero-sample { padding: clamp(16px, 3vw, 32px); border: var(--rule); background: var(--surface); }
+.wren-hero-sample p { margin-top: 12px; }
+.wren-hero-sample strong { color: var(--signal); }
+.wren-reading { max-width: 1120px; margin-inline: auto; }
+.wren-reading > .section:not(#limits), .wren-reading > #limits > p {
+  max-width: 76ch; margin-inline: auto;
+}
+.wren-diagram-spread { grid-template-columns: minmax(0, 1fr) minmax(0, 380px); margin-block: 24px; }
+.wren-diagram-steps { list-style: none; counter-reset: diagram-step; padding: 0; }
+.wren-diagram-steps li {
+  position: relative; counter-increment: diagram-step; padding: 12px 0 12px 42px;
+  line-height: 1.65; overflow-wrap: anywhere; border-bottom: var(--rule);
+}
+.wren-diagram-steps li::before, .wren-diagram-pin {
+  position: absolute; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--signal); color: var(--surface); text-align: center; font-weight: 700; line-height: 26px;
+}
+.wren-diagram-steps li::before { content: counter(diagram-step); inset-inline-start: 0; }
+.wren-diagram-map { position: relative; }
+.wren-diagram-pin { transform: translate(-50%, -50%); }
+.wren-subsection summary { padding-block: 12px; cursor: pointer; }
+.wren-case .wren-toc { max-width: 76ch; margin-inline: auto; }
+@media (max-width: 760px) {
+  .wren-case .case-head, .wren-diagram-spread { grid-template-columns: minmax(0, 1fr); }
+}
 .wren-reading p { line-height: 1.85; margin-block: 12px; overflow-wrap: anywhere; }
 .wren-reading h2 { text-wrap: balance; }
 .wren-reading > .section { padding-block: clamp(24px, 4vw, 48px); }
