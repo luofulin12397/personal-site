@@ -1,4 +1,4 @@
-import { useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import { CONNECTIONS, GUIDED_PATHS, SYSTEM_NODES, type SystemNode } from '../data/rag';
 
 function centerOf(node: SystemNode) {
@@ -142,16 +142,69 @@ function Inspector({ node }: { node: SystemNode }) {
   );
 }
 
+const DEFAULT_NODE_ID = 'perm_filter';
+
+function nodeSlug(id: string) {
+  return id.replace(/_/g, '-');
+}
+
+function readNodeLink() {
+  const slug = new URLSearchParams(window.location.search).get('node');
+  return slug === null ? null : SYSTEM_NODES.find(({ id }) => nodeSlug(id) === slug)?.id ?? null;
+}
+
+function writeNodeLink(id: string | null) {
+  const url = new URL(window.location.href);
+  const slug = id === null ? null : nodeSlug(id);
+  if (url.searchParams.get('node') === slug) return;
+  if (slug === null) url.searchParams.delete('node');
+  else url.searchParams.set('node', slug);
+  window.history.replaceState(window.history.state, '', url);
+}
+
 export default function Workbench({ onHoverRef }: { onHoverRef: (ref: string | null) => void }) {
-  const [selectedId, setSelectedId] = useState('perm_filter');
-  const [explore, setExplore] = useState(false);
+  const [{ selectedId, explore }, setSelection] = useState(() => {
+    const linkedId = readNodeLink();
+    return { selectedId: linkedId ?? DEFAULT_NODE_ID, explore: linkedId !== null };
+  });
   const node = SYSTEM_NODES.find((n) => n.id === selectedId) ?? SYSTEM_NODES[5];
 
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (readNodeLink() && (!hash || hash === '#node-inspector')) {
+      document.getElementById('node-inspector')?.scrollIntoView({ block: 'start', behavior: 'instant' });
+    }
+
+    function restoreSelection() {
+      const linkedId = readNodeLink();
+      setSelection((current) => {
+        if (linkedId === null && !current.explore) return current;
+        if (current.explore && current.selectedId === linkedId) return current;
+        return { selectedId: linkedId ?? DEFAULT_NODE_ID, explore: linkedId !== null };
+      });
+    }
+    window.addEventListener('popstate', restoreSelection);
+    return () => window.removeEventListener('popstate', restoreSelection);
+  }, []);
+
   function select(id: string, reveal?: boolean) {
-    setSelectedId(id);
+    if (id !== selectedId) {
+      setSelection({ selectedId: id, explore });
+      if (explore) writeNodeLink(id);
+    }
     if (reveal && window.matchMedia('(max-width: 1100px)').matches) {
       const el = document.getElementById('node-inspector');
       window.requestAnimationFrame(() => el?.scrollIntoView({ block: 'start', behavior: 'smooth' }));
+    }
+  }
+
+  function toggleExplore() {
+    if (explore) {
+      setSelection({ selectedId: DEFAULT_NODE_ID, explore: false });
+      writeNodeLink(null);
+    } else {
+      setSelection({ selectedId, explore: true });
+      writeNodeLink(selectedId);
     }
   }
 
@@ -160,7 +213,7 @@ export default function Workbench({ onHoverRef }: { onHoverRef: (ref: string | n
       <div className="workbench__head">
         <span className="workbench__label">FEATURED SYSTEM / RAG</span>
         <button className="mode-toggle" type="button" aria-controls="system-map" aria-expanded={explore}
-          onClick={() => { if (explore) setSelectedId('perm_filter'); setExplore((v) => !v); }}>
+          onClick={toggleExplore}>
           {explore ? '返回推荐路径' : '自由探索 09 阶段'} <span className="arrow" aria-hidden="true">→</span>
         </button>
       </div>
