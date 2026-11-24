@@ -35,8 +35,22 @@
 .wren-control { margin: 14px 0; }
 .wren-links { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 14px; }
 .wren-map-note { color: var(--muted-2); font: 12px var(--font-mono); letter-spacing: 0.04em; }
-.wren-views { margin-bottom: 0; }
-.wren-view-note { margin: 0 0 16px; color: var(--muted); font-size: 14px; line-height: 1.8; }
+.wren-view + .wren-view {
+  margin-top: clamp(40px, 6vw, 72px);
+  padding-top: clamp(28px, 4vw, 44px);
+  border-top: var(--rule);
+}
+.wren-view__head { margin-bottom: 18px; }
+.wren-view__head h3 { margin-top: 6px; font-size: clamp(22px, 2vw, 30px); line-height: 1.35; letter-spacing: -0.02em; }
+.wren-view__head .section__intro { margin-top: 8px; }
+.wren-subsection + .wren-subsection {
+  margin-top: clamp(36px, 5vw, 56px);
+  padding-top: clamp(24px, 3vw, 34px);
+  border-top: var(--rule);
+}
+.wren-subsection__head { margin-bottom: 16px; }
+.wren-subsection__head h3 { margin-top: 6px; font-size: clamp(20px, 1.7vw, 26px); line-height: 1.4; }
+.wren-subsection__head .section__intro { margin-top: 8px; }
 .wren-workbench { align-items: start; }
 .workbench__grid.wren-workbench { align-items: start; }
 .wren-map__body { padding: clamp(16px, 2.4vw, 24px); }

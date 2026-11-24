@@ -18,9 +18,9 @@ export const WREN_SOURCE = {
 };
 
 export const WREN_VIEWS = [
-  { id: 'build', label: '构建', hint: '离线编译：源文件 → 校验 → manifest。不在这一步读取数据库。', defaultNode: 'manifest' },
-  { id: 'query', label: '查询', hint: '运行时：Agent SQL → 策略 → 重写 → connector。', defaultNode: 'rewrite' },
-  { id: 'runtime', label: '运行边界', hint: '三条命令各自证明一层；profile 决定连哪个数据库。', defaultNode: 'query' },
+  { id: 'build', label: '构建', labelEn: 'BUILD', no: '01.1', hint: '离线编译：源文件 → 校验 → manifest。不在这一步读取数据库。', defaultNode: 'manifest' },
+  { id: 'query', label: '查询', labelEn: 'QUERY', no: '01.2', hint: '运行时：Agent SQL → 策略 → 重写 → connector。', defaultNode: 'rewrite' },
+  { id: 'runtime', label: '运行边界', labelEn: 'RUNTIME', no: '01.3', hint: '三条命令各自证明一层；profile 决定连哪个数据库。', defaultNode: 'query' },
 ] as const;
 
 export type WrenView = (typeof WREN_VIEWS)[number]['id'];
