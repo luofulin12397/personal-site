@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0c120e">
+  <title>WrenAI · Agent 写了 SQL，为什么还要经过 Wren？ — 罗富麟</title>
+  <meta name="description" content="罗富麟的 WrenAI 源码学习案例：同一条 orders 查询如何按 MDL 展开，再用 DuckDB 实测规划、校验和执行的差别。">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:url" content="https://luofulin12397.github.io/personal-site/projects/wrenai/">
+  <meta property="og:title" content="WrenAI · Agent 写了 SQL，为什么还要经过 Wren？">
+  <meta property="og:description" content="同一条 orders 查询如何按 MDL 展开，再用 DuckDB 实测规划、校验和执行的差别。">
+  <meta property="og:image" content="https://luofulin12397.github.io/personal-site/share-home.png">
+  <meta property="og:image:alt" content="罗富麟 · 后端与大模型应用。先画边界，再写代码。">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+  <div id="root"></div>
+  <noscript>
+    <h1>WrenAI · Agent 写了 SQL，为什么还要经过 Wren？</h1>
+    <p>一个源码学习案例：查询写的是 orders，规划后读的是 fixture.public.raw_orders。</p>
+    <p>同一句 SELECT customer_id, COUNT(*) AS order_count FROM orders GROUP BY customer_id ORDER BY customer_id 的实测：</p>
+    <pre>dry-plan：输出展开后的 SQL，包含物理表 fixture.public.raw_orders
+dry-run：OK
+query --read-only：{"customer_id": 101, "order_count": 2}
+{"customer_id": 202, "order_count": 1}
+
+仅从 manifest 移除 orders 后：
+[MODEL_NOT_FOUND] … phase=SQL_POLICY_CHECK
+直接核对 DuckDB，物理表仍有 3 行。</pre>
+    <p>这是上游 <a href="https://github.com/Canner/WrenAI/tree/48de0b6cbd02cbbe3753f29e37f4be24e8a9a7fd">Canner/WrenAI 固定版本</a>的学习拆解，不是旧版 GenBI Classic。<a href="../">返回项目拆解目录</a>。</p>
+  </noscript>
+  <script type="module" src="/src/wren.tsx"></script>
+</body>
+</html>

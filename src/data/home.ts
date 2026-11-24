@@ -1,7 +1,7 @@
 // 首页内容。文案沿用 v2 已核验事实；只把「这一页本身」改写为 v3 真实情况。
 // 顺序原则：先讲这个人，再讲做的项目与想分享的东西，技术取舍与实现细节靠后。
 
-import { CASE_URL, PROJECTS_URL, RISK_CASE_URL, WRITING_URL } from '../lib/site';
+import { CASE_URL, PROJECTS_URL, RISK_CASE_URL, WRITING_URL, site } from '../lib/site';
 
 export const GH = 'https://github.com/luofulin12397';
 
@@ -113,7 +113,15 @@ export type Project = {
   caseHref?: string;
 };
 
+const WREN_CASE = {
+  name: 'WrenAI', href: 'https://github.com/Canner/WrenAI', lang: 'Python · Rust · DuckDB',
+  desc: '上游项目的源码学习：Agent 写出模型 SQL 后，Wren 如何按 MDL 展开查询，再用本地 DuckDB 实测规划、校验与执行的边界。',
+  facts: '上游固定提交 48de0b6 · wrenai 0.18.0 · wren-core-py 0.8.2 · DuckDB 1.5.0 · 3 条合成订单',
+  caseHref: site('projects/wrenai/'),
+};
+
 export const PROJECTS: Project[] = [
+  WREN_CASE,
   {
     name: 'ai-learning-site', href: `${GH}/ai-learning-site`, lang: 'HTML · JavaScript',
     desc: '把一本 407 页的教程拆成可跳转的静态知识库：四块主线互相引用，公式推导单独成页。零依赖、零构建，push 就到 Pages 和 Vercel。',

@@ -17,7 +17,7 @@
 | | 谁在读 | 讲什么 |
 |---|---|---|
 | **01 主页** `/` | 从 GitHub profile 点进来的同行，10–60 秒 | 这个人：一段自我介绍、六个做过的项目、在写和想分享的笔记；能敲命令的真终端；四个判断与这一页本身放在后面 |
-| **02 项目拆解** `/projects/` | 已经想细看某个项目的人 | 案例目录：RAG 知识库与 AI_RISK_HEALTH 医疗风控，各自有独立页面和源码证据 |
+| **02 项目拆解** `/projects/` | 已经想细看某个项目的人 | 案例目录：RAG 知识库、AI_RISK_HEALTH 医疗风控，以及 WrenAI 查询规划的源码学习案例 |
 | **03 文章** `/writing/` | 从某篇文章点进来、想知道这人判断靠不靠谱的人 | 读后判断：原文只作参照，写清哪几句不同意、哪一步还没验；目录页另列排队中的题目 |
 
 顶栏常驻 `01 主页 / 02 项目拆解 / 03 文章` 分区切换器，当前所在分区信号色实心高亮。顶栏的「02 项目拆解」去案例目录；首页首屏「看 RAG 项目拆解」仍直达 RAG，项目列表也可直接进入各自的拆解。≤980px 隐藏页内锚点导航，≤760px 分区切换器独占一行。
@@ -31,18 +31,20 @@ index.html                      Vite 首页入口（#root + noscript 兜底）
 projects/index.html             项目拆解目录入口
 projects/rag/index.html         RAG 知识库拆解入口
 projects/ai-risk-health/index.html   医疗风控拆解入口
+projects/wrenai/index.html      WrenAI 查询规划源码学习案例入口
 writing/index.html              Vite 三层入口（目录 / 详情共用，?p=slug 取文章）
-src/main.tsx / projects.tsx / case.tsx / risk.tsx / writing.tsx   各页面的 React 挂载入口
+src/main.tsx / projects.tsx / case.tsx / risk.tsx / wren.tsx / writing.tsx   各页面的 React 挂载入口
 src/pages/Home.tsx / Case.tsx / Writing.tsx / Article.tsx   页面结构
 src/components/                 Shell（含分支切换器）/ Terminal / Workbench / CodePanel
 src/data/home.ts / rag.ts       首页与二层的全部文案、终端命令、节点、连线、代码片段、证据链接
+src/data/risk.ts / wren.ts      医疗风控节点与 WrenAI 实验证据、源码摘录
 src/data/writing.ts             文章类型 + registry + 排队题目 + 字数/读时计算
 src/data/articles/*.ts          一篇一个文件，blocks 数组描述正文
-src/styles/                     tokens.css / shell.css / home.css / case.css / writing.css
+src/styles/                     tokens.css / shell.css / home.css / case.css / risk.css / wren.css / writing.css
 src/lib/site.ts                 站内链接统一经 Vite base 生成，兼容两种部署路径
 public/fonts/                   自托管字体（Archivo + Azeret Mono + Noto Sans SC 三个字重）
 public/favicon.svg
-vite.config.ts                  三个 rollup 输入（MPA）+ VITE_BASE 注入
+vite.config.ts                  六个 rollup 输入（MPA）+ VITE_BASE 注入
 .github/workflows/deploy-pages.yml   npm ci → build → 上传 dist → deploy Pages
 vercel.json                     Vercel 配置（备用，暂未启用）
 scripts/shoot.cjs               渲染验收脚本
@@ -61,7 +63,7 @@ npm run build               # tsc --noEmit && vite build → dist/
 npm run preview -- --host 127.0.0.1 --port 4173 --strictPort
 ```
 
-`npm run build` 生成首页、项目目录、两个项目案例和文章目录五个静态 HTML 入口，均带 `noscript` 兜底。
+`npm run build` 生成首页、项目目录、三个项目案例和文章目录六个静态 HTML 入口，均带 `noscript` 兜底。
 
 **部署路径**：默认 `base: '/'`，对应 Vercel / 自定义域名。GitHub Pages 项目站在 `/personal-site/` 下，构建时传 `VITE_BASE=personal-site`（不带斜杠，避免 Git Bash 的 MSYS 把 `/xxx/` 当绝对路径转换）；`vite.config.ts` 补成 `/personal-site/`。站内链接一律走 `src/lib/site.ts` 的 `site()`，不要在组件里写死 `/projects/rag/`。
 
@@ -174,9 +176,11 @@ SHOOT_PREFIX=personal-site node scripts/shoot.cjs --out .shots-pages
 
 部署链路：push 到 `main` → `.github/workflows/deploy-pages.yml` → `npm ci` → `VITE_BASE=personal-site npm run build` → 上传 `dist/` → `actions/deploy-pages`。Pages 的 Build and deployment 源已通过 API 从 `legacy`（按 main 根目录发布）切成 `GitHub Actions`（`build_type: workflow`）。**这一步必须先于 push**，否则 Pages 会把 Vite 的源码入口 `index.html` 当静态页直接发布，线上白屏。
 
-`/projects/`、`/projects/rag/`、`/projects/ai-risk-health/` 和 `/writing/` 都有独立的 `index.html`，不需要 SPA rewrite。新增案例时，登记对应 Vite HTML 入口，并为 `src/data/home.ts` 的项目设置 `caseHref`，案例目录就会列出它。文章详情继续用 `?p=slug`。
+`/projects/`、`/projects/rag/`、`/projects/ai-risk-health/`、`/projects/wrenai/` 和 `/writing/` 都有独立的 `index.html`，不需要 SPA rewrite。新增案例时，登记对应 Vite HTML 入口，并为 `src/data/home.ts` 的项目设置 `caseHref`，案例目录就会列出它。文章详情继续用 `?p=slug`。
 
 医疗风控案例以医保结算为例，推荐路径按「黑名单检查 → 双轨决策 → 自动拒绝」走完示例，人工审核是另一条分支。窄屏推荐路径给出流程总览并就地展开说明，完整分支在自由探索中分组。`?node=decision` 等链接可分享。工作台后用固定版本源码摘录解释一票否决，并区分模型回退局限与未验证的实际效果。RAG 工作台和已有节点链接不变。
+
+WrenAI 案例固定上游 `48de0b6`，用一条 `orders` 查询和本地 DuckDB 三条合成订单，实测 `dry-plan`、`dry-run`、`query --read-only` 各证明什么；再仅移除 manifest 中的模型，观察 `SQL_POLICY_CHECK` 拒绝而物理表仍在。页面单独标明这是源码学习案例、只覆盖显式只读入口，不冒充上游官方或旧版 GenBI Classic。
 
 **切 Vercel（尚未执行）**：`vercel.json` 已指定 `buildCommand: npm run build`、`outputDirectory: dist`。切过去时不传 `VITE_BASE`，回到根 base。仍需单独确认：触发 Vercel 部署并验证两层 URL、关闭或保留 Pages 重定向、把新域名填进 GitHub profile 的 Website 字段。
 
