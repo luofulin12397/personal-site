@@ -17,6 +17,7 @@
   color: var(--muted);
   padding-bottom: 6px;
 }
+.hero__cta { margin-top: 14px; }
 .hero__meta {
   margin-top: 22px;
   font-family: var(--font-mono);
@@ -57,7 +58,6 @@
 .bench__claim em { font-style: normal; color: var(--signal); }
 .bench__note { margin-top: 14px; color: var(--muted); font-size: 14px; line-height: 1.8; }
 .bench__facts { margin-top: 28px; }
-.bench__cta { margin-top: 22px; }
 
 /* 真终端：深色页上提亮一档，提示符与光标改信号芽绿 */
 .term {
