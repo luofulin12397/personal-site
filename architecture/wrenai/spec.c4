@@ -1,0 +1,38 @@
+specification {
+  element actor {
+    style { shape person; color primary }
+  }
+  element external {
+    style { color gray }
+  }
+  element system {
+    style { color primary }
+  }
+  element layer {
+    style { color slate }
+  }
+  element entry {
+    style { color blue }
+  }
+  element service {
+    style { color indigo }
+  }
+  element context {
+    style { color secondary }
+  }
+  element policy {
+    style { color amber }
+  }
+  element engine {
+    style { color green }
+  }
+  element adapter {
+    style { color sky }
+  }
+  element store {
+    style { shape storage; color slate }
+  }
+  element artifact {
+    style { shape document; color secondary }
+  }
+}

@@ -1,0 +1,113 @@
+model {
+  user = actor '用户 / 外部 Agent'
+  browser = external 'GenBI 浏览器应用'
+  dataSource = store '目标数据库'
+
+  wren = system 'WrenAI' {
+    access = layer '01 · Agent 工作流与入口' {
+      skills = service 'Agent Skills' {
+        technology 'Markdown workflows'
+        summary '把取上下文、写 SQL、校验、修复和记忆更新组织成可审阅步骤'
+        link https://github.com/Canner/WrenAI/blob/48de0b6cbd02cbbe3753f29e37f4be24e8a9a7fd/docs/core/reference/architecture.md#agent-skills
+      }
+      cli = entry 'Wren CLI / Python SDK' {
+        technology 'Typer · wrenai'
+        summary '发现项目与 profile，把命令交给同一套 Python 编排代码'
+        link https://github.com/Canner/WrenAI/blob/48de0b6cbd02cbbe3753f29e37f4be24e8a9a7fd/core/wren/src/wren/cli.py#L482-L607
+      }
+      mcp = entry 'MCP Server' {
+        technology 'Model Context Protocol'
+        summary '向 MCP 客户端暴露规划与校验工具；不是本页 CLI 实验的默认路径'
+        link https://github.com/Canner/WrenAI/blob/48de0b6cbd02cbbe3753f29e37f4be24e8a9a7fd/core/wren/src/wren/mcp_server.py
+      }
+      governed = entry 'Governed service / stdio' {
+        technology 'POSIX worker · read-only'
+        summary '用子进程、截止时间、取消和结果大小限制约束服务侧查询'
+        link https://github.com/Canner/WrenAI/blob/48de0b6cbd02cbbe3753f29e37f4be24e8a9a7fd/core/wren/src/wren/governed_query.py#L1-L26
+      }
+    }
+
+    context = layer '02 · 项目与运行时上下文' {
+      mdl = artifact 'MDL / knowledge' {
+        technology 'YAML · SQL · Markdown → mdl.json'
+        summary '模型、关系、视图、业务规则与已确认查询是可版本化资产'
+        link https://github.com/Canner/WrenAI/blob/48de0b6cbd02cbbe3753f29e37f4be24e8a9a7fd/docs/core/reference/architecture.md#project-context
+      }
+      memory = context 'Memory' {
+        technology 'LanceDB · local embeddings'
+        summary 'schema_items 与 query_history 提供 schema 检索和已确认示例召回'
+        link https://github.com/Canner/WrenAI/blob/48de0b6cbd02cbbe3753f29e37f4be24e8a9a7fd/docs/core/reference/architecture.md#memory-layer
+      }
+      profile = context 'Connection profiles' {
+        technology '~/.wren/profiles.yml'
+        summary '数据源与连接参数独立于 MDL，凭据留在具体运行环境'
+        link https://github.com/Canner/WrenAI/blob/48de0b6cbd02cbbe3753f29e37f4be24e8a9a7fd/docs/core/reference/architecture.md#project-context
+      }
+    }
+
+    planning = layer '03 · 规划与语义引擎' {
+      engine = service 'WrenEngine' {
+        technology 'Python facade'
+        summary '统一 dry-plan、dry-run 与 query；规划不依赖数据库连接'
+        link https://github.com/Canner/WrenAI/blob/48de0b6cbd02cbbe3753f29e37f4be24e8a9a7fd/core/wren/src/wren/engine.py#L51-L99
+      }
+      policy = policy 'SQL policy / read-only' {
+        technology 'sqlglot AST'
+        summary '在输入 SQL 与展开后 SQL 两处检查；显式只读入口还限制表引用'
+        link https://github.com/Canner/WrenAI/blob/48de0b6cbd02cbbe3753f29e37f4be24e8a9a7fd/core/wren/src/wren/engine.py#L119-L160
+      }
+      rewriter = service 'CTE Rewriter' {
+        technology 'sqlglot'
+        summary '限定标识符、收集模型引用，把模型展开结果注入 CTE'
+        link https://github.com/Canner/WrenAI/blob/48de0b6cbd02cbbe3753f29e37f4be24e8a9a7fd/core/wren/src/wren/mdl/cte_rewriter.py#L1-L15
+      }
+      corePy = engine 'wren-core-py' {
+        technology 'PyO3 bindings'
+        summary '把 Rust SessionContext 与语义转换能力暴露给 Python'
+        link https://github.com/Canner/WrenAI/blob/48de0b6cbd02cbbe3753f29e37f4be24e8a9a7fd/core/wren-core-py/Cargo.toml#L10-L18
+      }
+      core = engine 'wren-core' {
+        technology 'Rust · Apache DataFusion'
+        summary '展开模型、关系、计算字段与视图等 MDL 语义'
+        link https://github.com/Canner/WrenAI/blob/48de0b6cbd02cbbe3753f29e37f4be24e8a9a7fd/docs/core/reference/architecture.md#wren-core
+      }
+      wasm = engine 'wren-core-wasm' {
+        technology 'WebAssembly'
+        summary '把同一 Rust 语义核心带到浏览器侧 GenBI 应用'
+        link https://github.com/Canner/WrenAI/blob/48de0b6cbd02cbbe3753f29e37f4be24e8a9a7fd/core/wren-core-wasm/Cargo.toml#L1-L10
+      }
+    }
+
+    execution = layer '04 · 执行层' {
+      connectors = adapter 'Connector catalog' {
+        technology 'ConnectorABC · 22+ data sources'
+        summary '以统一 query、dry_run、类型处理和连接生命周期适配不同数据库'
+        link https://github.com/Canner/WrenAI/blob/48de0b6cbd02cbbe3753f29e37f4be24e8a9a7fd/docs/core/reference/architecture.md#connectors
+      }
+    }
+
+    skills -> memory 'fetch / recall / store'
+    memory -> skills 'schema 与已确认示例'
+    mdl -> memory '重建可选检索索引'
+    cli -> mdl '发现编译后的 manifest'
+    cli -> profile '解析运行环境'
+    cli -> engine 'query / dry-plan / dry-run'
+    mcp -> engine '规划与校验工具'
+    governed -> engine '子进程中 read_only=True'
+    mdl -> engine 'Base64 MDL manifest'
+    profile -> engine 'DataSource + ConnectionInfo'
+    engine -> policy '输入与规划后检查'
+    engine -> rewriter '裁剪 manifest 后重写'
+    rewriter -> corePy 'SessionContext / transform_sql'
+    corePy -> core 'PyO3'
+    core -> rewriter '展开 MDL 语义'
+    engine -> connectors '提交目标方言 SQL'
+    connectors -> dataSource 'query / dry-run'
+    connectors -> engine 'PyArrow Table'
+    browser -> wasm '浏览器内语义查询'
+    wasm -> core '复用 Rust 语义核心'
+  }
+
+  user -> wren.access.skills '提出业务问题'
+  user -> wren.access.cli '直接调用 CLI / SDK'
+}

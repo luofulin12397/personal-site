@@ -1,0 +1,14 @@
+views {
+  view overview {
+    title 'WrenAI · 系统概览'
+    include user, wren.access.cli, wren.context.mdl, wren.context.profile, wren.planning.engine, wren.planning.policy, wren.execution.connectors, dataSource
+    autoLayout TopBottom 55 32
+  }
+
+  view index {
+    title 'WrenAI · 从 Agent 工作流到数据库执行'
+    description '固定 Canner/WrenAI 48de0b6。实线表示源码中可见的调用、配置或数据关系；MCP 与 governed service 是独立入口，不与本次 CLI 实验混为一条路径。'
+    include *, wren.**
+    autoLayout LeftRight 80 48 ortho
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "一条只读订单查询如何执行",
+    "output": "public/diagrams/wren-query.html",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "column_fit": "spread",
+    "repository": {"url": "https://github.com/Canner/WrenAI.git", "revision": "48de0b6cbd02cbbe3753f29e37f4be24e8a9a7fd", "provider": "github"}
+  },
+  "participants": [
+    {"id":"cli","type":"frontend","label":"Wren CLI","sources":[{"path":"core/wren/src/wren/cli.py","line":482,"end_line":503}]},
+    {"id":"engine","type":"backend","label":"WrenEngine","sources":[{"path":"core/wren/src/wren/engine.py","line":119,"end_line":170},{"path":"core/wren/src/wren/engine.py","line":210,"end_line":298}]},
+    {"id":"policy","type":"security","label":"SQL 策略","sources":[{"path":"core/wren/src/wren/engine.py","line":128,"end_line":158},{"path":"core/wren/src/wren/engine.py","line":279,"end_line":284}]},
+    {"id":"rewrite","type":"backend","label":"CTE 重写","sources":[{"path":"core/wren/src/wren/mdl/cte_rewriter.py","line":256,"end_line":296}]},
+    {"id":"core","type":"backend","label":"Rust 核心","sources":[{"path":"core/wren/src/wren/mdl/cte_rewriter.py","line":1148,"end_line":1166},{"path":"core/wren-core-py/Cargo.toml","line":10,"end_line":18}]},
+    {"id":"duckdb","type":"database","label":"DuckDB","sublabel":"经连接器","sources":[{"path":"core/wren/src/wren/connector/duckdb.py","line":80,"end_line":116}]}
+  ],
+  "messages": [
+    {"from":"cli","to":"engine","y":169,"label":"提交 orders SQL 与只读标志","variant":"emphasis"},
+    {"from":"engine","to":"policy","y":212,"label":"检查输入和模型引用","variant":"security"},
+    {"from":"policy","to":"engine","y":255,"label":"通过才继续；否则拒绝","variant":"return"},
+    {"from":"engine","to":"rewrite","y":298,"label":"传入裁剪后的 manifest 与 SQL"},
+    {"from":"rewrite","to":"core","y":341,"label":"展开模型字段"},
+    {"from":"core","to":"rewrite","y":384,"label":"模型 SQL","variant":"return"},
+    {"from":"rewrite","to":"engine","y":427,"label":"注入 CTE，生成目标方言","variant":"return"},
+    {"from":"engine","to":"policy","y":470,"label":"再检查展开后的 SQL","variant":"security"},
+    {"from":"engine","to":"duckdb","y":513,"label":"通过后才提交目标方言 SQL","variant":"emphasis"},
+    {"from":"duckdb","to":"engine","y":556,"label":"连接器返回 Arrow 表","variant":"return"},
+    {"from":"engine","to":"cli","y":599,"label":"按 CLI 选项输出结果","variant":"return"}
+  ]
+}

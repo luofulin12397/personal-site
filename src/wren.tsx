@@ -3,13 +3,14 @@ import { createRoot } from 'react-dom/client';
 import { Footer, Masthead, SkipLink } from './components/Shell';
 import WrenWorkbench from './components/WrenWorkbench';
 import { EXPANDED_SQL, INPUT_SQL, MANIFEST_DIFF, MODEL_REMOVED, PLAN_EXCERPT, TABLE_CHECK, WREN_COMMIT, WREN_SOURCE, WREN_STEPS } from './data/wren';
-import { PROJECTS_URL } from './lib/site';
+import { PROJECTS_URL, site } from './lib/site';
 import './styles/tokens.css';
 import './styles/shell.css';
 import './styles/case.css';
 import './styles/wren.css';
 
 const NAV = [
+  { label: '架构图', href: '#architecture' },
   { label: '系统', href: '#workbench' },
   { label: '边界', href: '#boundary' },
   { label: '路径', href: '#path' },
@@ -17,6 +18,23 @@ const NAV = [
   { label: '证据', href: '#evidence' },
   { label: '证明与边界', href: '#limits' },
 ];
+
+const source = (path: string) => `${WREN_COMMIT.replace('/tree/', '/blob/')}/${path}`;
+const MODULES = [
+  ['项目文件与 MDL Schema', '模型、关系、视图和 Cube 用文件定义；context build 生成 manifest，供查询引擎读取。修改物理表映射时，先看模型源文件，再看编译结果。', 'core/wren/src/wren/context_cli.py#L862-L936'],
+  ['Python CLI 与 SDK', 'Typer 负责参数、项目和连接配置；WrenEngine 负责规划与执行。要加一种输出格式，先找 CLI；要改查询行为，先找引擎。', 'core/wren/src/wren/cli.py#L482-L503'],
+  ['sqlglot 与 Rust 核心', 'Python 识别模型和列、组合 CTE；PyO3 桥接 Rust SessionContext，展开模型内部语义。先分清逻辑模型内部的展开和整条用户 SQL 的拼装。', 'core/wren/src/wren/mdl/cte_rewriter.py#L1148-L1166'],
+  ['Python 与 WASM 两种宿主', 'Python 通过原生扩展使用语义核心；WASM 另行编译同一核心，供浏览器侧应用使用。浏览器路径不是本次 Python 连接器实验的一步。', 'core/wren-core-wasm/Cargo.toml#L49-L63'],
+  ['数据库连接器', '引擎在需要执行或数据库校验时才取得连接器。方言 SQL 到这里才交给数据库；查询结果回到 Python 时是 Arrow 表。', 'core/wren/src/wren/engine.py#L155-L190'],
+  ['Skills、Memory 与外部集成', 'Skills 描述工作流，Memory 可召回业务规则和已确认问句。LangChain 和 Pydantic AI 有各自适配层；这些都不是手写 SQL 执行的必经步骤。', 'docs/core/reference/architecture.md#memory-layer'],
+] as const;
+
+const DECISIONS = [
+  ['把可移植业务定义和连接分开', '同一逻辑模型可在不同环境复用；切环境时要重新核对物理映射和数据库权限，而不是把 profile 当成权限证明。', 'core/wren/src/wren/profile.py#L226-L291'],
+  ['规划前后都检查 SQL', '输入只出现逻辑模型，不代表展开后的 SQL 也能满足执行约束。模型 ref_sql 和视图定义可以引入输入里没有的内容，所以重写后还有检查。', 'core/wren/src/wren/engine.py#L270-L284'],
+  ['模型和视图不走同一条展开分支', '模型交给 Rust 展开；视图的原生 SQL 保留，依赖的模型 CTE 要先生成。追查视图问题时，不能只看 Rust 的模型转换。', 'core/wren/src/wren/mdl/cte_rewriter.py#L1-L12'],
+  ['服务侧单独管理查询生命周期', '受控服务用 POSIX 子进程承载查询，主进程可在超时或取消时回收 worker。这个机制不保证远端数据库同时停止，也不是普通 CLI 的行为。', 'core/wren/src/wren/governed_query.py#L1-L32'],
+] as const;
 
 const STEP_SLUGS = ['dry-plan', 'dry-run', 'query'] as const;
 const DEFAULT_STEP = 2;
@@ -157,6 +175,23 @@ createRoot(document.getElementById('root')!).render(
         </nav>
       </details>
 
+      <div className="wren-overview" id="architecture">
+        <figure className="wren-architecture">
+          <a href={site('diagrams/overview.png')}>
+            <img src={site('diagrams/overview.png')} width={2298} height={3710} alt="Agent 或用户通过 CLI 和 SDK 调用 WrenEngine；模型和连接配置分开，由策略检查和连接器衔接目标数据库。" />
+          </a>
+          <figcaption>LikeC4 · 系统概览。<a className="text-action" href={site('diagrams/index.png')}>打开完整架构图</a></figcaption>
+        </figure>
+        <section aria-labelledby="wren-modules-title">
+          <h2 id="wren-modules-title">改动应该落在哪一层？</h2>
+          <dl className="wren-notes">
+            {MODULES.map(([title, text, path]) => (
+              <div key={title}><dt>{title}</dt><dd>{text} <a className="text-action" href={source(path)}>核对源码</a></dd></div>
+            ))}
+          </dl>
+        </section>
+      </div>
+
       <WrenWorkbench />
 
       <section className="section" id="boundary" aria-labelledby="wren-boundary-title">
@@ -172,12 +207,23 @@ createRoot(document.getElementById('root')!).render(
         <a className="text-action" href={WREN_SOURCE.model}>核对上游 orders 模型的物理来源</a>
       </section>
 
+      <section className="wren-subsection" aria-labelledby="wren-entry-title">
+        <h3 id="wren-entry-title">入口不同，执行约束也不同</h3>
+        <dl className="wren-notes">
+          <div><dt>直接 CLI / Python SDK</dt><dd>本页验证的是显式 <code>query --read-only</code>。CLI 把参数传入引擎，再序列化 Arrow 结果；不经过服务端 worker。 <a className="text-action" href={WREN_SOURCE.cli}>CLI 入口</a></dd></div>
+          <div><dt>Governed stdio</dt><dd>宿主指定项目，通过标准输入输出发送类型化请求。查询走受控 worker，子进程用只读模式执行，返回前检查结果大小。 <a className="text-action" href={source('core/wren/src/wren/governed_query.py#L250-L322')}>Worker 实现</a></dd></div>
+          <div><dt>Agent Service 与 MCP</dt><dd>Agent Service 注册会话、任务和 SQL 操作；另一个 MCP 模块注册自己的工具。它们不是 CLI 查询的必经环节。 <a className="text-action" href={source('core/wren/src/wren/agent_service.py#L1761-L1825')}>服务操作</a> · <a className="text-action" href={source('core/wren/src/wren/mcp_server.py')}>MCP 注册</a></dd></div>
+        </dl>
+      </section>
+
       <section className="section" id="path" aria-labelledby="wren-path-title">
         <div className="section__head">
           <p className="kicker">03 / PATH</p>
           <h2 id="wren-path-title">同一条查询，两种写法</h2>
           <p className="section__intro">Agent 先写面向逻辑模型的 SQL；Wren 按 MDL 展开，DuckDB 才看到物理表。</p>
         </div>
+        <p className="wren-prose wren-path-guide">读源码时按三个断点走：先在 <code>query()</code> 看只读入口如何拒绝未建模引用，再在 <code>_plan()</code> 看 manifest 裁剪与重写，最后到连接器看方言 SQL 如何变成 Arrow 结果。</p>
+        <p className="wren-links"><a className="text-action" href={site('diagrams/wren-query.html')}>打开 Archify 查询时序图</a></p>
         <div className="wren-grid">
           <figure className="wren-code"><figcaption>输入 · 查询逻辑模型 <code>orders</code></figcaption><pre tabIndex={0} aria-label="输入 SQL"><code>{INPUT_SQL}</code></pre></figure>
           <figure className="wren-code wren-code--wide" id="expanded-sql"><figcaption>实测规划 · 展开到物理表，已排版</figcaption><pre tabIndex={0} aria-label="展开后的 SQL"><code>{EXPANDED_SQL}</code></pre></figure>
@@ -200,6 +246,11 @@ createRoot(document.getElementById('root')!).render(
           </dl>
         </div>
         <a className="text-action" href={WREN_SOURCE.plan}>核对固定版本的规划与重写代码</a>
+        <dl className="wren-notes wren-decisions">
+          {DECISIONS.map(([title, text, path]) => (
+            <div key={title}><dt>{title}</dt><dd>{text} <a className="text-action" href={source(path)}>核对源码</a></dd></div>
+          ))}
+        </dl>
       </section>
 
       <section className="section" id="evidence" aria-labelledby="wren-evidence-title">

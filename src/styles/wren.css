@@ -51,8 +51,25 @@
 .wren-subsection__head { margin-bottom: 16px; }
 .wren-subsection__head h3 { margin-top: 6px; font-size: clamp(20px, 1.7vw, 26px); line-height: 1.4; }
 .wren-subsection__head .section__intro { margin-top: 8px; }
-.wren-workbench { align-items: start; }
-.workbench__grid.wren-workbench { align-items: start; }
+.workbench__grid.wren-workbench {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  padding-bottom: 0;
+}
+.wren-overview {
+  display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
+  align-items: start; gap: clamp(20px, 4vw, 56px);
+}
+.wren-overview h2 { margin-bottom: 16px; }
+@media (max-width: 760px) {
+  .wren-overview { grid-template-columns: minmax(0, 1fr); }
+  .wren-overview .wren-architecture { margin-bottom: 0; }
+}
+.wren-architecture { margin: 0 0 28px; }
+.wren-architecture img { display: block; width: 100%; height: auto; border: var(--rule); }
+.wren-architecture figcaption { margin-top: 8px; color: var(--muted); }
+.wren-path-guide, .wren-decisions { margin-top: 20px; }
+.wren-path-guide ~ .wren-grid { margin-top: 16px; }
 .wren-map__body { padding: clamp(16px, 2.4vw, 24px); }
 .wren-map__row { display: flex; align-items: stretch; gap: 8px; }
 .wren-node-wrap { display: flex; flex: 1; min-width: 0; align-items: center; gap: 8px; }
@@ -73,9 +90,9 @@
 .wren-arrow { color: var(--signal); font: 16px var(--font-mono); flex: none; }
 .wren-inspector__notes { margin-top: 18px; }
 .wren-node-link { margin-top: 14px; }
-.wren-workbench .inspector { align-self: start; }
-@media (min-width: 1101px) {
-  .wren-inspector { position: sticky; top: 84px; }
+@media (min-width: 761px) {
+  .wren-inspector__notes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  .wren-inspector__notes > div { border-top: var(--rule); }
 }
 @media (max-width: 760px) {
   .wren-map__row { flex-direction: column; }
