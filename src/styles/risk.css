@@ -1,2 +1,52 @@
-.risk-steps { display: grid; gap: 12px; }
 .risk-source { margin-top: 16px; overflow-wrap: anywhere; }
+
+.risk-guided-item { display: flex; flex-direction: column; min-width: 0; }
+.risk-guided-item .guided__option { width: 100%; flex: 1; }
+.risk-workbench .inspector { align-self: start; }
+.risk-workbench .map-wire:not(.is-active) { stroke: var(--muted-2); opacity: 1; }
+.risk-graph {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(7, 78px);
+  row-gap: 22px;
+  margin: 14px 8px;
+}
+.risk-node {
+  position: relative; display: flex; flex-direction: column; min-width: 0; padding: 0 7px;
+  grid-row: var(--risk-row); grid-column: var(--risk-col);
+}
+.risk-node__tile {
+  display: flex; flex: 1; flex-direction: column; justify-content: center; gap: 4px;
+  padding: 8px 10px;
+  border: 1px solid var(--line-2);
+  background: var(--surface-2);
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.risk-node__tile strong { color: var(--paper); font-size: 14px; line-height: 1.4; }
+.risk-node__tile small { color: var(--muted); font-size: 12px; line-height: 1.4; }
+button.risk-node__tile:hover { border-color: var(--signal); }
+.risk-node__tile.is-selected { border-color: var(--signal); background: #1b2f18; }
+.risk-node__tile.is-selected strong { color: var(--signal); }
+.risk-details { display: none; }
+.risk-inspector-links { display: flex; flex-wrap: wrap; gap: 8px 18px; padding: 0 20px 20px; }
+
+@media (min-width: 1101px) {
+  .risk-workbench .inspector { position: sticky; top: 84px; }
+}
+
+@media (max-width: 620px) {
+  .risk-graph { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: none; gap: 8px; margin: 12px; }
+  .risk-node { grid-area: auto; padding: 0; }
+  .risk-node:nth-of-type(1), .risk-node:nth-of-type(4), .risk-node:nth-of-type(7),
+  .risk-node:nth-of-type(8), .risk-node:last-child { grid-column: 1 / -1; }
+  .risk-node__tile { min-height: 60px; }
+  .risk-details {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    min-height: 44px; padding: 6px 10px;
+    border: 1px solid var(--line-2); border-top: 0;
+    background: var(--surface-2); color: var(--signal); font-size: 13px;
+  }
+  .risk-details:hover { text-decoration: underline; }
+}

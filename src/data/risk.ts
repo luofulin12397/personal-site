@@ -1,15 +1,39 @@
 export const RISK_REPO = 'https://github.com/luofulin12397/AI_RISK_HEALTH';
 const SOURCE = `${RISK_REPO}/blob/9df57a1194b6461f7642a5102e5f198c0ce56dd2`;
 
-export const RISK_FLOW = [
-  { title: '校验业务实体，补全请求', detail: '先校验请求引用的业务实体，再补齐订单、医疗机构和医生标识，为黑名单检查准备上下文。', href: `${SOURCE}/app/service/event.py#L43-L58` },
-  { title: '黑名单提前返回', detail: '检查用户、医保卡、身份证、医疗机构编码和执业证。命中时直接返回拒绝，不进入常规评估流水线。', href: `${SOURCE}/app/service/event.py#L100-L138` },
-  { title: '保存特征快照，再算决策', detail: '建事件、提取特征并保存快照，再匹配规则和运行评分。按事件类型把最终分数映射为通过、标记、人工审核或拒绝。', href: `${SOURCE}/app/engine/decision.py#L548-L574` },
-  { title: '写评估与案件，统一提交', detail: '保存评估结果，按决策和规则创建案件，更新用户画像，最后统一提交并构造响应。', href: `${SOURCE}/app/engine/decision.py#L573-L586` },
-];
-
-export const RISK_DECISIONS = [
-  { title: '模型可以改分，不能推翻否决', detail: '满足融合条件时，先把 XGBoost 的拒绝概率变换到风险分，再与规则分加权。一旦命中极高风险规则，融合之后仍强制拒绝；启用人工审核豁免且命中相应规则时，模型分只作参考。代价是规则配置错误时，模型也无法纠正硬否决。', href: `${SOURCE}/app/engine/decision.py#L265-L339` },
-  { title: '把人工审核当作有约束的状态流转', detail: '审核前检查原状态是否允许到达目标状态。更新案件、记操作日志，以及拒绝时可选的加黑动作，在同一个事务提交。这样可以避免只改了案件、却没写入相应记录的半完成状态。', href: `${SOURCE}/app/service/case.py#L332-L381` },
-  { title: '模型未加载和推理失败，不是同一条回退路径', detail: '模型未加载时，决策回到规则分。但已加载的模型推理抛错时，当前实现返回零分且仍标记为已加载；如果没有触发审核豁免或硬否决，零分可能参与融合并拉低最终分。', href: `${SOURCE}/app/engine/ml_model.py#L126-L138` },
-];
+export const RISK_NODES = [
+  { id: 'request', title: '医保结算请求', tag: '校验与补全', row: 1, col: 2,
+    detail: '先校验请求关联的业务实体，再补全订单、医疗机构和医生标识。这里用医保结算说明同一套引擎怎样处理一次风险检查。',
+    href: `${SOURCE}/app/service/event.py#L43-L58` },
+  { id: 'blacklist', title: '黑名单检查', tag: '入口拦截', row: 2, col: 2,
+    detail: '检查用户、医保卡、身份证、医疗机构编码与执业证。命中直接返回；未命中才进入常规决策引擎。',
+    href: `${SOURCE}/app/service/event.py#L43-L58` },
+  { id: 'blocked', title: '直接拒绝', tag: '命中黑名单', row: 2, col: 3,
+    detail: '入口直接构造拒绝响应，不走后面的事件、特征、评估或案件写入。它和引擎给出的「自动拒绝」不是同一条路径。',
+    href: `${SOURCE}/app/service/event.py#L100-L150` },
+  { id: 'features', title: '提取并保存特征', tag: '未命中黑名单', row: 3, col: 2,
+    detail: '创建事件，计算特征并保存当时的快照，再进入规则匹配与模型评分。评估和快照属于同一次常规检查。',
+    href: `${SOURCE}/app/engine/decision.py#L548-L584` },
+  { id: 'rules', title: '规则打分', tag: '规则分与硬否决', row: 4, col: 1,
+    detail: '规则分取命中项的最高分并加叠加分，最终封顶。命中极高风险规则产生硬否决信号，不能被模型低分抵消。',
+    href: `${SOURCE}/app/engine/decision.py#L83-L105` },
+  { id: 'model', title: 'XGBoost 评分', tag: '模型拒绝概率', row: 4, col: 3,
+    detail: '模型未加载时只用规则分；已加载但推理失败时，目前返回零分并仍标为已加载。若没触发审核豁免或硬否决，零分仍可能参与融合并拉低结果。',
+    href: `${SOURCE}/app/engine/ml_model.py#L126-L138` },
+  { id: 'decision', title: '双轨决策', tag: '融合后执行硬否决', row: 5, col: 2,
+    detail: '满足条件时，把模型概率变换成风险分，再与规则分加权。按事件类型阈值区分通过、标记、人工审核和拒绝。启用审核豁免且命中相关规则时不融合；命中硬否决则无论融合结果如何，都强制拒绝。',
+    href: `${SOURCE}/app/engine/decision.py#L265-L339` },
+  { id: 'persist', title: '保存评估与画像', tag: '常规检查统一提交', row: 6, col: 2,
+    detail: '保存评估结果，按决策处理案件，更新用户画像，最后统一提交并返回。通过或标记不会创建案件。',
+    href: `${SOURCE}/app/engine/decision.py#L570-L586` },
+  { id: 'auto-reject', title: '自动拒绝', tag: '拒绝结果 / 不待审', row: 7, col: 1,
+    detail: '引擎拒绝（含硬否决）在没有同业务单、同事件类型的未结案记录时创建已拒绝的案件，并记录系统审计，不进入待审队列。',
+    href: `${SOURCE}/app/engine/decision.py#L382-L456` },
+  { id: 'complete', title: '返回检查结果', tag: '通过或标记 / 不建案', row: 7, col: 2,
+    detail: '通过或标记的常规检查仍保存评估，但不会建立案件；客户端直接收到检查结果。',
+    href: `${SOURCE}/app/engine/decision.py#L382-L410` },
+  { id: 'review', title: '人工审核', tag: '审核结果 / 待审核', row: 7, col: 3,
+    detail: '若没有同一业务的未结案记录，人工审核决策创建待审核案件。后续审核受状态流转约束；案件更新、操作日志和拒绝时可选的加黑在同一事务提交。',
+    href: `${SOURCE}/app/service/case.py#L332-L381`,
+    related: `${SOURCE}/app/engine/decision.py#L382-L426` },
+] as const;

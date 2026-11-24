@@ -176,6 +176,8 @@ SHOOT_PREFIX=personal-site node scripts/shoot.cjs --out .shots-pages
 
 `/projects/`、`/projects/rag/`、`/projects/ai-risk-health/` 和 `/writing/` 都有独立的 `index.html`，不需要 SPA rewrite。新增案例时，登记对应 Vite HTML 入口，并为 `src/data/home.ts` 的项目设置 `caseHref`，案例目录就会列出它。文章详情继续用 `?p=slug`。
 
+医疗风控案例从医保结算请求讲起，默认推荐「黑名单检查 → 双轨决策 → 人工审核」。自由探索时可用方向键切换，窄屏用选中节点旁的「查看详情」打开详情。节点可以通过 `?node=decision` 等链接分享；结论链接到固定版本的项目源码。RAG 工作台和已有节点链接不变。
+
 **切 Vercel（尚未执行）**：`vercel.json` 已指定 `buildCommand: npm run build`、`outputDirectory: dist`。切过去时不传 `VITE_BASE`，回到根 base。仍需单独确认：触发 Vercel 部署并验证两层 URL、关闭或保留 Pages 重定向、把新域名填进 GitHub profile 的 Website 字段。
 
 旧的 Astro 脚手架仍在 `6b47fec` 这条历史里；每次替换都保留历史、普通 commit 推进，没有强推。
