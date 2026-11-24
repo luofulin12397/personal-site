@@ -80,6 +80,8 @@ v3 色板：石墨绿黑 `--ground: #0c120e`、暖纸白 `--paper: #f8f7ee`、�
 
 没放开的默认约束：任何文字 ≥12px、正文对比度 ≥4.5:1、颜色不作唯一信息载体、键盘可达、尊重 `prefers-reduced-motion`。
 
+首页与 RAG 拆解页各自的 Open Graph 标签在对应的 HTML 入口，封面为 `public/share-home.png` 和 `public/share-rag.png`。改稿后运行 `CHROME_PATH=/path/to/chrome node scripts/share-cards.cjs` 重新生成两张 PNG。分享标签使用公开的 GitHub Pages 绝对地址；换域名时同步更新 `og:url` 与 `og:image`。
+
 ## 改字体
 
 中文用字变了必须重新子集化，否则新字会掉到系统字体：
