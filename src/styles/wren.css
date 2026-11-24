@@ -16,6 +16,9 @@
   margin: 0; padding: 14px; white-space: pre-wrap; overflow-wrap: anywhere;
   color: var(--paper); font: 13px / 1.7 var(--font-mono);
 }
+.wren-collapsed { padding: 14px; color: var(--muted); }
+.wren-collapsed p { font-size: 14px; line-height: 1.8; }
+.wren-collapsed .text-action { margin-top: 10px; }
 .wren-code pre code, .wren-switch code { padding: 0; border: 0; background: none; color: inherit; font: inherit; }
 .wren-code pre:focus-visible { outline-offset: -2px; }
 .wren-switch { min-width: 0; margin: 0 0 16px; padding: 0; border: 0; display: flex; flex-wrap: wrap; gap: 8px; }
@@ -38,4 +41,10 @@
 @media (max-width: 760px) {
   .wren-grid, .wren-flow { grid-template-columns: minmax(0, 1fr); }
   .wren-case .case-head .display { font-size: clamp(34px, 9vw, 42px); }
+  .wren-code pre {
+    white-space: pre; overflow-x: auto; overflow-wrap: normal;
+    overscroll-behavior-x: contain; scrollbar-width: thin;
+  }
+  .wren-code figcaption code { font-size: 13px; }
+  .wren-code--wide figcaption::after { content: ' · 左右滑动'; color: var(--signal-dim); }
 }

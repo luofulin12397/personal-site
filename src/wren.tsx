@@ -14,11 +14,30 @@ const NAV = [
   { label: '实测', href: '#experiment' },
   { label: '对照', href: '#control' },
   { label: '源码', href: '#source' },
+  { label: '未验证', href: '#limits' },
 ];
 
+const STEP_SLUGS = ['dry-plan', 'dry-run', 'query'] as const;
+const DEFAULT_STEP = 2;
+
+function readStepIndex() {
+  const step = new URLSearchParams(window.location.search).get('step');
+  const index = STEP_SLUGS.findIndex((slug) => slug === step);
+  return index < 0 ? DEFAULT_STEP : index;
+}
+
 function Experiment() {
-  const [index, setIndex] = useState(0);
+  const [index, setIndex] = useState(readStepIndex);
   const step = WREN_STEPS[index];
+  const folded = step.command === 'dry-plan';
+
+  function choose(next: number) {
+    setIndex(next);
+    const url = new URL(window.location.href);
+    url.searchParams.set('step', STEP_SLUGS[next]);
+    window.history.replaceState(window.history.state, '', url);
+  }
+
   return (
     <section className="section workbench" id="experiment" aria-labelledby="experiment-title">
       <div className="section__head">
@@ -32,7 +51,7 @@ function Experiment() {
         <legend>选择要查看的命令</legend>
         {WREN_STEPS.map(({ command }, i) => (
           <label key={command}>
-            <input type="radio" name="wren-step" checked={index === i} onChange={() => setIndex(i)} />
+            <input type="radio" name="wren-step" checked={index === i} onChange={() => choose(i)} />
             <code>{command}</code>
           </label>
         ))}
@@ -40,7 +59,14 @@ function Experiment() {
       <div className="wren-grid wren-result" aria-live="polite">
         <figure className="wren-code">
           <figcaption><code>wren {step.command}</code> · 退出码 0</figcaption>
-          <pre tabIndex={0} aria-label={`${step.command} 实测输出`}><code>{step.output}</code></pre>
+          {folded ? (
+            <div className="wren-collapsed">
+              <p>dry-plan 的输出与上方「实测规划」相同，不再重复整段 SQL。</p>
+              <a className="text-action" href="#query">回到展开 SQL</a>
+            </div>
+          ) : (
+            <pre tabIndex={0} aria-label={`${step.command} 实测输出`}><code>{step.output}</code></pre>
+          )}
         </figure>
         <dl className="wren-notes">
           <div><dt>证明了什么</dt><dd>{step.proves}</dd></div>
@@ -82,7 +108,7 @@ createRoot(document.getElementById('root')!).render(
         </ol>
         <div className="wren-grid">
           <figure className="wren-code"><figcaption>输入 · 查询逻辑模型 <code>orders</code></figcaption><pre tabIndex={0} aria-label="输入 SQL"><code>{INPUT_SQL}</code></pre></figure>
-          <figure className="wren-code"><figcaption>实测规划 · 展开到物理表，已排版</figcaption><pre tabIndex={0} aria-label="展开后的 SQL"><code>{EXPANDED_SQL}</code></pre></figure>
+          <figure className="wren-code wren-code--wide"><figcaption>实测规划 · 展开到物理表，已排版</figcaption><pre tabIndex={0} aria-label="展开后的 SQL"><code>{EXPANDED_SQL}</code></pre></figure>
         </div>
       </section>
 
@@ -101,7 +127,7 @@ createRoot(document.getElementById('root')!).render(
       <section className="section" id="control" aria-labelledby="wren-control-title">
         <div className="section__head"><h2 id="wren-control-title">表还在，为什么查询被拒绝？</h2></div>
         <p className="wren-prose">复制 manifest，只从 <code>models</code> 移除 <code>orders</code>。SQL、DuckDB 连接和 <code>query --read-only</code> 调用都不变，只切换 <code>--mdl</code> 指向的文件。</p>
-        <figure className="wren-code wren-control">
+        <figure className="wren-code wren-control wren-code--wide">
           <figcaption>移除模型后的实测输出 · 退出码 1</figcaption>
           <pre tabIndex={0} aria-label="移除模型后的错误"><code>{MODEL_REMOVED}</code></pre>
         </figure>
@@ -112,7 +138,7 @@ createRoot(document.getElementById('root')!).render(
       <section className="section" id="source" aria-labelledby="wren-source-title">
         <div className="section__head"><h2 id="wren-source-title">为什么不让查询依赖物理表名？</h2></div>
         <div className="wren-grid">
-          <figure className="wren-code">
+          <figure className="wren-code wren-code--wide">
             <figcaption><code>WrenEngine._plan()</code> · 源码摘录，已压缩换行</figcaption>
             <pre tabIndex={0} aria-label="语义规划源码摘录"><code>{PLAN_EXCERPT}</code></pre>
           </figure>
@@ -125,8 +151,16 @@ createRoot(document.getElementById('root')!).render(
       </section>
 
       <section className="section" id="limits" aria-labelledby="wren-limits-title">
-        <div className="section__head"><h2 id="wren-limits-title">这次实验没有验证什么</h2></div>
-        <p className="wren-prose">这是作者对上游开源 WrenAI 的源码学习案例，不是上游官方作品或旧版 GenBI Classic 的拆解。实验仅使用手写 SQL、三条合成订单和一个 DuckDB 连接；没有测自然语言生成准确率、其他连接器、生产性能或所有入口的访问限制。</p>
+        <div className="section__head">
+          <h2 id="wren-limits-title">这次证明了什么</h2>
+          <p className="section__intro">同一句 <code>orders</code> 查询会展开到物理表；只读入口能返回结果；仅从 manifest 移除模型后，策略层会在执行前拒绝，而物理表仍在。</p>
+        </div>
+        <p className="wren-prose">这是作者对上游开源 WrenAI 的源码学习案例，不是上游官方作品或旧版 GenBI Classic 的拆解。</p>
+        <dl className="wren-notes wren-limits">
+          <div><dt>没测自然语言生成</dt><dd>没有评估模型把问题写成 SQL 的准确率，本次输入是手写 SQL。</dd></div>
+          <div><dt>没测其他连接器与入口</dt><dd>只验证了 DuckDB 和显式启用的 <code>query --read-only</code>，没有覆盖其他连接器或非只读入口的访问限制。</dd></div>
+          <div><dt>没测生产性能</dt><dd>没有测延迟、吞吐或真实医保数据，三条合成订单不能代表生产负载。</dd></div>
+        </dl>
         <a className="text-action" href="https://wren-ai-learning-dashboard.vercel.app/">延伸：WrenAI 第一周学习看板</a>
       </section>
     </main>

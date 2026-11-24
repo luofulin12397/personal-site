@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { GH } from '../data/home';
 import { HOME_URL, PROJECTS_URL, WRITING_URL } from '../lib/site';
 
@@ -16,6 +17,17 @@ const BRANCHES: Array<{ key: Branch; no: string; label: string; href: string }> 
 ];
 
 export function Masthead({ items, branch }: { items: NavItem[]; branch: Branch }) {
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (!hash) return;
+    const target = document.getElementById(decodeURIComponent(hash.slice(1)));
+    if (!target) return;
+    let frame = requestAnimationFrame(() => {
+      frame = requestAnimationFrame(() => target.scrollIntoView({ behavior: 'instant', block: 'start' }));
+    });
+    return () => cancelAnimationFrame(frame);
+  }, []);
+
   return (
     <header className="masthead">
       <div className="masthead__in">

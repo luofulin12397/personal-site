@@ -216,9 +216,12 @@
   }
   .brand { grid-column: 1; grid-row: 1; }
   .nav { display: none; }
-  .masthead__repo { grid-column: 2; grid-row: 1; min-height: 40px; }
+  .masthead__repo { grid-column: 2; grid-row: 1; min-height: 44px; }
   .branches { grid-column: 1 / -1; grid-row: 2; width: 100%; }
-  .branches a { flex: 1; justify-content: center; min-height: 36px; }
+  .branches a { flex: 1; justify-content: center; min-height: 44px; }
+  .footer__in a {
+    display: inline-flex; align-items: center; min-height: 44px; padding-block: 8px;
+  }
   .row { grid-template-columns: 1fr; gap: 6px; }
   .row__no { padding-top: 0; }
   .spec > div { grid-template-columns: 52px minmax(0, 1fr); gap: 10px; }
