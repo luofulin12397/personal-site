@@ -1,4 +1,18 @@
 .risk-source { margin-top: 16px; overflow-wrap: anywhere; }
+.risk-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 24px; margin-top: 24px; }
+.risk-analysis { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); align-items: start; gap: clamp(20px, 4vw, 48px); }
+.risk-excerpt { margin: 0; border: 1px solid var(--line-2); background: var(--surface); }
+.risk-excerpt figcaption { display: flex; flex-wrap: wrap; gap: 8px 20px; padding: 12px 16px; border-bottom: var(--rule); color: var(--muted); font-size: 13px; }
+.risk-excerpt figcaption code { color: var(--signal); }
+.risk-excerpt pre { margin: 0; padding: 16px; overflow: auto; font: 13px / 1.7 var(--font-mono); color: var(--paper); }
+.risk-excerpt pre code { padding: 0; border: 0; background: none; color: inherit; font: inherit; }
+.risk-tradeoff { margin: 0 0 16px; }
+.risk-tradeoff div { padding: 14px 0; border-bottom: var(--rule); }
+.risk-tradeoff dt { font-weight: 700; color: var(--paper); }
+.risk-tradeoff dd { margin: 6px 0 0; max-width: 68ch; color: var(--muted); line-height: 1.8; }
+.risk-tradeoff dd .text-action { margin-left: 0.5em; }
+
+.risk-guided-detail, .risk-graph__stage { display: none; }
 
 .risk-guided-item { display: flex; flex-direction: column; min-width: 0; }
 .risk-guided-item .guided__option { width: 100%; flex: 1; }
@@ -36,11 +50,19 @@ button.risk-node__tile:hover { border-color: var(--signal); }
   .risk-workbench .inspector { position: sticky; top: 84px; }
 }
 
+@media (max-width: 900px) {
+  .risk-analysis { grid-template-columns: minmax(0, 1fr); }
+}
+
 @media (max-width: 620px) {
-  .risk-graph { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: none; gap: 8px; margin: 12px; }
+  .risk-graph { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; gap: 8px; margin: 12px; }
   .risk-node { grid-area: auto; padding: 0; }
-  .risk-node:nth-of-type(1), .risk-node:nth-of-type(4), .risk-node:nth-of-type(7),
-  .risk-node:nth-of-type(8), .risk-node:last-child { grid-column: 1 / -1; }
+  .risk-graph__stage { display: block; margin-top: 10px; color: var(--signal); font-size: 13px; }
+  .risk-workbench--guided { padding-bottom: 0; }
+  .risk-workbench--guided .map, .risk-workbench--guided .inspector:not(:target) { display: none; }
+  .risk-guided-detail { display: block; padding: 14px; border: 1px solid var(--line-2); border-top: 0; color: var(--muted); }
+  .risk-guided-detail p { font-size: 14px; line-height: 1.8; }
+  .risk-guided-detail a { margin: 8px 14px 0 0; }
   .risk-node__tile { min-height: 60px; }
   .risk-details {
     display: flex; align-items: center; justify-content: space-between; gap: 8px;

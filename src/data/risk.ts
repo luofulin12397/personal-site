@@ -7,7 +7,7 @@ export const RISK_NODES = [
     href: `${SOURCE}/app/service/event.py#L43-L58` },
   { id: 'blacklist', title: '黑名单检查', tag: '入口拦截', row: 2, col: 2,
     detail: '检查用户、医保卡、身份证、医疗机构编码与执业证。命中直接返回；未命中才进入常规决策引擎。',
-    href: `${SOURCE}/app/service/event.py#L43-L58` },
+    href: `${SOURCE}/app/service/event.py#L100-L126` },
   { id: 'blocked', title: '直接拒绝', tag: '命中黑名单', row: 2, col: 3,
     detail: '入口直接构造拒绝响应，不走后面的事件、特征、评估或案件写入。它和引擎给出的「自动拒绝」不是同一条路径。',
     href: `${SOURCE}/app/service/event.py#L100-L150` },
@@ -37,3 +37,26 @@ export const RISK_NODES = [
     href: `${SOURCE}/app/service/case.py#L332-L381`,
     related: `${SOURCE}/app/engine/decision.py#L382-L426` },
 ] as const;
+
+export const RISK_EVIDENCE = {
+  veto: `${SOURCE}/app/engine/decision.py#L294-L337`,
+  modelFailure: `${SOURCE}/app/engine/ml_model.py#L126-L138`,
+  boundary: `${SOURCE}/README.md#1-项目简介`,
+};
+
+export const VETO_EXCERPT = `if ml_fused:
+    final_score = int(round(
+        settings.ML_WEIGHT_RULE * rule_score
+        + settings.ML_WEIGHT_XGB * ml_score_100
+    ))
+    final_score = max(0, min(100, final_score))
+else:
+    final_score = rule_score
+
+risk_level = _score_to_level(final_score, event_type)
+decision = _score_to_decision(final_score, event_type)
+
+if has_veto:
+    decision = "拒绝"
+    risk_level = "极高"
+    final_score = max(final_score, settings.RISK_VETO_MIN_SCORE)`;

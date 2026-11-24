@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties, type KeyboardEvent } from 'react';
+import { Fragment, useEffect, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import { RISK_NODES } from '../data/risk';
 
 type Node = (typeof RISK_NODES)[number];
@@ -7,6 +7,13 @@ type NodeId = Node['id'];
 const NODES = new Map<NodeId, Node>(RISK_NODES.map((node) => [node.id, node]));
 const DEFAULT_NODE = 'blacklist';
 const GUIDED: readonly NodeId[] = ['blacklist', 'decision', 'review'];
+const MOBILE_STAGES: Partial<Record<NodeId, string>> = {
+  request: '入口：校验后查黑名单',
+  blocked: '命中 → 直接结束，不进引擎',
+  features: '未命中 → 进入常规检查',
+  rules: '规则和模型分别给分，再汇合',
+  'auto-reject': '按最终决策分流：拒绝、通过或标记、待人工审核',
+};
 const EDGES = [
   ['request', 'blacklist', 'M500 78V100'],
   ['blacklist', 'blocked', 'M655 139H680'],
@@ -75,6 +82,11 @@ export default function RiskWorkbench() {
     let next: Node | undefined;
     if (e.key === 'Home') next = RISK_NODES[0];
     else if (e.key === 'End') next = RISK_NODES[RISK_NODES.length - 1];
+    else if (window.matchMedia('(max-width: 620px)').matches) {
+      if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+      const index = RISK_NODES.findIndex((node) => node.id === id);
+      next = RISK_NODES[index + (e.key === 'ArrowUp' ? -1 : 1)];
+    }
     else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
       const vertical = e.key === 'ArrowUp' || e.key === 'ArrowDown';
       const sign = e.key === 'ArrowUp' || e.key === 'ArrowLeft' ? -1 : 1;
@@ -95,7 +107,6 @@ export default function RiskWorkbench() {
   return (
     <section className="section workbench" id="pipeline" aria-labelledby="risk-map-title">
       <div className="section__head">
-        <p className="kicker">02 / REQUEST FLOW</p>
         <h2 id="risk-map-title">一次风险检查怎么走</h2>
         <p className="section__intro">从一笔医保结算请求出发，看黑名单在哪拦截、规则和模型在哪汇合，以及哪些结果交给人。</p>
       </div>
@@ -114,18 +125,25 @@ export default function RiskWorkbench() {
               return (
                 <div className="risk-guided-item" key={nodeId}>
                   <button type="button" className={`guided__option${id === nodeId ? ' is-active' : ''}`}
-                    aria-pressed={id === nodeId} aria-controls="risk-inspector" onClick={() => select(nodeId)}>
+                    aria-pressed={id === nodeId} onClick={() => select(nodeId)}>
                     <span className="guided__no">0{i + 1}</span>
                     <span className="guided__opt"><strong>{node.title}</strong><small>{node.tag}</small></span>
                   </button>
-                  {id === nodeId && <a className="risk-details" href="#risk-inspector">查看详情 <span aria-hidden="true">↓</span></a>}
+                  {id === nodeId && (
+                    <div className="risk-guided-detail" aria-live="polite">
+                      <p>{node.detail}</p>
+                      <a className="text-action" href={node.href}>查看源码</a>
+                      {'related' in node && <a className="text-action" href={node.related}>查看建案条件</a>}
+                      <a className="text-action" href={`?node=${node.id}`}>节点直达链接</a>
+                    </div>
+                  )}
                 </div>
               );
             })}
           </div>
         </div>
       )}
-      <div className="workbench__grid risk-workbench">
+      <div className={`workbench__grid risk-workbench${explore ? '' : ' risk-workbench--guided'}`}>
         <div className="map" id="risk-system-map" role="group" aria-label="医保结算风险检查系统图" onKeyDown={onGraphKey}>
           <div className="map__meta" aria-hidden="true"><span>REQUEST → DECISION</span><span>AI_RISK_HEALTH</span></div>
           <div className="risk-graph">
@@ -135,7 +153,9 @@ export default function RiskWorkbench() {
                 className={`map-wire${id === from || id === to ? ' is-active' : ''}`} markerEnd="url(#risk-arrow)" />)}
             </svg>
             {RISK_NODES.map((node) => (
-              <div className="risk-node" style={{ '--risk-row': node.row, '--risk-col': node.col } as CSSProperties} key={node.id}>
+              <Fragment key={node.id}>
+              {MOBILE_STAGES[node.id] && <p className="risk-graph__stage">{MOBILE_STAGES[node.id]}</p>}
+              <div className="risk-node" style={{ '--risk-row': node.row, '--risk-col': node.col } as CSSProperties}>
                 {explore ? (
                   <button type="button" className={`risk-node__tile${id === node.id ? ' is-selected' : ''}`} data-node={node.id}
                     aria-pressed={id === node.id} aria-controls="risk-inspector" tabIndex={id === node.id ? 0 : -1}
@@ -149,6 +169,7 @@ export default function RiskWorkbench() {
                 )}
                 {explore && id === node.id && <a className="risk-details" href="#risk-inspector">查看详情 <span aria-hidden="true">↓</span></a>}
               </div>
+              </Fragment>
             ))}
           </div>
           <p className="map__help">{explore ? '选择节点查看详情，方向键可切换节点' : '沿推荐路径阅读，或开启自由探索'}</p>
