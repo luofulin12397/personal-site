@@ -95,7 +95,9 @@ v3 里这些证据**继续保留**，只是不再被当成页面唯一的合法�
 
 **给谁看：**已经愿意细看一个项目的后端、平台或基础设施同行。读完至少能复述一条真实链路、解释一个设计取舍，并找到能验证它的实现。这不是项目简介、技术栈清单或完整架构文档。
 
-参考样例：[RAG 知识库拆解](https://luofulin12397.github.io/personal-site/projects/rag/)（[页面结构](src/pages/Case.tsx)、[内容与证据](src/data/rag.ts)）。**复用它的阅读顺序和证据标准，不照搬它的页面形状。**
+**叙事合同：**七拍顺序、章节语法、第一人称和多视图规则以 [`docs/adr/0001-project-case-narrative.md`](docs/adr/0001-project-case-narrative.md) 为准。下面的检查清单是这份合同的验收摘要。
+
+参考样例：[RAG 知识库拆解](https://luofulin12397.github.io/personal-site/projects/rag/)（[页面结构](src/pages/Case.tsx)、[内容与证据](src/data/rag.ts)）。**复用它的章节语法和证据标准，不复制它的页面形状。**
 
 ### 发布前检查
 
