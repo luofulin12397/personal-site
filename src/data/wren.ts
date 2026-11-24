@@ -7,10 +7,41 @@ const ENGINE = `${SOURCE}/core/wren/src/wren/engine.py`;
 export const WREN_SOURCE = {
   model: `${SOURCE}/examples/v5-jaffle/models/orders/ref_sql.sql#L1`,
   cli: `${SOURCE}/core/wren/src/wren/cli.py#L481-L607`,
+  context: `${SOURCE}/core/wren/src/wren/context_cli.py#L862-L936`,
   plan: `${ENGINE}#L238-L284`,
   policy: `${ENGINE}#L119-L160`,
+  policyText: `${SOURCE}/core/wren/src/wren/policy.py#L380-L382`,
   duckdb: `${SOURCE}/core/wren/src/wren/connector/duckdb.py#L104-L116`,
 };
+
+export const WREN_NODES = [
+  { id: 'agent', index: '01', title: 'Agent 写模型 SQL', tag: '外部输入',
+    detail: 'Agent 把业务问题写成引用 orders 的 SQL。它可以先用 Skills 和 Memory 找上下文；本页用的是手写 SQL。',
+    proves: '查询可以只依赖逻辑模型名，不必知道物理表。',
+    limits: '模型能否正确生成 SQL，不在本次实验范围。',
+    href: WREN_SOURCE.model, sourceLabel: 'orders/ref_sql.sql' },
+  { id: 'manifest', index: '02', title: '加载 MDL 与 manifest', tag: '项目上下文',
+    detail: 'context build 把模型、关系、视图等定义编译成 target/mdl.json。连接配置独立于 manifest。',
+    proves: '引擎拿到的是可查询的模型和字段定义。',
+    limits: '构建通过不等于语义验证通过；本页使用预先构建的 manifest。',
+    href: WREN_SOURCE.context, sourceLabel: 'context_cli.py' },
+  { id: 'plan', index: '03', title: '规划并重写 SQL', tag: 'Wren 引擎',
+    detail: '引擎按 SQL 引用的模型裁剪 manifest，交给 CTERewriter 展开模型定义，并再次检查生成的 SQL。',
+    proves: 'dry-plan 能看到 orders 展开成引用物理表的 CTE。',
+    limits: '本地规划成功，不代表数据库接受这条 SQL。',
+    href: WREN_SOURCE.plan, sourceLabel: 'engine.py / CTERewriter' },
+  { id: 'duckdb', index: '04', title: 'DuckDB 执行', tag: '外部数据源',
+    detail: '连接器只收到展开后的 SQL。dry-run 用 LIMIT 0 校验，query 才真正取回结果。',
+    proves: '只读查询可以执行，并返回两位客户的订单计数。',
+    limits: '能查出结果，不代表 COUNT(*) 符合业务口径。',
+    href: WREN_SOURCE.duckdb, sourceLabel: 'connector/duckdb.py' },
+  { id: 'policy', index: 'B', title: '模型缺失 → 拒绝', tag: '策略分支',
+    detail: '如果 orders 不在 manifest 中，严格策略检查会拒绝未建模的表引用，即使物理表存在。',
+    proves: '拒绝发生在 SQL_POLICY_CHECK，不是 DuckDB 找不到表。',
+    limits: '只验证了显式 query --read-only；不代表其他入口默认如此。',
+    href: WREN_SOURCE.policyText, sourceLabel: 'policy.py' },
+] as const;
+
 
 export const INPUT_SQL = `SELECT customer_id, COUNT(*) AS order_count
 FROM orders

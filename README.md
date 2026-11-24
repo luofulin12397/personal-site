@@ -180,7 +180,7 @@ SHOOT_PREFIX=personal-site node scripts/shoot.cjs --out .shots-pages
 
 医疗风控案例以医保结算为例，推荐路径按「黑名单检查 → 双轨决策 → 自动拒绝」走完示例，人工审核是另一条分支。窄屏推荐路径给出流程总览并就地展开说明，完整分支在自由探索中分组。`?node=decision` 等链接可分享。工作台后用固定版本源码摘录解释一票否决，并区分模型回退局限与未验证的实际效果。RAG 工作台和已有节点链接不变。
 
-WrenAI 案例固定上游 `48de0b6`，用一条 `orders` 查询和本地 DuckDB 三条合成订单，实测 `dry-plan`、`dry-run`、`query --read-only` 各证明什么；再仅移除 manifest 中的模型，观察 `SQL_POLICY_CHECK` 拒绝而物理表仍在。页面单独标明这是源码学习案例、只覆盖显式只读入口，不冒充上游官方或旧版 GenBI Classic。命令选择写入 `?step=query` 等参数，刷新和分享会保留当前证据；章节锚点在 React 挂载后恢复位置。≤980px 使用页内目录，桌面的章节导航会标记当前节。
+WrenAI 案例固定上游 `48de0b6`，用一条 `orders` 查询和本地 DuckDB 三条合成订单，实测 `dry-plan`、`dry-run`、`query --read-only` 各证明什么；再仅移除 manifest 中的模型，观察 `SQL_POLICY_CHECK` 拒绝而物理表仍在。页面单独标明这是源码学习案例、只覆盖显式只读入口，不冒充上游官方或旧版 GenBI Classic。系统工作台可选择 `agent / manifest / plan / duckdb / policy` 节点，并用 `?node=plan#workbench` 分享。命令选择写入 `?step=query` 等参数，刷新和分享会保留当前证据；章节锚点在 React 挂载后恢复位置。≤980px 使用页内目录，桌面的章节导航会标记当前节。
 
 **切 Vercel（尚未执行）**：`vercel.json` 已指定 `buildCommand: npm run build`、`outputDirectory: dist`。切过去时不传 `VITE_BASE`，回到根 base。仍需单独确认：触发 Vercel 部署并验证两层 URL、关闭或保留 Pages 重定向、把新域名填进 GitHub profile 的 Website 字段。
 

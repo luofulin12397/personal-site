@@ -1,6 +1,7 @@
 import { StrictMode, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Footer, Masthead, SkipLink } from './components/Shell';
+import WrenWorkbench from './components/WrenWorkbench';
 import { EXPANDED_SQL, INPUT_SQL, MANIFEST_DIFF, MODEL_REMOVED, PLAN_EXCERPT, TABLE_CHECK, WREN_COMMIT, WREN_SOURCE, WREN_STEPS } from './data/wren';
 import { PROJECTS_URL } from './lib/site';
 import './styles/tokens.css';
@@ -9,6 +10,7 @@ import './styles/case.css';
 import './styles/wren.css';
 
 const NAV = [
+  { label: '系统', href: '#workbench' },
   { label: '查询', href: '#query' },
   { label: '边界', href: '#boundary' },
   { label: '实测', href: '#experiment' },
@@ -155,14 +157,13 @@ createRoot(document.getElementById('root')!).render(
         </nav>
       </details>
 
+      <WrenWorkbench />
+
       <section className="section" id="query" aria-labelledby="wren-query-title">
         <div className="section__head">
           <h2 id="wren-query-title">同一条查询，两种写法</h2>
           <p className="section__intro">Agent 先写面向逻辑模型的 SQL；Wren 按 MDL 展开，DuckDB 才看到物理表。</p>
         </div>
-        <ol className="wren-flow" aria-label="订单查询链路">
-          <li>Agent 写模型 SQL</li><li>Wren 按 MDL 展开</li><li>DuckDB 执行</li>
-        </ol>
         <div className="wren-grid">
           <figure className="wren-code"><figcaption>输入 · 查询逻辑模型 <code>orders</code></figcaption><pre tabIndex={0} aria-label="输入 SQL"><code>{INPUT_SQL}</code></pre></figure>
           <figure className="wren-code wren-code--wide" id="expanded-sql"><figcaption>实测规划 · 展开到物理表，已排版</figcaption><pre tabIndex={0} aria-label="展开后的 SQL"><code>{EXPANDED_SQL}</code></pre></figure>
