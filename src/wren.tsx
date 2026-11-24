@@ -1,7 +1,7 @@
 import { StrictMode, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Footer, Masthead, SkipLink } from './components/Shell';
-import { EXPANDED_SQL, INPUT_SQL, MODEL_REMOVED, PLAN_EXCERPT, WREN_SOURCE, WREN_STEPS } from './data/wren';
+import { EXPANDED_SQL, INPUT_SQL, MODEL_REMOVED, PLAN_EXCERPT, WREN_COMMIT, WREN_SOURCE, WREN_STEPS } from './data/wren';
 import { PROJECTS_URL } from './lib/site';
 import './styles/tokens.css';
 import './styles/shell.css';
@@ -9,6 +9,7 @@ import './styles/case.css';
 import './styles/wren.css';
 
 const NAV = [
+  { label: '查询', href: '#query' },
   { label: '边界', href: '#boundary' },
   { label: '实测', href: '#experiment' },
   { label: '对照', href: '#control' },
@@ -19,10 +20,13 @@ function Experiment() {
   const [index, setIndex] = useState(0);
   const step = WREN_STEPS[index];
   return (
-    <section className="section" id="experiment" aria-labelledby="experiment-title">
+    <section className="section workbench" id="experiment" aria-labelledby="experiment-title">
       <div className="section__head">
         <h2 id="experiment-title">同一句 SQL，三种证据</h2>
         <p className="section__intro">这是三个独立命令的实测记录，不是执行一次查询前必须手动跑的三个步骤。</p>
+      </div>
+      <div className="workbench__head">
+        <span className="workbench__label">FEATURED EVIDENCE / QUERY PLANNING</span>
       </div>
       <fieldset className="wren-switch">
         <legend>选择要查看的命令</legend>
@@ -53,10 +57,26 @@ createRoot(document.getElementById('root')!).render(
     <SkipLink />
     <Masthead items={NAV} branch="case" />
     <main id="main" className="wrap wren-case">
-      <header className="case-head wren-hero">
-        <p className="crumb"><a href={PROJECTS_URL}>← 返回项目拆解目录</a> / WrenAI</p>
+      <header className="case-head">
+        <div className="branch-badge">
+          <span className="branch-badge__no">02</span>
+          <span className="branch-badge__name">项目拆解 / PROJECT BREAKDOWN</span>
+          <span className="branch-badge__hint">项目案例 / WrenAI</span>
+        </div>
+        <p className="crumb"><a href={PROJECTS_URL}>← 返回项目拆解目录</a> <span className="crumb__sep" aria-hidden="true">/</span>WrenAI</p>
         <h1 className="display">Agent 写了 SQL，<br /><span className="soft">为什么还要经过 Wren？</span></h1>
-        <p className="wren-lede">要查每位客户下了多少单，SQL 写的是 <code>orders</code>，DuckDB 读的却是 <code>fixture.public.raw_orders</code>。中间这一步，决定了查询按什么模型理解数据。</p>
+        <p className="case-lede">要查每位客户下了多少单，SQL 写的是 <code>orders</code>，DuckDB 读的却是 <code>fixture.public.raw_orders</code>。中间这一步，决定了查询按什么模型理解数据。</p>
+        <p className="case-meta">
+          <a href={WREN_COMMIT}>Canner/WrenAI @ 48de0b6 ↗</a>
+          <span>wrenai 0.18.0 · wren-core-py 0.8.2 · DuckDB 1.5.0</span>
+        </p>
+      </header>
+
+      <section className="section" id="query" aria-labelledby="wren-query-title">
+        <div className="section__head">
+          <h2 id="wren-query-title">同一条查询，两种写法</h2>
+          <p className="section__intro">Agent 先写面向逻辑模型的 SQL；Wren 按 MDL 展开，DuckDB 才看到物理表。</p>
+        </div>
         <ol className="wren-flow" aria-label="订单查询链路">
           <li>Agent 写模型 SQL</li><li>Wren 按 MDL 展开</li><li>DuckDB 执行</li>
         </ol>
@@ -64,7 +84,7 @@ createRoot(document.getElementById('root')!).render(
           <figure className="wren-code"><figcaption>输入 · 查询逻辑模型 <code>orders</code></figcaption><pre tabIndex={0} aria-label="输入 SQL"><code>{INPUT_SQL}</code></pre></figure>
           <figure className="wren-code"><figcaption>实测规划 · 展开到物理表，已排版</figcaption><pre tabIndex={0} aria-label="展开后的 SQL"><code>{EXPANDED_SQL}</code></pre></figure>
         </div>
-      </header>
+      </section>
 
       <section className="section" id="boundary" aria-labelledby="wren-boundary-title">
         <div className="section__head"><h2 id="wren-boundary-title">模型定义含义，连接配置选数据库</h2></div>
@@ -107,7 +127,6 @@ createRoot(document.getElementById('root')!).render(
       <section className="section" id="limits" aria-labelledby="wren-limits-title">
         <div className="section__head"><h2 id="wren-limits-title">这次实验没有验证什么</h2></div>
         <p className="wren-prose">这是作者对上游开源 WrenAI 的源码学习案例，不是上游官方作品或旧版 GenBI Classic 的拆解。实验仅使用手写 SQL、三条合成订单和一个 DuckDB 连接；没有测自然语言生成准确率、其他连接器、生产性能或所有入口的访问限制。</p>
-        <p className="wren-prose">固定版本：WrenAI <code>48de0b6</code>（<code>wrenai 0.18.0</code>）、<code>wren-core-py 0.8.2</code>、DuckDB <code>1.5.0</code>。</p>
         <a className="text-action" href="https://wren-ai-learning-dashboard.vercel.app/">延伸：WrenAI 第一周学习看板</a>
       </section>
     </main>

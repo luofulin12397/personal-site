@@ -1,4 +1,7 @@
-const SOURCE = 'https://github.com/Canner/WrenAI/blob/48de0b6cbd02cbbe3753f29e37f4be24e8a9a7fd';
+const COMMIT = '48de0b6cbd02cbbe3753f29e37f4be24e8a9a7fd';
+const WREN_REPO = 'https://github.com/Canner/WrenAI';
+export const WREN_COMMIT = `${WREN_REPO}/tree/${COMMIT}`;
+const SOURCE = `${WREN_REPO}/blob/${COMMIT}`;
 const ENGINE = `${SOURCE}/core/wren/src/wren/engine.py`;
 
 export const WREN_SOURCE = {

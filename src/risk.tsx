@@ -22,6 +22,11 @@ createRoot(document.getElementById('root')!).render(
     <Masthead items={NAV} branch="case" />
     <main id="main" className="wrap">
       <header className="case-head">
+        <div className="branch-badge">
+          <span className="branch-badge__no">02</span>
+          <span className="branch-badge__name">项目拆解 / PROJECT BREAKDOWN</span>
+          <span className="branch-badge__hint">项目案例 / AI_RISK_HEALTH</span>
+        </div>
         <p className="crumb"><a href={PROJECTS_URL}>← 返回项目拆解目录</a> <span aria-hidden="true">/</span> AI_RISK_HEALTH</p>
         <h1 className="display">医疗风控：<br /><span className="soft">模型打分，谁做决定？</span></h1>
         <p className="section__intro">一笔医保结算触发极高风险规则，模型却给低分。系统会放行，还是拒绝？沿着这笔示例请求，看规则、模型和人分别在哪一步做决定。</p>

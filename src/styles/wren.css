@@ -1,11 +1,10 @@
-.wren-hero .display { max-width: 18ch; text-wrap: balance; }
-.wren-lede, .wren-prose { max-width: 68ch; color: var(--muted); line-height: 1.85; }
-.wren-lede { margin-top: 20px; font-size: clamp(15px, 1.4vw, 18px); }
+.wren-case .case-head .display { max-width: 18ch; text-wrap: balance; }
+.wren-prose { max-width: 68ch; color: var(--muted); line-height: 1.85; }
 .wren-prose + .wren-prose { margin-top: 12px; }
 .wren-prose + .text-action, .wren-grid + .text-action, .wren-notes + .text-action { margin-top: 16px; }
 .wren-flow {
   display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px 24px;
-  list-style: decimal inside; margin: 26px 0 16px; padding: 12px 0;
+  list-style: decimal inside; margin: 0 0 20px; padding: 12px 0;
   border-block: var(--rule); color: var(--paper); font-weight: 700;
 }
 .wren-flow li { list-style: inherit; }
@@ -38,5 +37,5 @@
 .wren-links { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 14px; }
 @media (max-width: 760px) {
   .wren-grid, .wren-flow { grid-template-columns: minmax(0, 1fr); }
-  .wren-hero .display { font-size: clamp(34px, 9vw, 42px); }
+  .wren-case .case-head .display { font-size: clamp(34px, 9vw, 42px); }
 }
