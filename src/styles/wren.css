@@ -35,7 +35,10 @@
 .wren-control { margin: 14px 0; }
 .wren-links { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 14px; }
 .wren-map-note { color: var(--muted-2); font: 12px var(--font-mono); letter-spacing: 0.04em; }
+.wren-views { margin-bottom: 0; }
+.wren-view-note { margin: 0 0 16px; color: var(--muted); font-size: 14px; line-height: 1.8; }
 .wren-workbench { align-items: start; }
+.workbench__grid.wren-workbench { align-items: start; }
 .wren-map__body { padding: clamp(16px, 2.4vw, 24px); }
 .wren-map__row { display: flex; align-items: stretch; gap: 8px; }
 .wren-node-wrap { display: flex; flex: 1; min-width: 0; align-items: center; gap: 8px; }
@@ -53,13 +56,7 @@
 .wren-node__stage { color: var(--muted-2); font: 12px var(--font-mono); letter-spacing: 0.04em; }
 .wren-node.is-selected .wren-node__stage { color: var(--signal); }
 .wren-node strong { color: var(--paper); font-size: 14px; line-height: 1.45; }
-.wren-arrow, .wren-branch-arrow { color: var(--signal); font: 16px var(--font-mono); flex: none; }
-.wren-map__branch {
-  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-  margin-top: 18px; padding-top: 14px; border-top: 1px dashed var(--line-2);
-}
-.wren-branch-label { color: var(--muted-2); font: 12px var(--font-mono); }
-.wren-node--branch { flex: 0 1 290px; min-height: 76px; }
+.wren-arrow { color: var(--signal); font: 16px var(--font-mono); flex: none; }
 .wren-inspector__notes { margin-top: 18px; }
 .wren-node-link { margin-top: 14px; }
 .wren-workbench .inspector { align-self: start; }
@@ -71,9 +68,6 @@
   .wren-node-wrap { flex: none; width: 100%; flex-direction: column; align-items: stretch; }
   .wren-arrow { align-self: center; transform: rotate(90deg); }
   .wren-node { min-height: 72px; }
-  .wren-map__branch { align-items: stretch; flex-direction: column; }
-  .wren-node--branch { flex-basis: auto; max-width: none; }
-  .wren-branch-arrow { align-self: center; transform: rotate(90deg); }
 }
 @media (max-width: 980px) {
   .wren-toc {
