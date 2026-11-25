@@ -50,14 +50,71 @@ function writeSelection(view: WrenView, node: string) {
   window.history.replaceState(window.history.state, '', url);
 }
 
-function WrenViewSection({ view, selectedId, onSelect }: {
+function useCompactWorkbench() {
+  const [compact, setCompact] = useState(() => (
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 760px)').matches
+  ));
+
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 760px)');
+    const update = () => setCompact(media.matches);
+    update();
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, []);
+
+  return compact;
+}
+
+function WrenInspector({ view, selected, inspectorId, inline }: {
+  view: WrenViewDef;
+  selected: (typeof WREN_NODES)[number];
+  inspectorId: string;
+  inline?: boolean;
+}) {
+  return (
+    <aside
+      className={`inspector wren-inspector${inline ? ' wren-inspector--inline' : ''}`}
+      id={inspectorId}
+      tabIndex={-1}
+      aria-live="polite"
+      aria-labelledby={`wren-node-${view.id}`}
+    >
+      <div className="inspector__head"><span>NODE / {selected.index}</span><span className="selected">{selected.tag}</span></div>
+      <div className="inspector__body">
+        <h3 id={`wren-node-${view.id}`}>{selected.title}</h3>
+        <p className="inspector__desc">{selected.detail}</p>
+        <dl className="wren-notes wren-inspector__notes">
+          <div><dt>这一步证明了什么</dt><dd>{selected.proves}</dd></div>
+          <div><dt>还不能证明什么</dt><dd>{selected.limits}</dd></div>
+        </dl>
+      </div>
+      <div className="wren-inspector__foot">
+        <a className="text-action wren-source-link" href={selected.href}>
+          核对源码：{selected.sourceLabel} <span className="arrow" aria-hidden="true">↗</span>
+        </a>
+        <a className="text-action wren-node-link" href={`?view=${view.id}&node=${selected.id}#view-${view.id}`}>
+          定位到此节点链接
+        </a>
+      </div>
+    </aside>
+  );
+}
+
+function WrenViewSection({ view, selectedId, compact, onSelect }: {
   view: WrenViewDef;
   selectedId: string;
+  compact: boolean;
   onSelect: (view: WrenView, node: string) => void;
 }) {
   const viewNodes = nodesFor(view.id);
   const selected = NODES.get(selectedId)!;
   const inspectorId = `wren-inspector-${view.id}`;
+  const helpText = view.id === 'runtime'
+    ? '这些是独立配置与命令，不是同一次查询的串行步骤 · 支持方向键切换'
+    : view.id === 'query'
+      ? '虚线框为可选上下文（本例 CLI 直连未经过） · 支持方向键切换节点'
+      : '沿链路选择节点，查看职责、证据和边界 · 支持方向键切换节点';
 
   function onKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     if (!(event.target instanceof HTMLButtonElement)) return;
@@ -88,41 +145,39 @@ function WrenViewSection({ view, selectedId, onSelect }: {
           </div>
           <div className="wren-map__body">
             <div className="wren-map__row">
-              {viewNodes.map((node, index) => (
-                <div className="wren-node-wrap" key={node.id}>
-                  <button type="button" data-wren-node={node.id}
-                    className={`wren-node${selectedId === node.id ? ' is-selected' : ''}`}
-                    aria-pressed={selectedId === node.id} aria-controls={inspectorId}
-                    tabIndex={selectedId === node.id ? 0 : -1}
-                    onClick={() => onSelect(view.id, node.id)}>
-                    <span className="wren-node__stage">{node.index} / {node.tag}</span>
-                    <strong>{node.title}</strong>
-                  </button>
-                  {view.id !== 'runtime' && index < viewNodes.length - 1 && (
-                    <span className="wren-arrow" aria-hidden="true">→</span>
-                  )}
-                </div>
-              ))}
+              {viewNodes.map((node, index) => {
+                const isSelected = selectedId === node.id;
+                const isOptional = node.id === 'context';
+                return (
+                  <div className={`wren-node-wrap${isSelected ? ' is-selected-wrap' : ''}`} key={node.id}>
+                    <button
+                      type="button"
+                      data-wren-node={node.id}
+                      className={`wren-node${isOptional ? ' is-optional' : ''}${isSelected ? ' is-selected' : ''}`}
+                      aria-pressed={isSelected}
+                      aria-controls={inspectorId}
+                      tabIndex={isSelected ? 0 : -1}
+                      onClick={() => onSelect(view.id, node.id)}
+                    >
+                      <span className="wren-node__stage">{node.index} / {node.tag}</span>
+                      <strong>{node.title}</strong>
+                    </button>
+                    {compact && isSelected && (
+                      <WrenInspector view={view} selected={selected} inspectorId={inspectorId} inline />
+                    )}
+                    {view.id !== 'runtime' && index < viewNodes.length - 1 && (
+                      <span className={`wren-arrow${isOptional ? ' wren-arrow--optional' : ''}`} aria-hidden="true">
+                        {isOptional ? '⇢' : '→'}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
-          <p className="map__help"><span aria-hidden="true">→ </span>{view.id === 'runtime' ? '这些是命令，不是同一次查询的步骤' : '沿链路选择节点，查看职责、证据和边界'}</p>
+          <p className="map__help"><span aria-hidden="true">→ </span>{helpText}</p>
         </div>
-        <aside className="inspector wren-inspector" id={inspectorId} tabIndex={-1} aria-live="polite" aria-labelledby={`wren-node-${view.id}`}>
-          <div className="inspector__head"><span>NODE / {selected.index}</span><span className="selected">{selected.tag}</span></div>
-          <div className="inspector__body">
-            <h3 id={`wren-node-${view.id}`}>{selected.title}</h3>
-            <p className="inspector__desc">{selected.detail}</p>
-            <dl className="wren-notes wren-inspector__notes">
-              <div><dt>这一步证明了什么</dt><dd>{selected.proves}</dd></div>
-              <div><dt>还不能证明什么</dt><dd>{selected.limits}</dd></div>
-            </dl>
-            <a className="text-action wren-node-link" href={`?view=${view.id}&node=${selected.id}#view-${view.id}`}>节点直达链接</a>
-          </div>
-          <a className="inspector__source" href={selected.href}>
-            <span><small>SOURCE EVIDENCE</small><strong>{selected.sourceLabel}</strong></span>
-            <span className="arrow" aria-hidden="true">↗</span>
-          </a>
-        </aside>
+        {!compact && <WrenInspector view={view} selected={selected} inspectorId={inspectorId} />}
       </div>
     </section>
   );
@@ -130,6 +185,7 @@ function WrenViewSection({ view, selectedId, onSelect }: {
 
 export default function WrenWorkbench({ children }: { children: ReactNode }) {
   const [selection, setSelection] = useState<Selection>(initialSelection);
+  const compact = useCompactWorkbench();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -152,7 +208,7 @@ export default function WrenWorkbench({ children }: { children: ReactNode }) {
         <p className="section__intro">按构建、查询和运行边界查阅节点；每个节点都附有可核对的源码。</p>
       </div>
       {WREN_VIEWS.map((view) => (
-        <WrenViewSection key={view.id} view={view} selectedId={selection[view.id]} onSelect={select} />
+        <WrenViewSection key={view.id} view={view} selectedId={selection[view.id]} compact={compact} onSelect={select} />
       ))}
       {children}
     </section>

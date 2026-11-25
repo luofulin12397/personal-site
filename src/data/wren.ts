@@ -19,7 +19,7 @@ export const WREN_SOURCE = {
 
 export const WREN_VIEWS = [
   { id: 'build', label: '构建', labelEn: 'BUILD', no: '01.1', hint: '离线编译：源文件 → 校验 → manifest。不在这一步读取数据库。', defaultNode: 'manifest' },
-  { id: 'query', label: '查询', labelEn: 'QUERY', no: '01.2', hint: '运行时：Agent SQL → 策略 → 重写 → connector。', defaultNode: 'rewrite' },
+  { id: 'query', label: '查询', labelEn: 'QUERY', no: '01.2', hint: '运行时：可选上下文之外，引用 orders 的查询依次经过策略检查、CTE 重写与连接器。', defaultNode: 'rewrite' },
   { id: 'runtime', label: '运行边界', labelEn: 'RUNTIME', no: '01.3', hint: '三条命令各自证明一层；profile 决定连哪个数据库。', defaultNode: 'query' },
 ] as const;
 
@@ -75,7 +75,7 @@ export const WREN_NODES: WrenNode[] = [
     limits: '本地规划成功，不代表数据库接受这条 SQL。',
     href: WREN_SOURCE.plan, sourceLabel: 'engine.py / CTERewriter' },
   { id: 'connector', view: 'query', index: '05', title: '目标方言与 connector', tag: '运行时',
-    detail: '重写后的 SQL 交给目标数据库连接器。连接器校验或执行失败时，不能回退成“规则已经算过”。',
+    detail: '重写后的 SQL 交给目标数据库连接器（本例为 DuckDB 连接器）。连接器校验或执行失败时，不能回退成“本地规划已经算过”。',
     proves: '规划结果最终必须接受目标数据库的语法和权限检查。',
     limits: '连接器返回结果，不代表业务口径正确。',
     href: WREN_SOURCE.duckdb, sourceLabel: 'connector/duckdb.py' },
@@ -128,13 +128,13 @@ ORDER BY customer_id`;
 export { EXPANDED_SQL };
 
 export const WREN_STEPS = [
-  { command: 'dry-plan', output: EXPANDED_SQL,
+  { command: 'dry-plan', summary: '本地展开', output: EXPANDED_SQL,
     proves: '本地规划成功，把逻辑模型 orders 展开成引用物理表的 CTE。',
     limits: '这个命令没连 DuckDB，不能证明数据库接受这条 SQL。' },
-  { command: 'dry-run', output: 'OK',
+  { command: 'dry-run', summary: '连接校验', output: 'OK',
     proves: 'DuckDB 连接器对规划结果提交了 LIMIT 0 包装查询，校验通过。',
     limits: '没有返回数据行，不能证明完整执行会成功，也不能验证结果。' },
-  { command: 'query --read-only', output: '{"customer_id": 101, "order_count": 2}\n{"customer_id": 202, "order_count": 1}',
+  { command: 'query --read-only', summary: '查回结果', output: '{"customer_id": 101, "order_count": 2}\n{"customer_id": 202, "order_count": 1}',
     proves: '只读入口执行成功，取回两位客户的订单计数。',
     limits: '能查出结果，不代表 COUNT(*) 就符合业务要求，例如取消单要不要计入。' },
 ] as const;

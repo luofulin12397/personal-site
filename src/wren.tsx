@@ -45,6 +45,10 @@ function CodeKeyboard() {
     const sync = () => {
       root.querySelectorAll<HTMLPreElement>('pre').forEach((pre) => {
         pre.tabIndex = pre.scrollWidth > pre.clientWidth ? 0 : -1;
+        if (!pre.getAttribute('aria-label')) {
+          const caption = pre.closest('figure')?.querySelector('figcaption')?.textContent?.trim();
+          if (caption) pre.setAttribute('aria-label', caption);
+        }
       });
     };
     const frame = requestAnimationFrame(sync);
@@ -107,10 +111,11 @@ function Experiment() {
       </div>
       <fieldset className="wren-switch">
         <legend>选择要查看的命令</legend>
-        {WREN_STEPS.map(({ command }, i) => (
+        {WREN_STEPS.map(({ command, summary }, i) => (
           <label key={command}>
             <input type="radio" name="wren-step" checked={index === i} onChange={() => choose(i)} />
             <code>{command}</code>
+            <span className="wren-switch__hint">{summary}</span>
           </label>
         ))}
       </fieldset>
@@ -137,6 +142,73 @@ function Experiment() {
   );
 }
 
+const DIAGRAM_PINS = [
+  { step: 1, left: '43%', top: '24%' },
+  { step: 2, left: '71%', top: '55%' },
+  { step: 3, left: '34%', top: '55%' },
+  { step: 4, left: '43%', top: '73%' },
+] as const;
+
+const LAB_SETUP = `git clone https://github.com/Canner/WrenAI.git ./WrenAI
+git -C ./WrenAI checkout 48de0b6cbd02cbbe3753f29e37f4be24e8a9a7fd
+python3 -m venv .venv && . .venv/bin/activate
+pip install wrenai==0.18.0 wren-core-py==0.8.2 duckdb==1.5.0
+python wren-orders.py ./orders-lab ./WrenAI`;
+
+function PanoramaSection() {
+  const [activeStep, setActiveStep] = useState<number | null>(null);
+
+  return (
+    <section className="section" id="limits">
+      <h2 id="architecture">06 / 回到全景：这个例子走了哪一段？</h2>
+      <div className="wren-diagram-spread">
+        <ol className="wren-diagram-steps" onMouseLeave={() => setActiveStep(null)}>
+          <li onMouseEnter={() => setActiveStep(1)} onFocus={() => setActiveStep(1)} onBlur={() => setActiveStep(null)}>
+            <a href="#path">输入 · CLI</a><br />交给 Wren 的 SQL 写着 <code>FROM orders</code>。
+          </li>
+          <li onMouseEnter={() => setActiveStep(2)} onFocus={() => setActiveStep(2)} onBlur={() => setActiveStep(null)}>
+            <a href="#policy">检查 · SQL policy</a><br />只读入口核对 <code>orders</code> 是否已在清单定义。
+            <span className="wren-step-stop">模型缺失 → 在此报 <code>MODEL_NOT_FOUND</code> 停下，不进入 ③ 展开与 ④ DuckDB</span>
+          </li>
+          <li onMouseEnter={() => setActiveStep(3)} onFocus={() => setActiveStep(3)} onBlur={() => setActiveStep(null)}>
+            <a href="#source">展开 · WrenEngine</a><br />按模型把 <code>orders</code> 展开为指向 <code>fixture.public.raw_orders</code> 的 CTE。
+          </li>
+          <li onMouseEnter={() => setActiveStep(4)} onFocus={() => setActiveStep(4)} onBlur={() => setActiveStep(null)}>
+            <a href="#result">执行 · 连接器（Connector catalog）</a><br />把展开后的 SQL 发给 DuckDB，由数据库读表并计数。
+          </li>
+        </ol>
+        <figure className="wren-architecture">
+          <a className="wren-diagram-zoom" href={site('diagrams/overview.png')} target="_blank" rel="noopener" aria-label="在新标签页打开原尺寸系统概览图">
+            <div className="wren-diagram-map">
+              <img src={site('diagrams/overview.png')} width={2298} height={3710} loading="lazy" alt="LikeC4 系统图：CLI 接收查询，引擎按模型检查和规划，连接器交给数据库执行。" />
+              {DIAGRAM_PINS.map(({ step, left, top }) => (
+                <span
+                  key={step}
+                  className={`wren-diagram-pin${activeStep === step ? ' is-active' : ''}`}
+                  style={{ left, top }}
+                  aria-hidden="true"
+                >
+                  {step}
+                </span>
+              ))}
+            </div>
+          </a>
+          <figcaption>
+            <a href={site('diagrams/overview.png')} target="_blank" rel="noopener">放大此概览图</a> ·{' '}
+            <a href={site('diagrams/index.png')} target="_blank" rel="noopener">完整架构图</a> ·{' '}
+            <a href={site('diagrams/wren-query.html')} target="_blank" rel="noopener">查询时序图</a>（新标签页）
+          </figcaption>
+        </figure>
+        <div className="wren-diagram-outro">
+          <p>换成 AI 生成 SQL，变化发生在这条路线前面：AI 得先理解问题，再写查询。本例从手写 SQL 开始，只验证直接 CLI 的显式只读入口，不代表 Agent Service、MCP 或其他连接器的行为。</p>
+          <p><strong>WrenAI 不替你决定订单数的业务口径；它让查询引用明确的模型，再按模型找到数据，交给数据库执行。</strong></p>
+          <p><a href="#workbench">按模块查阅工作台 ↓</a></p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <SkipLink />
@@ -148,7 +220,7 @@ createRoot(document.getElementById('root')!).render(
           <p className="crumb"><a href={PROJECTS_URL}>← 项目拆解</a> <span aria-hidden="true">/</span> WrenAI</p>
           <h1 className="display">AI 会写 SQL，<span>为什么还需要 WrenAI？</span></h1>
           <p className="case-lede">WrenAI 让 AI 和应用按业务模型查询数据库，而不是自己猜该查哪张表、用哪些字段。</p>
-          <p className="case-meta"><a href={WREN_COMMIT}>WrenAI @ 48de0b6</a><span>DuckDB 实测</span></p>
+          <p className="case-meta"><a href={WREN_COMMIT}>WrenAI @ 48de0b6</a><a href="#experiment">DuckDB 实测 ↓</a></p>
         </div>
         <section className="wren-hero-sample" aria-labelledby="wren-sample-title">
           <h2 id="wren-sample-title">每位客户下了多少单？</h2>
@@ -161,7 +233,11 @@ createRoot(document.getElementById('root')!).render(
       <details className="wren-toc">
         <summary>目录</summary>
         <nav aria-label="本文目录">
-          {NAV.map((item) => <a key={item.href} href={item.href}>{item.label}</a>)}
+          {NAV.map((item) => (
+            <a key={item.href} href={item.href} onClick={(e) => e.currentTarget.closest('details')?.removeAttribute('open')}>
+              {item.label}
+            </a>
+          ))}
         </nav>
       </details>
 
@@ -169,7 +245,7 @@ createRoot(document.getElementById('root')!).render(
         <section className="section" id="path">
           <h2 id="boundary">01 / 这条查询要找的 <code>orders</code> 是什么？</h2>
           <p>三条订单存在 DuckDB 的物理表 <code>fixture.public.raw_orders</code>。但交给 Wren 的查询没有写这个名字：</p>
-          <figure className="wren-code"><figcaption>输入 SQL · 按客户分组并数行</figcaption><pre tabIndex={0}><code>{INPUT_SQL}</code></pre></figure>
+          <figure className="wren-code"><figcaption>输入 SQL · 按客户分组并数行</figcaption><pre tabIndex={0} aria-label="输入 SQL：按客户分组并数行"><code>{INPUT_SQL}</code></pre></figure>
           <p><strong><code>orders</code> 是模型名，不是物理表名。</strong> 模型告诉 Wren 到哪里取数据，以及查询可用哪些字段。Wren 把这类定义称作 MDL。构建后，引擎读取整理好的模型清单（manifest）；连接配置决定连哪个数据库。</p>
           <p><a href={WREN_SOURCE.model}>查看上游模型定义</a></p>
         </section>
@@ -180,14 +256,20 @@ createRoot(document.getElementById('root')!).render(
         <section className="section" id="source">
           <h2>03 / 让 <code>orders</code> 指向实际取数的地方</h2>
           <p><a href={WREN_SOURCE.plan}><code>_plan()</code></a> 取出本次查询需要的模型定义，交给重写器。先看新增的 <code>WITH orders AS (...)</code>：它从物理表取列。下半段仍按客户分组、数订单。</p>
-          <figure className="wren-code wren-code--wide" id="expanded-sql"><figcaption>实测规划输出 · 上半段取数，下半段计数</figcaption><pre tabIndex={0}><code>{EXPANDED_SQL}</code></pre></figure>
+          <figure className="wren-code wren-code--wide" id="expanded-sql">
+            <figcaption className="wren-code__cap">
+              <span>实测规划输出 · 上半段取数，下半段计数</span>
+              <a href="#experiment">返回命令对照 ↓</a>
+            </figcaption>
+            <pre tabIndex={0} aria-label="实测规划输出：完整展开 SQL"><code>{EXPANDED_SQL}</code></pre>
+          </figure>
           <p><code>dry-plan</code> 到这里就结束了。它没有连接 DuckDB，不能证明查询跑得通。</p>
-          <details><summary>查看规划器源码摘录</summary><figure className="wren-code"><pre tabIndex={0}><code>{PLAN_EXCERPT}</code></pre></figure></details>
+          <details><summary>查看规划器源码摘录</summary><figure className="wren-code"><pre tabIndex={0} aria-label="WrenEngine _plan 规划器源码摘录"><code>{PLAN_EXCERPT}</code></pre></figure></details>
         </section>
         <section className="section" id="result">
           <h2>04 / DuckDB 真正数了一遍订单</h2>
           <p>Wren 的<a href={source('core/wren/src/wren/connector/duckdb.py#L80-L103')}>连接器</a>把展开后的 SQL 交给 DuckDB。真正读取三条订单、分组并计数的是 DuckDB。结果和开头手数的一样：</p>
-          <figure className="wren-code"><figcaption>只读查询实测 · 两行结果</figcaption><pre><code>{WREN_STEPS[2].output}</code></pre></figure>
+          <figure className="wren-code"><figcaption>只读查询实测 · 两行结果</figcaption><pre aria-label="只读查询实测两行结果"><code>{WREN_STEPS[2].output}</code></pre></figure>
           <p><strong>Wren 按模型找到数据，DuckDB 执行查询。</strong> 如果业务要求不算取消订单，这条 <code>COUNT(*)</code> 还没有表达那个要求。</p>
           <p><a href={site('diagrams/wren-query.html')} target="_blank" rel="noopener">查看查询时序图（新标签页）</a></p>
         </section>
@@ -196,41 +278,34 @@ createRoot(document.getElementById('root')!).render(
           <p>只改一件事：复制模型清单，从副本里删掉 <code>orders</code>。SQL、数据库和三条订单都不变。</p>
           <p><strong>先猜一下：</strong>查询是在 DuckDB 找表时失败，还是在到达 DuckDB 之前停住？</p>
           <p>实测是在<strong>到达 DuckDB 之前</strong>。只读入口在清单里找不到 <code>orders</code>，拒绝继续。<code>MODEL_NOT_FOUND</code> 是「模型没定义」，不是「没有这张表」。绕过 Wren 直接数物理表，仍然是 3 行。</p>
-          <details><summary>查看实际改动和两份输出</summary>
-            <figure className="wren-code wren-code--wrap"><figcaption>模型清单差异</figcaption><pre><code>{MANIFEST_DIFF}</code></pre></figure>
-            <figure className="wren-code wren-code--wrap"><figcaption>只读查询错误</figcaption><pre><code>{MODEL_REMOVED}</code></pre></figure>
-            <figure className="wren-code"><figcaption>直接查询物理表</figcaption><pre><code>{TABLE_CHECK}</code></pre></figure>
+          <dl className="wren-grid wren-control-pair" aria-label="失败对照结果摘要">
+            <div className="wren-control-card wren-control-card--blocked">
+              <dt>经 Wren 只读入口（移除 <code>orders</code> 模型）</dt>
+              <dd><code>SQL_POLICY_CHECK · MODEL_NOT_FOUND</code> — 在连接 DuckDB 前直接拒绝。</dd>
+            </div>
+            <div className="wren-control-card">
+              <dt>绕过 Wren 直查 DuckDB 物理表</dt>
+              <dd><code>SELECT COUNT(*) FROM public.raw_orders → 3</code> — 物理表和三条订单仍在。</dd>
+            </div>
+          </dl>
+          <p className="wren-prose">实验只修改副本 <code>mdl-without-orders.json</code>；把 <code>--mdl</code> 切回原 <code>target/mdl.json</code> 即可恢复正常查询。</p>
+          <details><summary>查看实际改动和原始输出</summary>
+            <figure className="wren-code wren-code--wrap"><figcaption>模型清单差异</figcaption><pre aria-label="模型清单差异"><code>{MANIFEST_DIFF}</code></pre></figure>
+            <figure className="wren-code wren-code--wrap"><figcaption>只读查询错误</figcaption><pre aria-label="只读查询 MODEL_NOT_FOUND 报错输出"><code>{MODEL_REMOVED}</code></pre></figure>
+            <figure className="wren-code"><figcaption>直接查询物理表</figcaption><pre aria-label="DuckDB 直接查询物理表输出"><code>{TABLE_CHECK}</code></pre></figure>
           </details>
         </section>
-        <section className="section" id="limits">
-          <h2 id="architecture">06 / 回到全景：这个例子走了哪一段？</h2>
-          <div className="wren-diagram-spread">
-            <ol className="wren-diagram-steps">
-              <li><a href="#path">输入 · CLI</a><br />交给 Wren 的 SQL 写着 <code>FROM orders</code>。</li>
-              <li><a href="#policy">检查 · SQL policy</a><br />只读入口找不到 <code>orders</code> 模型，就在这里停下。</li>
-              <li><a href="#source">展开 · WrenEngine</a><br />按模型把取数指向 <code>fixture.public.raw_orders</code>。</li>
-              <li><a href="#result">执行 · Connector catalog</a><br />连接器发送 SQL，DuckDB 读表并计数。</li>
-            </ol>
-            <figure className="wren-architecture">
-              <div className="wren-diagram-map">
-                <img src={site('diagrams/overview.png')} width={2298} height={3710} loading="lazy" alt="LikeC4 系统图：CLI 接收查询，引擎按模型检查和规划，连接器交给数据库执行。" />
-                <span className="wren-diagram-pin" style={{ left: '43%', top: '24%' }} aria-hidden="true">1</span>
-                <span className="wren-diagram-pin" style={{ left: '71%', top: '55%' }} aria-hidden="true">2</span>
-                <span className="wren-diagram-pin" style={{ left: '34%', top: '55%' }} aria-hidden="true">3</span>
-                <span className="wren-diagram-pin" style={{ left: '43%', top: '73%' }} aria-hidden="true">4</span>
-              </div>
-              <figcaption><a href={site('diagrams/index.png')} target="_blank" rel="noopener">完整架构图（新标签页）</a> · <a href={site('diagrams/wren-query.html')} target="_blank" rel="noopener">查询时序图（新标签页）</a></figcaption>
-            </figure>
-          </div>
-          <p>换成 AI 生成 SQL，变化发生在这条路线前面：AI 得先理解问题，再写查询。本例从手写 SQL 开始，只验证直接 CLI 的显式只读入口，不代表 Agent Service、MCP 或其他连接器的行为。</p>
-          <p><strong>WrenAI 不替你决定订单数的业务口径；它让查询引用明确的模型，再按模型找到数据，交给数据库执行。</strong></p>
-          <p><a href="#workbench">按模块查阅工作台 ↓</a></p>
-        </section>
+        <PanoramaSection />
         <section className="section" id="evidence">
           <h2>附录 / 自己动手验证一次</h2>
           <p>先看本地规划，再校验数据库是否接受，最后真正取回订单数。只替换模型清单再查一次，确认失败发生在哪一层。</p>
-          <p><a href={site('labs/wren-orders.py')} download>下载三行订单复现实验</a>。在安装 <code>wrenai==0.18.0</code>、<code>wren-core-py==0.8.2</code> 和 <code>duckdb==1.5.0</code> 的 Python 环境运行。第一个参数是新实验目录，第二个参数是检出的<a href={WREN_COMMIT}>上游固定版本</a>目录。</p>
-          <figure className="wren-code wren-code--wrap"><pre><code>python wren-orders.py ./orders-lab /path/to/WrenAI</code></pre></figure>
+          <p><a href={site('labs/wren-orders.py')} download>下载三行订单复现实验</a>。在安装 <code>wrenai==0.18.0</code>、<code>wren-core-py==0.8.2</code> 和 <code>duckdb==1.5.0</code> 的 Python 环境运行。第一个参数是不存在的新实验目录，第二个参数是检出的<a href={WREN_COMMIT}>上游固定版本</a>目录。</p>
+          <figure className="wren-code wren-code--wrap"><pre aria-label="运行三行订单复现实验命令"><code>python wren-orders.py ./orders-lab ./WrenAI</code></pre></figure>
+          <details className="wren-lab-guide">
+            <summary>查看完整环境准备、重跑说明与预期输出</summary>
+            <figure className="wren-code"><figcaption>固定版本检出与虚拟环境运行</figcaption><pre tabIndex={0} aria-label="固定版本检出与虚拟环境安装命令"><code>{LAB_SETUP}</code></pre></figure>
+            <p>脚本用新建目录隔离数据库与配置：重跑时请换一个新目录名（或先删除旧的 <code>./orders-lab</code>）。依次看到 <code>wren context [0]</code>、<code>wren dry-plan [0]</code>、<code>wren dry-run [0]</code>、<code>wren query [0]</code>、删模型对照 <code>wren query [1]</code> 以及末尾 <code>Control check: public.raw_orders still exists with 3 rows.</code> 即全部验证通过。</p>
+          </details>
           <Experiment />
         </section>
       </article>
