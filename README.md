@@ -180,9 +180,9 @@ SHOOT_PREFIX=personal-site node scripts/shoot.cjs --out .shots-pages
 
 医疗风控案例以医保结算为例，推荐路径按「黑名单检查 → 双轨决策 → 自动拒绝」走完示例，人工审核是另一条分支。窄屏推荐路径给出流程总览并就地展开说明，完整分支在自由探索中分组。`?node=decision` 等链接可分享。工作台后用固定版本源码摘录解释一票否决，并区分模型回退局限与未验证的实际效果。RAG 工作台和已有节点链接不变。
 
-WrenAI 案例固定上游 `48de0b6`，用一条 `orders` 查询和本地 DuckDB 三条合成订单，实测 `dry-plan`、`dry-run`、`query --read-only` 各证明什么；再仅移除 manifest 中的模型，观察 `SQL_POLICY_CHECK` 拒绝而物理表仍在。页面单独标明这是源码学习案例、只覆盖显式只读入口，不冒充上游官方或旧版 GenBI Classic。系统剖面分「构建 / 查询 / 运行边界」三个连续章节，共 12 个节点，覆盖 MDL 源文件、校验与编译、profile、Skills/Memory、策略检查、CTE 重写、connector 和三条命令；可用 `?view=query&node=rewrite#view-query` 分享。命令选择写入 `?step=query` 等参数，刷新和分享会保留当前证据；章节锚点在 React 挂载后恢复位置。≤980px 使用页内目录，桌面的章节导航会标记当前节。
+WrenAI 案例固定上游 `48de0b6`，与 RAG、医疗风控共用 `.wrap` 全宽网格与二层 `.branch-badge` 页头：首屏左侧立命题，右侧给出本地 DuckDB 三条合成订单样本，紧接「左三泳道系统剖面（构建 / 查询主链 / 运行模式共 12 个节点同图可见）+ 右共用 Evidence Inspector 与信号色源码条」工作台，可用 `?view=query&node=policy#view-query` 分享并在 ≤760px 下就地展开节点详情。
 
-Wren 案例正文用单列教程，从三条订单和预期结果讲起，依次解释模型、只读检查、SQL 展开、DuckDB 执行和失败对照。LikeC4 概览图直接嵌入全景一节；完整图、Archify 时序和节点工作台供查阅。文末可下载 `public/labs/wren-orders.py`，用固定版本上游模型在本地复现。
+工作台后依次按全宽双栏展开边界、查询四站与展开 SQL、单变量删模型失败对照（`MODEL_NOT_FOUND` 在连库前拦截，而物理表 3 行仍在）、四个源码设计取舍横行、三条命令实测切换（`?step=query`）与本地一键复现脚本 `public/labs/wren-orders.py`，以及已核实范围与未验证边界；完整 LikeC4 架构图与 Archify 查询调用时序图以原尺寸独立链接供核查。
 
 **切 Vercel（尚未执行）**：`vercel.json` 已指定 `buildCommand: npm run build`、`outputDirectory: dist`。切过去时不传 `VITE_BASE`，回到根 base。仍需单独确认：触发 Vercel 部署并验证两层 URL、关闭或保留 Pages 重定向、把新域名填进 GitHub profile 的 Website 字段。
 

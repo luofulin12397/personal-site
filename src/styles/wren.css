@@ -1,199 +1,771 @@
-.wren-prose { max-width: 68ch; color: var(--muted); line-height: 1.85; }
-.wren-prose + .wren-prose { margin-top: 12px; }
-.wren-prose + .text-action, .wren-grid + .text-action, .wren-notes + .text-action { margin-top: 16px; }
-.wren-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
-@media (min-width: 761px) {
-  .wren-grid.wren-result { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }
+/* WrenAI 案例：对齐全站 .wrap 网格、双栏工作台与横向对照结构 */
+
+.wren-case code {
+  font-size: max(12px, 0.94em);
 }
-.wren-code { min-width: 0; margin: 0; border: 1px solid var(--line-2); background: var(--surface); }
-.wren-code figcaption { padding: 10px 14px; border-bottom: var(--rule); color: var(--muted); font-size: 13px; }
-.wren-code__cap { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 16px; }
-.wren-code__cap a { color: var(--signal); font-size: 12.5px; }
-.wren-code pre {
-  margin: 0; padding: 14px; white-space: pre-wrap; overflow-wrap: anywhere;
-  color: var(--paper); font: 13px / 1.7 var(--font-mono);
-  scrollbar-width: thin; scrollbar-color: var(--line-2) transparent;
+
+.wren-anchor-target {
+  scroll-margin-top: 96px;
 }
-.wren-collapsed { padding: 14px; color: var(--muted); }
-.wren-collapsed p { font-size: 14px; line-height: 1.8; }
-.wren-collapsed pre { margin-top: 10px; padding: 10px; border: 1px solid var(--line-2); }
-.wren-collapsed .text-action { margin-top: 10px; }
-.wren-control-evidence { margin: 16px 0; }
-.wren-toc { display: none; }
-.wren-code pre code, .wren-switch code { padding: 0; border: 0; background: none; color: inherit; font: inherit; }
-.wren-code pre:focus-visible { outline-offset: -2px; }
-.wren-switch { min-width: 0; margin: 0 0 16px; padding: 0; border: 0; display: flex; flex-wrap: wrap; gap: 8px; }
-.wren-switch legend { margin-bottom: 8px; font-size: 13px; color: var(--muted); }
-.wren-switch label {
-  display: inline-flex; align-items: center; gap: 8px; min-height: 44px;
-  padding: 6px 12px; border: 1px solid var(--line-2); cursor: pointer;
-  font: 13px var(--font-mono);
-}
-.wren-switch__hint { color: var(--muted-2); font: 12.5px var(--font-sans); }
-.wren-switch input { accent-color: var(--signal); margin: 0; }
-.wren-switch label:hover, .wren-switch label:has(:checked) { border-color: var(--signal); color: var(--signal); }
-.wren-switch label:has(:checked) .wren-switch__hint { color: var(--paper-2); }
-.wren-switch label:has(:focus-visible) { outline: 2px solid var(--signal); outline-offset: 2px; }
-.wren-notes { margin: 0; }
-.wren-notes > div { padding: 12px 0; border-bottom: var(--rule); }
-.wren-notes > div:first-child { border-top: var(--rule); }
-.wren-notes dt { color: var(--paper); font-weight: 700; }
-.wren-notes dd { margin: 4px 0 0; max-width: 68ch; color: var(--muted); line-height: 1.8; }
-.wren-control { margin: 14px 0; }
-.wren-links { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 14px; }
-.wren-map-note { color: var(--muted-2); font: 12px var(--font-mono); letter-spacing: 0.04em; }
-.wren-view + .wren-view {
-  margin-top: clamp(40px, 6vw, 72px);
-  padding-top: clamp(28px, 4vw, 44px);
-  border-top: var(--rule);
-}
-.wren-view__head { margin-bottom: 18px; }
-.wren-view__head h3 { margin-top: 6px; font-size: clamp(22px, 2vw, 30px); line-height: 1.35; letter-spacing: -0.02em; }
-.wren-view__head .section__intro { margin-top: 8px; }
-.wren-subsection + .wren-subsection {
-  margin-top: clamp(36px, 5vw, 56px);
-  padding-top: clamp(24px, 3vw, 34px);
-  border-top: var(--rule);
-}
-.wren-subsection__head { margin-bottom: 16px; }
-.wren-subsection__head h3 { margin-top: 6px; font-size: clamp(20px, 1.7vw, 26px); line-height: 1.4; }
-.wren-subsection__head .section__intro { margin-top: 8px; }
-.workbench__grid.wren-workbench {
-  grid-template-columns: minmax(0, 1fr);
-  gap: 16px;
-  padding-bottom: 0;
-}
-.wren-architecture { max-width: 460px; margin: 0; }
-.wren-architecture img { display: block; width: 100%; height: auto; border: var(--rule); transition: border-color 160ms ease-out; }
-.wren-architecture figcaption { margin-top: 8px; color: var(--muted); font-size: 13.5px; line-height: 1.7; }
-.wren-diagram-zoom { display: block; text-decoration: none !important; }
-.wren-diagram-zoom:hover img, .wren-diagram-zoom:focus-visible img { border-color: var(--signal); }
-.wren-case .case-head, .wren-diagram-spread {
-  display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-  gap: clamp(20px, 6vw, 90px);
-}
-.wren-case .case-head { max-width: 1120px; margin-inline: auto; align-items: center; }
-.wren-case .case-head .display { max-width: none; font-size: clamp(26px, 4vw, 58px); }
-.wren-case .case-head .display span { display: block; }
-.wren-hero-sample { padding: clamp(16px, 3vw, 32px); border: var(--rule); background: var(--surface); }
-.wren-hero-sample p { margin-top: 12px; }
-.wren-hero-sample strong { color: var(--signal); }
-.wren-reading { max-width: 1120px; margin-inline: auto; }
-.wren-reading > .section:not(#limits) { max-width: 76ch; margin-inline: auto; }
-.wren-diagram-spread {
-  grid-template-columns: minmax(0, 1fr) minmax(0, 460px);
-  column-gap: clamp(24px, 4.5vw, 56px);
-  row-gap: 20px;
+
+/* ---------- 首屏：分支横条 + 左命题右样本卡 ---------- */
+.wren-head__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.18fr) minmax(320px, 0.82fr);
+  gap: clamp(24px, 4vw, 56px);
   align-items: start;
-  margin-top: 24px;
 }
-@media (min-width: 761px) {
-  .wren-diagram-steps { grid-column: 1; grid-row: 1; }
-  .wren-diagram-outro { grid-column: 1; grid-row: 2; }
-  .wren-architecture { grid-column: 2; grid-row: 1 / span 2; }
+
+.wren-head .crumb {
+  margin-top: 0;
 }
-.wren-diagram-steps { list-style: none; counter-reset: diagram-step; padding: 0; }
-.wren-diagram-steps li {
-  position: relative; counter-increment: diagram-step; padding: 12px 0 12px 42px;
-  line-height: 1.65; overflow-wrap: anywhere; border-bottom: var(--rule);
+
+.wren-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 24px;
+  margin-top: 28px;
 }
-.wren-step-stop {
-  display: block; margin-top: 8px; padding: 6px 10px;
-  border: 1px solid var(--line-2); background: var(--surface);
-  color: var(--paper-2); font-size: 13.5px; line-height: 1.6;
+
+.wren-hero-sample {
+  border: 1px solid var(--line-2);
+  background: var(--surface);
 }
-.wren-diagram-steps li::before, .wren-diagram-pin {
-  position: absolute; width: 26px; height: 26px; border-radius: 50%;
-  background: var(--signal); color: var(--surface); text-align: center; font-weight: 700; line-height: 26px;
+
+.wren-hero-sample__body {
+  padding: 20px 22px 22px;
 }
-.wren-diagram-steps li::before { content: counter(diagram-step); inset-inline-start: 0; }
-.wren-diagram-map { position: relative; }
-.wren-diagram-pin {
-  transform: translate(-50%, -50%);
-  transition: transform 160ms ease-out, box-shadow 160ms ease-out;
+
+.wren-hero-sample h2 {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--paper);
 }
-.wren-diagram-pin.is-active {
-  transform: translate(-50%, -50%) scale(1.22);
-  box-shadow: 0 0 0 3px var(--ground), 0 0 0 5px var(--signal);
+
+.wren-orders {
+  width: 100%;
+  margin-top: 14px;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
 }
-.wren-control-pair { margin-block: 16px; }
-.wren-control-card { padding: 14px 16px; border: 1px solid var(--line-2); background: var(--surface); }
-.wren-control-card--blocked { border-color: var(--signal-dim); }
-.wren-control-card dt { color: var(--paper); font-weight: 700; font-size: 14px; }
-.wren-control-card dd { margin-top: 6px; color: var(--muted); font-size: 14px; line-height: 1.75; }
-.wren-lab-guide { margin-bottom: 18px; }
-.wren-reading details .wren-code + .wren-code { margin-top: 12px; }
-.wren-subsection summary { padding-block: 12px; cursor: pointer; }
-.wren-case .wren-toc { max-width: 76ch; margin-inline: auto; }
-@media (max-width: 760px) {
-  .wren-case .case-head, .wren-diagram-spread { grid-template-columns: minmax(0, 1fr); }
+
+.wren-orders th,
+.wren-orders td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: var(--rule);
 }
-.wren-reading p { line-height: 1.85; margin-block: 12px; overflow-wrap: anywhere; }
-.wren-reading h2 { text-wrap: balance; }
-.wren-reading > .section { padding-block: clamp(24px, 4vw, 48px); }
-.wren-reading details > summary { cursor: pointer; min-height: 44px; padding-block: 12px; }
-.wren-reading a { text-decoration: underline; text-underline-offset: 0.2em; }
-.wren-orders { width: min(100%, 320px); border-collapse: collapse; font-variant-numeric: tabular-nums; }
-.wren-orders th, .wren-orders td { text-align: left; padding: 8px 14px; border-bottom: var(--rule); }
-.wren-map__body { padding: clamp(16px, 2.4vw, 24px); }
-.wren-map__row { display: flex; align-items: stretch; gap: 8px; }
-.wren-node-wrap { display: flex; flex: 1; min-width: 0; align-items: center; gap: 8px; }
+
+.wren-orders th {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted-2);
+  letter-spacing: 0.04em;
+}
+
+.wren-sample-verdict {
+  margin-top: 14px;
+  font-size: 14px;
+}
+
+.wren-sample-verdict strong {
+  color: var(--signal);
+}
+
+.wren-sample-note {
+  margin-top: 8px;
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: var(--muted);
+}
+
+/* ---------- 窄屏章节目录（≤980px 显示） ---------- */
+.wren-toc {
+  display: none;
+}
+
+/* ---------- 工作台：三泳道左图 + 右侧共用 Inspector ---------- */
+.wren-workbench-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 22px;
+}
+
+.wren-workbench-links .mode-toggle {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wren-workbench-grid {
+  align-items: start;
+}
+
+@media (min-width: 1101px) {
+  .wren-workbench-grid .wren-inspector {
+    position: sticky;
+    top: 84px;
+  }
+}
+
+.wren-lanes {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: clamp(16px, 2.2vw, 22px);
+}
+
+.wren-lane {
+  padding-bottom: 20px;
+  border-bottom: var(--rule);
+  scroll-margin-top: 96px;
+}
+
+.wren-lane:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.wren-lane__head {
+  margin-bottom: 12px;
+}
+
+.wren-lane__kicker {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--signal);
+}
+
+.wren-lane__head h3 {
+  margin-top: 4px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--paper);
+}
+
+.wren-lane__head p {
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--muted);
+}
+
+.wren-lane__nodes {
+  display: grid;
+  gap: 12px 24px;
+}
+
+.wren-lane__nodes--build {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.wren-lane__nodes--query {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.wren-lane__nodes--runtime {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wren-node-cell {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  min-width: 0;
+}
+
 .wren-node {
-  display: flex; flex: 1; min-width: 0; min-height: 96px; flex-direction: column;
-  align-items: flex-start; justify-content: center; gap: 7px; padding: 12px;
-  border: 1px solid var(--line-2); background: var(--surface-2); text-align: left;
-  transition: border-color 160ms ease-out, background 160ms ease-out;
+  flex: 1;
+  min-width: 0;
+  min-height: 82px;
+  padding: 11px 12px;
+  border: 1px solid var(--line-2);
+  background: var(--surface-2);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 6px;
+  transition: border-color 160ms ease-out, background-color 160ms ease-out, box-shadow 160ms ease-out;
 }
-.wren-node.is-optional:not(.is-selected) { border-style: dashed; background: var(--surface); }
-.wren-node:hover { border-color: var(--wire); }
+
+.wren-node:hover {
+  border-color: var(--wire);
+}
+
+.wren-node.is-optional:not(.is-selected) {
+  border-style: dashed;
+  background: var(--surface);
+}
+
+.wren-node.is-gate:not(.is-selected) {
+  border-color: var(--signal-dim);
+}
+
 .wren-node.is-selected {
-  border: 2px solid var(--signal); background: #1b2f18;
+  border-color: var(--signal);
+  background: #1b2f18;
   box-shadow: 4px 4px 0 rgba(210, 243, 67, 0.16);
 }
-.wren-node__stage { color: var(--muted-2); font: 12px var(--font-mono); letter-spacing: 0.04em; }
-.wren-node.is-selected .wren-node__stage { color: var(--signal); }
-.wren-node strong { color: var(--paper); font-size: 14px; line-height: 1.45; }
-.wren-arrow { color: var(--signal); font: 16px var(--font-mono); flex: none; }
-.wren-arrow--optional { color: var(--muted-2); }
-.wren-inspector__notes { margin-top: 18px; }
-.wren-inspector__foot {
-  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
-  gap: 10px 20px; padding: 14px 20px; border-top: var(--rule); background: var(--surface-2);
+
+.wren-node__stage {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--muted-2);
 }
-.wren-inspector__foot .wren-source-link { font-weight: 700; }
-.wren-inspector__foot .wren-node-link { margin-top: 0; color: var(--muted); }
-.wren-inspector__foot .wren-node-link:hover { color: var(--signal); }
-@media (min-width: 761px) {
-  .wren-inspector__notes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
-  .wren-inspector__notes > div { border-top: var(--rule); }
+
+.wren-node.is-selected .wren-node__stage,
+.wren-node.is-selected strong {
+  color: var(--signal);
 }
-@media (max-width: 760px) {
-  html { scroll-padding-top: 148px; }
-  .wren-map__row { flex-direction: column; }
-  .wren-node-wrap { flex: none; width: 100%; flex-direction: column; align-items: stretch; }
-  .wren-inspector--inline { margin-top: 4px; }
-  .wren-arrow { align-self: center; transform: rotate(90deg); }
-  .wren-node { min-height: 72px; }
+
+.wren-node strong {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--paper);
 }
+
+.wren-node__sub {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted-2);
+  overflow-wrap: anywhere;
+}
+
+.wren-arrow {
+  position: absolute;
+  right: -18px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  text-align: center;
+  pointer-events: none;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--signal);
+}
+
+@media (min-width: 1101px) {
+  .wren-lane__nodes--build .wren-node-cell:nth-child(3n) .wren-arrow,
+  .wren-lane__nodes--query .wren-node-cell:nth-child(3n) .wren-arrow {
+    display: none;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1100px) {
+  .wren-lane__nodes--build .wren-node-cell:nth-child(2n) .wren-arrow,
+  .wren-lane__nodes--query .wren-node-cell:nth-child(2n) .wren-arrow {
+    display: none;
+  }
+}
+
+.wren-arrow--optional {
+  color: var(--muted-2);
+}
+
+.wren-inspector__deep {
+  margin-top: 16px;
+}
+
+/* ---------- 02 查询链路：左批注 + 右 SQL 与规划代码栈 ---------- */
+.wren-trace-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.96fr) minmax(0, 1.14fr);
+  gap: clamp(24px, 3.6vw, 48px);
+  align-items: start;
+}
+
+.wren-trace-notes {
+  margin-top: 0;
+}
+
+.wren-diagram-card {
+  margin-top: 24px;
+  padding: 20px 22px 22px;
+  border: 1px solid var(--line-2);
+  background: var(--surface);
+}
+
+.wren-diagram-card h3 {
+  margin-top: 10px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.wren-diagram-card p:not(.boundary__tag) {
+  margin-top: 10px;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--muted);
+}
+
+.wren-sql-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+/* ---------- 代码块与输出面板 ---------- */
+.wren-code {
+  min-width: 0;
+  margin: 0;
+  border: 1px solid var(--line-2);
+  background: var(--surface);
+}
+
+.wren-code figcaption {
+  padding: 10px 14px;
+  border-bottom: var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.wren-code figcaption code {
+  color: var(--signal);
+}
+
+.wren-code__cap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 16px;
+}
+
+.wren-code__cap a {
+  color: var(--signal);
+  font-size: 12.5px;
+  border-bottom: 1px solid var(--line-2);
+}
+
+.wren-code__cap a:hover {
+  border-color: var(--signal);
+}
+
+.wren-code pre {
+  margin: 0;
+  padding: 14px 16px;
+  overflow-x: auto;
+  font: 13px / 1.68 var(--font-mono);
+  color: var(--paper);
+}
+
+.wren-code--wrap pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.wren-code pre code,
+.wren-switch code {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+}
+
+.wren-code pre:focus-visible {
+  outline-offset: -2px;
+}
+
+/* ---------- 03 单变量失败对照：左结论卡 + 右原始输出 ---------- */
+.wren-control-spread {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
+  gap: clamp(24px, 3.6vw, 48px);
+  align-items: start;
+}
+
+.wren-control-pair {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.wren-control-card {
+  padding: 18px 20px;
+  border: 1px solid var(--line-2);
+  background: var(--surface);
+}
+
+.wren-control-card--blocked {
+  border-color: var(--signal);
+  box-shadow: 5px 5px 0 rgba(210, 243, 67, 0.14);
+}
+
+.wren-pill {
+  display: inline-block;
+  margin-right: 10px;
+  padding: 2px 7px;
+  border: 1px solid var(--line-2);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  vertical-align: middle;
+}
+
+.wren-pill--blocked {
+  border-color: var(--signal);
+  background: rgba(210, 243, 67, 0.12);
+  color: var(--signal);
+}
+
+.wren-control-card dt {
+  color: var(--paper);
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.wren-control-card dd {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.wren-recovery {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: var(--rule);
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--muted);
+}
+
+.wren-recovery strong {
+  color: var(--paper);
+}
+
+.wren-control-outputs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+/* ---------- 04 取舍横行附加链接 ---------- */
+.wren-row-link {
+  margin-top: 12px;
+}
+
+/* ---------- 05 三条命令对照与本地复现 ---------- */
+.wren-experiment {
+  padding: clamp(18px, 2.6vw, 26px);
+  border: 1px solid var(--line-2);
+  background: var(--surface);
+  scroll-margin-top: 96px;
+}
+
+.wren-experiment__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px 24px;
+  padding-bottom: 18px;
+  border-bottom: var(--rule);
+  margin-bottom: 20px;
+}
+
+.wren-experiment__bar .subhead {
+  margin: 0;
+}
+
+.wren-muted {
+  margin-top: 6px;
+  max-width: 64ch;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--muted);
+}
+
+.wren-switch {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.wren-switch label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid var(--line-2);
+  background: var(--surface-2);
+  cursor: pointer;
+  font-size: 13px;
+  transition: border-color 160ms ease-out, color 160ms ease-out;
+}
+
+.wren-switch__hint {
+  color: var(--muted-2);
+  font: 12.5px var(--font-sans);
+}
+
+.wren-switch input {
+  accent-color: var(--signal);
+  margin: 0;
+}
+
+.wren-switch label:hover,
+.wren-switch label:has(:checked) {
+  border-color: var(--signal);
+  color: var(--signal);
+}
+
+.wren-switch label:has(:checked) .wren-switch__hint {
+  color: var(--paper-2);
+}
+
+.wren-switch label:has(:focus-visible) {
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
+}
+
+.wren-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+
+@media (min-width: 861px) {
+  .wren-grid.wren-result {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  }
+}
+
+.wren-collapsed {
+  padding: 14px 16px;
+  color: var(--muted);
+}
+
+.wren-collapsed p {
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.wren-collapsed pre {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--line-2);
+}
+
+.wren-collapsed .text-action {
+  margin-top: 12px;
+}
+
+.wren-notes {
+  margin: 0;
+}
+
+.wren-notes > div {
+  padding: 12px 0;
+  border-bottom: var(--rule);
+}
+
+.wren-notes > div:first-child {
+  padding-top: 0;
+}
+
+.wren-notes dt {
+  color: var(--paper);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.wren-notes dd {
+  margin: 6px 0 0;
+  max-width: 64ch;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.wren-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 22px;
+  margin-top: 16px;
+}
+
+.wren-lab-spread {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: clamp(24px, 3.6vw, 48px);
+  align-items: start;
+  margin-top: 36px;
+}
+
+.wren-lab-box {
+  padding: 22px 22px 24px;
+  border: 1px solid var(--line-2);
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.wren-lab-box__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px 16px;
+}
+
+.wren-lab-box__head h3 {
+  margin-top: 8px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.wren-evidence-col {
+  min-width: 0;
+}
+
+.wren-evidence-col .subhead {
+  margin-top: 0;
+  margin-bottom: 14px;
+}
+
+/* ---------- 06 范围与局限三列卡 ---------- */
+.wren-limits-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+/* ---------- 响应式断点 ---------- */
+@media (max-width: 1100px) {
+  .wren-lane__nodes--build,
+  .wren-lane__nodes--query {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 980px) {
+  .wren-head__grid,
+  .wren-trace-grid,
+  .wren-control-spread,
+  .wren-lab-spread,
+  .wren-limits-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .wren-toc {
-    display: block; margin: 0 0 16px; border: 1px solid var(--line-2); background: var(--surface);
+    display: block;
+    margin: 0 0 24px;
+    border: 1px solid var(--line-2);
+    background: var(--surface);
   }
+
   .wren-toc summary {
-    display: flex; align-items: center; min-height: 44px; padding: 0 14px;
-    color: var(--signal); font: 13px var(--font-mono); cursor: pointer;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 16px;
+    color: var(--signal);
+    font: 13px var(--font-mono);
+    cursor: pointer;
   }
-  .wren-toc nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 12px; padding: 0 14px 10px; }
-  .wren-toc a { display: flex; align-items: center; min-height: 44px; border-top: var(--rule); color: var(--muted); }
+
+  .wren-toc nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 14px;
+    padding: 0 16px 10px;
+  }
+
+  .wren-toc a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    border-top: var(--rule);
+    color: var(--muted);
+  }
+
+  .wren-toc a:hover {
+    color: var(--signal);
+  }
+}
+
+@media (max-width: 860px) {
+  .wren-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 @media (max-width: 760px) {
-  .wren-grid { grid-template-columns: minmax(0, 1fr); }
-  .wren-code pre {
-    white-space: pre; overflow-x: auto; overflow-wrap: normal;
-    overscroll-behavior-x: contain; scrollbar-width: thin;
+  html {
+    scroll-padding-top: 148px;
   }
-  .wren-code--wrap pre { white-space: pre-wrap; overflow-x: visible; overflow-wrap: anywhere; }
-  .wren-code figcaption code { font-size: 13px; }
-  .wren-code--wide figcaption::after { content: ' · 左右滑动'; color: var(--signal-dim); }
+
+  .wren-anchor-target,
+  .wren-lane,
+  .wren-experiment {
+    scroll-margin-top: 148px;
+  }
+
+  .wren-lane__nodes--build,
+  .wren-lane__nodes--query,
+  .wren-lane__nodes--runtime {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .wren-node-cell {
+    flex-direction: column;
+  }
+
+  .wren-arrow {
+    position: static;
+    width: auto;
+    align-self: center;
+    transform: rotate(90deg);
+  }
+
+  .wren-inspector--inline {
+    margin-top: 4px;
+  }
+
+  .wren-code pre {
+    white-space: pre;
+    overflow-x: auto;
+    overflow-wrap: normal;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+  }
+
+  .wren-code--wrap pre {
+    white-space: pre-wrap;
+    overflow-x: visible;
+    overflow-wrap: anywhere;
+  }
+
+  .wren-code--wide .wren-code__cap span::after {
+    content: ' · 左右滑动';
+    color: var(--signal-dim);
+  }
 }
