@@ -30,7 +30,7 @@ export const WREN_VIEWS = [
     no: '01',
     label: '构建离线产物',
     labelEn: 'BUILD / OFFLINE MDL',
-    hint: '源文件经本地校验编译为 target/mdl.json；这一步不打开数据库连接。',
+    hint: '离线编译 target/mdl.json，不打开连接',
     defaultNode: 'manifest',
   },
   {
@@ -38,7 +38,7 @@ export const WREN_VIEWS = [
     no: '02',
     label: '查询主链路',
     labelEn: 'QUERY / POLICY & REWRITE',
-    hint: '虚线为可选上下文；实线依次经过只读策略门、CTE 重写与目标连接器。',
+    hint: '连库前经只读策略门，再展开 CTE 交连接器',
     defaultNode: 'policy',
   },
   {
@@ -46,7 +46,7 @@ export const WREN_VIEWS = [
     no: '03',
     label: '运行配置与三条命令',
     labelEn: 'RUNTIME / INDEPENDENT MODES',
-    hint: '并列配置与三个独立命令，按验证深度划分，不是同一次查询的手工串行步骤。',
+    hint: '按验证深度并列，非同一次查询的手工串行步骤',
     defaultNode: 'query',
   },
 ] as const;
@@ -79,6 +79,8 @@ export type WrenNode = {
   view: WrenView;
   index: string;
   title: string;
+  mapTitle?: string;
+  mapSub: string;
   tag: string;
   detail: string;
   proves: string;
@@ -95,6 +97,7 @@ export const WREN_NODES: WrenNode[] = [
     view: 'build',
     index: '01',
     title: '项目源文件',
+    mapSub: 'ref_sql.sql',
     tag: 'MDL SOURCES',
     detail: 'wren_project.yml、models、views、relationships、cubes 与 knowledge 是版本化源文件；模型既可引用 SQL 文件，也可内联定义。',
     proves: '业务表映射和字段口径能作为 Git 文件审阅，而不是藏在提示词里。',
@@ -107,6 +110,7 @@ export const WREN_NODES: WrenNode[] = [
     view: 'build',
     index: '02',
     title: '校验并编译 MDL',
+    mapSub: 'context_cli.py',
     tag: 'CONTEXT VALIDATE / BUILD',
     detail: 'context validate 做结构与本地语义检查；context build 默认阻断硬错误并产出引擎所需的 JSON 清单，两者通过条件不同。',
     proves: '命令行无需连接真实数据库，即可提前拦住模型结构错误。',
@@ -119,6 +123,7 @@ export const WREN_NODES: WrenNode[] = [
     view: 'build',
     index: '03',
     title: 'target/mdl.json',
+    mapSub: 'context_cli.py',
     tag: 'COMPILED MANIFEST',
     detail: '编译生成的 manifest 汇总模型、关系、视图与度量，供 WrenEngine 加载；数据库连接 profile 独立存放，不写进该文件。',
     proves: '同一份编译产物可跨本地实验库与不同运行环境复用。',
@@ -131,6 +136,7 @@ export const WREN_NODES: WrenNode[] = [
     view: 'query',
     index: '04',
     title: 'Skills / Memory',
+    mapSub: 'memory/cli.py',
     tag: 'OPTIONAL CONTEXT',
     detail: 'Skills 描述工作流，Memory 负责召回业务规则与已确认问句；本页实验直接传入逻辑 SQL，未经过这两层。',
     proves: '上层 Agent 能在生成 SQL 前按需检索上下文。',
@@ -144,6 +150,7 @@ export const WREN_NODES: WrenNode[] = [
     view: 'query',
     index: '05',
     title: '输入逻辑模型 SQL',
+    mapSub: 'cli.py',
     tag: 'LOGICAL SQL INPUT',
     detail: '调用方提交只引用 orders 模型的分组计数查询，语句里不出现 fixture.public.raw_orders 这个库表全名。',
     proves: '上游调用面只需面向稳定的逻辑模型名与公开列。',
@@ -156,6 +163,7 @@ export const WREN_NODES: WrenNode[] = [
     view: 'query',
     index: '06',
     title: '只读策略门',
+    mapSub: 'engine.py',
     tag: 'SQL_POLICY_CHECK · GATE',
     detail: '显式 --read-only 入口先拒绝写操作与带库/目录前缀的表引用，再核对引用表是否已在 manifest 定义；缺失时直接报 MODEL_NOT_FOUND。',
     proves: '即使物理表仍在数据库里，未建模的表引用也会在连库前被拦截。',
@@ -169,6 +177,8 @@ export const WREN_NODES: WrenNode[] = [
     view: 'query',
     index: '07',
     title: '裁剪 manifest 并重写',
+    mapTitle: '裁剪并重写 CTE',
+    mapSub: 'cte_rewriter.py',
     tag: 'CTEREWRITER + RUST CORE',
     detail: '_plan() 先按本次查询引用的表裁剪 manifest，再通过 CTERewriter 与 PyO3 Rust SessionContext 展开 WITH orders AS (...)，最后复检生成 SQL。',
     proves: 'dry-plan 输出清晰展示逻辑模型如何映射到底层物理表读取。',
@@ -181,6 +191,7 @@ export const WREN_NODES: WrenNode[] = [
     view: 'query',
     index: '08',
     title: '连接器执行与返回',
+    mapSub: 'duckdb.py',
     tag: 'DUCKDB CONNECTOR',
     detail: '引擎在真正需要校验或取数时才获取连接器，把展开后的方言 SQL 交给 DuckDB 执行，并以 Arrow 表把计数结果带回 Python。',
     proves: '规划产出的 SQL 通过了真实数据库的解析、读表与聚合计数。',
@@ -193,6 +204,7 @@ export const WREN_NODES: WrenNode[] = [
     view: 'runtime',
     index: '09',
     title: '连接 profile',
+    mapSub: 'profile.py',
     tag: 'CONNECTION PROFILE',
     detail: 'profiles.yml 管理数据源类型与连接参数；指定 profile 不存在时直接报错退出，不会静默回退到其他数据库。',
     proves: '模型产物与运行环境配置解耦，切换环境有显式边界。',
@@ -205,6 +217,7 @@ export const WREN_NODES: WrenNode[] = [
     view: 'runtime',
     index: '10',
     title: 'wren dry-plan',
+    mapSub: '仅规划 · 不连库',
     tag: 'LOCAL PLAN ONLY',
     detail: '仅运行解析、策略检查与 CTE 重写，向标准输出打印展开后的目标方言 SQL，全程不读取连接器。',
     proves: '可在无数据库环境下审阅模型展开逻辑与字段映射。',
@@ -217,6 +230,7 @@ export const WREN_NODES: WrenNode[] = [
     view: 'runtime',
     index: '11',
     title: 'wren dry-run',
+    mapSub: '连库 · LIMIT 0',
     tag: 'CONNECTOR LIMIT 0',
     detail: '完成规划后连接 DuckDB，用 SELECT * FROM (...) LIMIT 0 包装执行校验，确认物理表和语法合法但不拉取数据行。',
     proves: '目标数据库能解析展开后的 SQL，且引用的物理表与列真实存在。',
@@ -229,6 +243,8 @@ export const WREN_NODES: WrenNode[] = [
     view: 'runtime',
     index: '12',
     title: 'wren query --read-only',
+    mapTitle: 'wren query',
+    mapSub: '--read-only 取数',
     tag: 'READ-ONLY EXECUTION',
     detail: '走完规划前策略门、CTE 展开、规划后复检与连接器执行，返回 101 两单、202 一单的真实聚合记录。',
     proves: '从逻辑 SQL 到物理表聚合的显式只读闭环在本地可复现。',

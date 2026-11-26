@@ -116,7 +116,7 @@ from fontTools.varLib.instancer import instantiateVariableFont
 from pathlib import Path
 
 VF = 'C:/Windows/Fonts/NotoSansSC-VF.ttf'
-files = [*Path('src').rglob('*.tsx'), *Path('src').rglob('*.ts'),
+files = [*Path('src').rglob('*.tsx'), *Path('src').rglob('*.ts'), *Path('src').rglob('*.css'),
          Path('index.html'), *Path('projects').rglob('index.html'), Path('writing/index.html')]
 chars = set(''.join(p.read_text(encoding='utf-8') for p in files))
 chars |= set(chr(c) for c in range(0x20, 0x7f))
@@ -180,7 +180,7 @@ SHOOT_PREFIX=personal-site node scripts/shoot.cjs --out .shots-pages
 
 医疗风控案例以医保结算为例，推荐路径按「黑名单检查 → 双轨决策 → 自动拒绝」走完示例，人工审核是另一条分支。窄屏推荐路径给出流程总览并就地展开说明，完整分支在自由探索中分组。`?node=decision` 等链接可分享。工作台后用固定版本源码摘录解释一票否决，并区分模型回退局限与未验证的实际效果。RAG 工作台和已有节点链接不变。
 
-WrenAI 案例固定上游 `48de0b6`，与 RAG、医疗风控共用 `.wrap` 全宽网格与二层 `.branch-badge` 页头：首屏左侧立命题，右侧给出本地 DuckDB 三条合成订单样本，紧接「左三泳道系统剖面（构建 / 查询主链 / 运行模式共 12 个节点同图可见）+ 右共用 Evidence Inspector 与信号色源码条」工作台，可用 `?view=query&node=policy#view-query` 分享并在 ≤760px 下就地展开节点详情。
+WrenAI 案例固定上游 `48de0b6`，与 RAG、医疗风控共用 `.wrap` 全宽网格与二层 `.branch-badge` 页头：首屏左侧立命题，右侧给出本地 DuckDB 三条合成订单样本，紧接「左 4×3 正交连线系统剖面（构建 / 查询主链 / 运行模式共 12 个节点同图可见）+ 右紧凑共用 Evidence Inspector 与信号色源码条」工作台，可用 `?view=query&node=policy#view-query` 分享并在 ≤760px 下按泳道就地展开节点详情。
 
 工作台后依次按全宽双栏展开边界、查询四站与展开 SQL、单变量删模型失败对照（`MODEL_NOT_FOUND` 在连库前拦截，而物理表 3 行仍在）、四个源码设计取舍横行、三条命令实测切换（`?step=query`）与本地一键复现脚本 `public/labs/wren-orders.py`，以及已核实范围与未验证边界；完整 LikeC4 架构图与 Archify 查询调用时序图以原尺寸独立链接供核查。
 

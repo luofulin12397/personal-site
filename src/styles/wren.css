@@ -1,4 +1,4 @@
-/* WrenAI 案例：对齐全站 .wrap 网格、双栏工作台与横向对照结构 */
+/* WrenAI 案例：对齐全站 .wrap 网格、4×3 工程剖面图与双栏工作台 */
 
 .wren-case code {
   font-size: max(12px, 0.94em);
@@ -89,7 +89,7 @@
   display: none;
 }
 
-/* ---------- 工作台：三泳道左图 + 右侧共用 Inspector ---------- */
+/* ---------- 工作台：4×3 正交连线系统剖面 + 右侧紧凑 Inspector ---------- */
 .wren-workbench-links {
   display: flex;
   flex-wrap: wrap;
@@ -104,98 +104,167 @@
   gap: 6px;
 }
 
-.wren-workbench-grid {
+/* 注意：Vite 构建会将共享 case.css 排在页面专有 CSS 之后，
+   必须使用复合选择器确保覆盖 .workbench__grid 的 stretch */
+.wren-case .workbench__grid.wren-workbench-grid {
   align-items: start;
 }
 
+.wren-case .wren-inspector {
+  align-self: start;
+}
+
+.wren-case .wren-inspector .inspector__body {
+  flex: 0 0 auto;
+}
+
 @media (min-width: 1101px) {
-  .wren-workbench-grid .wren-inspector {
+  .wren-case .wren-workbench-grid .wren-inspector {
     position: sticky;
     top: 84px;
   }
 }
 
+.wren-map-stage {
+  --wren-col-gap: clamp(12px, 1.45vw, 18px);
+  position: relative;
+  padding: 14px 16px 16px;
+}
+
+.wren-case .wren-wires {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.wren-case .wren-map .map-wire:not(.is-active) {
+  stroke: var(--wire);
+  opacity: 0.9;
+}
+
+.wren-case .wren-map .map-wire.is-active {
+  stroke: var(--signal);
+  opacity: 1;
+  stroke-width: 2;
+}
+
 .wren-lanes {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: clamp(16px, 2.2vw, 22px);
+}
+
+.wren-row-top {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: var(--wren-col-gap);
+  align-items: end;
 }
 
 .wren-lane {
-  padding-bottom: 20px;
-  border-bottom: var(--rule);
+  min-width: 0;
   scroll-margin-top: 96px;
 }
 
-.wren-lane:last-child {
-  padding-bottom: 0;
-  border-bottom: 0;
+.wren-lane--build {
+  grid-column: 1 / 4;
 }
 
-.wren-lane__head {
-  margin-bottom: 12px;
+.wren-lane--optional {
+  grid-column: 4 / 5;
 }
 
-.wren-lane__kicker {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  color: var(--signal);
+.wren-lane--query {
+  margin-top: 22px;
 }
 
-.wren-lane__head h3 {
-  margin-top: 4px;
-  font-size: 17px;
+.wren-lane--runtime {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: var(--rule);
+}
+
+.wren-lane-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+  margin-bottom: 8px;
+}
+
+.wren-lane-bar--corridor {
+  max-width: fit-content;
+}
+
+.wren-lane-bar__title {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 13px;
   font-weight: 700;
+  line-height: 1.35;
   color: var(--paper);
 }
 
-.wren-lane__head p {
-  margin-top: 4px;
-  font-size: 13px;
-  line-height: 1.65;
+.wren-lane-bar__title--muted {
   color: var(--muted);
+  font-weight: 500;
+}
+
+.wren-lane-bar__no {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--signal);
+}
+
+.wren-lane-bar__title--muted .wren-lane-bar__no {
+  color: var(--muted-2);
+  font-weight: 400;
+}
+
+.wren-lane-bar__hint {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--muted-2);
 }
 
 .wren-lane__nodes {
   display: grid;
-  gap: 12px 24px;
+  row-gap: 10px;
+  column-gap: var(--wren-col-gap);
 }
 
 .wren-lane__nodes--build {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.wren-lane__nodes--query {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+.wren-lane__nodes--optional {
+  grid-template-columns: minmax(0, 1fr);
 }
 
-.wren-lane__nodes--runtime {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.wren-node-cell {
-  position: relative;
-  display: flex;
-  align-items: stretch;
-  gap: 8px;
-  min-width: 0;
+.wren-lane__nodes--four {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .wren-node {
-  flex: 1;
+  position: relative;
   min-width: 0;
-  min-height: 82px;
-  padding: 11px 12px;
+  min-height: 78px;
+  padding: 9px 11px;
   border: 1px solid var(--line-2);
   background: var(--surface-2);
   text-align: left;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 6px;
+  justify-content: center;
+  gap: 3px;
   transition: border-color 160ms ease-out, background-color 160ms ease-out, box-shadow 160ms ease-out;
 }
 
@@ -218,10 +287,15 @@
   box-shadow: 4px 4px 0 rgba(210, 243, 67, 0.16);
 }
 
+.wren-node.is-selected .node__corner {
+  opacity: 1;
+}
+
 .wren-node__stage {
   font-family: var(--font-mono);
   font-size: 12px;
-  letter-spacing: 0.04em;
+  line-height: 1.3;
+  letter-spacing: 0.03em;
   color: var(--muted-2);
 }
 
@@ -231,52 +305,22 @@
 }
 
 .wren-node strong {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
-  line-height: 1.4;
+  line-height: 1.38;
   color: var(--paper);
 }
 
 .wren-node__sub {
   font-family: var(--font-mono);
   font-size: 12px;
+  line-height: 1.3;
   color: var(--muted-2);
   overflow-wrap: anywhere;
 }
 
-.wren-arrow {
-  position: absolute;
-  right: -18px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 12px;
-  text-align: center;
-  pointer-events: none;
-  font-family: var(--font-mono);
-  font-size: 14px;
-  color: var(--signal);
-}
-
-@media (min-width: 1101px) {
-  .wren-lane__nodes--build .wren-node-cell:nth-child(3n) .wren-arrow,
-  .wren-lane__nodes--query .wren-node-cell:nth-child(3n) .wren-arrow {
-    display: none;
-  }
-}
-
-@media (min-width: 761px) and (max-width: 1100px) {
-  .wren-lane__nodes--build .wren-node-cell:nth-child(2n) .wren-arrow,
-  .wren-lane__nodes--query .wren-node-cell:nth-child(2n) .wren-arrow {
-    display: none;
-  }
-}
-
-.wren-arrow--optional {
-  color: var(--muted-2);
-}
-
 .wren-inspector__deep {
-  margin-top: 16px;
+  margin-top: 14px;
 }
 
 /* ---------- 02 查询链路：左批注 + 右 SQL 与规划代码栈 ---------- */
@@ -287,7 +331,7 @@
   align-items: start;
 }
 
-.wren-trace-notes {
+.wren-case .notes.wren-trace-notes {
   margin-top: 0;
 }
 
@@ -658,13 +702,6 @@
 }
 
 /* ---------- 响应式断点 ---------- */
-@media (max-width: 1100px) {
-  .wren-lane__nodes--build,
-  .wren-lane__nodes--query {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
 @media (max-width: 980px) {
   .wren-head__grid,
   .wren-trace-grid,
@@ -728,26 +765,55 @@
     scroll-margin-top: 148px;
   }
 
-  .wren-lane__nodes--build,
-  .wren-lane__nodes--query,
-  .wren-lane__nodes--runtime {
+  .wren-map-stage {
+    padding: 12px;
+  }
+
+  .wren-case .wren-wires {
+    display: none;
+  }
+
+  .wren-row-top {
     grid-template-columns: minmax(0, 1fr);
-    gap: 10px;
+    row-gap: 16px;
   }
 
-  .wren-node-cell {
-    flex-direction: column;
+  .wren-lane--build,
+  .wren-lane--optional {
+    grid-column: auto;
   }
 
-  .wren-arrow {
-    position: static;
-    width: auto;
-    align-self: center;
-    transform: rotate(90deg);
+  .wren-lane--query {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: var(--rule);
   }
 
-  .wren-inspector--inline {
-    margin-top: 4px;
+  .wren-lane--runtime {
+    margin-top: 16px;
+    padding-top: 14px;
+  }
+
+  .wren-lane-bar__hint {
+    display: none;
+  }
+
+  .wren-lane__nodes--build,
+  .wren-lane__nodes--four {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .wren-lane__nodes--build .wren-node:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .wren-node .node__corner {
+    display: none;
+  }
+
+  .wren-case .wren-inspector--inline {
+    margin-top: 10px;
   }
 
   .wren-code pre {
