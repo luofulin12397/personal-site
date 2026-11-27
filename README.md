@@ -180,7 +180,7 @@ SHOOT_PREFIX=personal-site node scripts/shoot.cjs --out .shots-pages
 
 医疗风控案例以医保结算为例，推荐路径按「黑名单检查 → 双轨决策 → 自动拒绝」走完示例，人工审核是另一条分支。窄屏推荐路径给出流程总览并就地展开说明，完整分支在自由探索中分组。`?node=decision` 等链接可分享。工作台后用固定版本源码摘录解释一票否决，并区分模型回退局限与未验证的实际效果。RAG 工作台和已有节点链接不变。
 
-WrenAI 案例固定上游 `48de0b6`，与 RAG、医疗风控共用 `.wrap` 全宽网格与二层 `.branch-badge` 页头：首屏左侧立命题，右侧给出本地 DuckDB 三条合成订单样本，紧接「左 4×3 正交连线系统剖面（构建 / 查询主链 / 运行模式共 12 个节点同图可见）+ 右紧凑共用 Evidence Inspector 与信号色源码条」工作台，可用 `?view=query&node=policy#view-query` 分享并在 ≤760px 下按泳道就地展开节点详情。
+WrenAI 案例固定上游 `48de0b6`，与 RAG、医疗风控共用 `.wrap` 全宽网格与二层 `.branch-badge` 页头：首屏左侧立命题，右侧给出本地 DuckDB 三条合成订单样本，紧接「左三泳道系统剖面（构建 3 节点 / 查询主链 6 节点含规划前后双策略门 / 运行模式 4 节点，共 13 个节点同图可见）+ 右侧函数源码注解 Inspector（含 IN/OUT/BLOCK 边界、带高亮拦截行的真实代码摘录、逐段中文注解与信号色源码条）」工作台，可用 `?view=query&node=policy#view-query` 分享并在 ≤760px 下就地展开完整注解详情。
 
 工作台后依次按全宽双栏展开边界、查询四站与展开 SQL、单变量删模型失败对照（`MODEL_NOT_FOUND` 在连库前拦截，而物理表 3 行仍在）、四个源码设计取舍横行、三条命令实测切换（`?step=query`）与本地一键复现脚本 `public/labs/wren-orders.py`，以及已核实范围与未验证边界；完整 LikeC4 架构图与 Archify 查询调用时序图以原尺寸独立链接供核查。
 
