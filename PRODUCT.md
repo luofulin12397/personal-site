@@ -58,14 +58,12 @@ React + TypeScript + Vite，多页入口（MPA），原生 CSS（`src/styles/` �
 | smart-bi（self/public） | Python | 49 文件 / 6,592 行，108 个测试，strict mypy | 否 |
 | log-patrol（self/public） | Node | spool 队列 + 单写入边界，可换 provider | 否 |
 | ai-learning-site | HTML/JS | 7 页 / 5,024 行，零依赖零构建 | 否（在 03 学习资源） |
-| personal-site | 本站 | React / Vite 三分区 | — |
 
 **WrenAI 不是本人仓库**：是对上游 `Canner/WrenAI`（固定提交 `48de0b6`）的源码学习与本地实测。展示时必须标为「源码学习」，不计入「我的仓库」数量。
 
 **内容尺度**：允许展示性、概括性的规模与能力表述，不强制每个数字可核验。建议标注实测 / 估算 / 目标，避免能被逐条戳穿的假精度。涉及第三方名称（客户、任职单位）先确认。
 
-**待核实**（文档与页面暂不扩写，确认前保持原样）：
-- 首页项目列表里 `personal-site` 仍写着「Astro · 内容集合 · RSS」，与本仓库现状（React / Vite）不符——是另有一条博客线，还是旧描述未更新？
+**已决定**：首页项目列表里的 `personal-site` 旧条目（描述为「Astro · 内容集合 · RSS」）是旧方案未更新，随首页重排整条移除，见 [ADR 0002](docs/adr/0002-site-layout-and-home.md)。
 
 ## Brand Commitments
 
