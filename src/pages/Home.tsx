@@ -8,6 +8,7 @@ const NAV = [
   { label: '关于我', href: '#about' },
   { label: '项目', href: '#work' },
   { label: '在写', href: '#notes' },
+  { label: '终端', href: '#terminal' },
   { label: '取舍', href: '#tradeoffs' },
   { label: '这一页', href: '#craft' },
 ];
@@ -65,22 +66,24 @@ export default function Home() {
             <div className="hero__aside">
               <p className="hero__lede">{HERO.lede}</p>
               <a className="primary-action hero__cta" href={PROJECTS_URL}>
-                <span>{HERO.cta}</span><span className="arrow" aria-hidden="true">↗</span>
+                <span>{HERO.cta}</span><span className="arrow" aria-hidden="true">→</span>
               </a>
-              <ul className="hero__index">
-                {SECTIONS.map((s) => (
-                  <li className="hero__index-item" key={s.no}>
-                    <span className="hero__index-no">{s.no}</span>
-                    <span className="hero__index-body">
-                      <span className="hero__index-label">{s.label}</span>
-                      <span className="hero__index-desc">{s.desc}</span>
-                    </span>
-                    <a className="hero__index-link" href={s.href}>
-                      {s.cta}<span className="arrow" aria-hidden="true">→</span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
+              <nav aria-label="三个分区">
+                <ul className="hero__index">
+                  {SECTIONS.map((s) => (
+                    <li className="hero__index-item" key={s.no}>
+                      <span className="hero__index-no">{s.no}</span>
+                      <span className="hero__index-body">
+                        <span className="hero__index-label">{s.label}</span>
+                        <span className="hero__index-desc">{s.desc}</span>
+                      </span>
+                      <a className="hero__index-link" href={s.href}>
+                        {s.cta}<span className="arrow" aria-hidden="true">→</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
             </div>
           </div>
         </section>

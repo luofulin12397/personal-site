@@ -91,7 +91,7 @@ function SystemMap({ selectedId, interactive, onSelect, onHover }: {
                 aria-pressed={selected}
                 aria-controls="node-inspector"
                 aria-label={`${node.sub}，${node.label}。查看设计决策`}
-                onClick={() => onSelect(node.id, !window.matchMedia('(max-width: 620px)').matches)}
+                onClick={() => onSelect(node.id, !window.matchMedia('(max-width: 760px)').matches)}
                 onFocus={() => { onSelect(node.id); onHover(NODE_NOTE[node.id] ?? null); }}
                 onBlur={() => onHover(null)}
                 onPointerEnter={() => onHover(NODE_NOTE[node.id] ?? null)}
@@ -192,7 +192,7 @@ export default function Workbench({ onHoverRef }: { onHoverRef: (ref: string | n
       setSelection({ selectedId: id, explore });
       if (explore) writeNodeLink(id);
     }
-    if (reveal && window.matchMedia('(max-width: 1100px)').matches) {
+    if (reveal && window.matchMedia('(max-width: 980px)').matches) {
       const el = document.getElementById('node-inspector');
       window.requestAnimationFrame(() => el?.scrollIntoView({ block: 'start', behavior: 'smooth' }));
     }

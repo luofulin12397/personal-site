@@ -173,6 +173,7 @@ export const REPOS: Record<string, string> = {
   'smart-bi': `${GH}/self/tree/main/public/smart-bi`,
   'log-patrol': `${GH}/self/tree/main/public/log-patrol`,
   'risk-engine': `${GH}/AI_RISK_HEALTH`,
+  'personal-site': `${GH}/personal-site`,
 };
 
 export const TOPICS = ['perm', 'hyde', 'rrf', 'plan', 'milvus'];

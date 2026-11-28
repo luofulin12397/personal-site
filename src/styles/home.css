@@ -155,7 +155,11 @@
   caret-color: var(--signal);
 }
 .term__input::placeholder { color: var(--muted-2); }
-.term__form:focus-within { background: rgba(210, 243, 67, 0.04); }
+.term__form:focus-within {
+  background: rgba(210, 243, 67, 0.04);
+  outline: 2px solid var(--signal);
+  outline-offset: -2px;
+}
 
 /* 关于我：首页第一个正文区块 */
 .about__grid {
@@ -182,7 +186,7 @@
   color: var(--signal);
   padding-top: 3px;
 }
-.about__now dd { font-size: 14px; line-height: 1.8; color: var(--muted); }
+.about__now dd { font-size: 14px; line-height: 1.8; color: var(--muted); text-wrap: pretty; }
 
 /* 项目列表里通往分支的整行入口，不再是一行绿色小字 */
 .proj__case {
@@ -208,13 +212,6 @@
   padding: 3px 8px;
 }
 .proj__case .arrow { margin-left: auto; color: var(--signal); font-size: 16px; }
-
-@media (max-width: 760px) {
-  .about__grid { grid-template-columns: 1fr; gap: 24px; }
-  .about__paras p:first-child { font-size: 17px; }
-  .proj__item { grid-template-columns: 1fr; gap: 10px; }
-  .craft__item { grid-template-columns: 1fr; gap: 4px; }
-}
 
 /* 取舍 */
 
@@ -265,7 +262,7 @@
 }
 .proj__lang { margin-top: 8px; font-size: 12px; color: var(--muted-2); }
 .proj__path { margin-top: 4px; font-family: var(--font-mono); font-size: 12px; color: var(--muted-2); }
-.proj__desc { font-size: 14px; line-height: 1.8; color: var(--muted); max-width: 68ch; }
+.proj__desc { font-size: 14px; line-height: 1.8; color: var(--muted); max-width: 68ch; text-wrap: pretty; }
 .proj__facts { margin-top: 10px; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.02em; color: var(--muted-2); max-width: 68ch; }
 
 /* 在写与分享：已成篇 / 学习资源 / 排队中三组，同一套横行 */
@@ -299,7 +296,7 @@
   color: var(--signal);
   white-space: nowrap;
 }
-.log__judge { margin-top: 8px; max-width: 68ch; color: var(--muted); font-size: 14px; line-height: 1.8; }
+.log__judge { margin-top: 8px; max-width: 68ch; color: var(--muted); font-size: 14px; line-height: 1.8; text-wrap: pretty; }
 .log__meta { margin-top: 6px; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.02em; color: var(--muted-2); }
 .log__queue-text { display: block; max-width: 68ch; }
 .log__more { margin-top: 20px; }
@@ -307,6 +304,7 @@
 @media (max-width: 980px) {
   .hero__intro { grid-template-columns: 1fr; gap: 18px; }
   .hero__lede { max-width: 60ch; }
+  .hero__index-link { display: inline-flex; align-items: center; min-height: 44px; }
   .term-section { grid-template-columns: 1fr; }
   .term-section .facts { padding-top: 24px; }
   .proj__item { grid-template-columns: 200px minmax(0, 1fr); }
@@ -318,4 +316,12 @@
   .hero__index-item { grid-template-columns: 24px minmax(0, 1fr); gap: 10px; }
   .hero__index-link { grid-column: 2; justify-self: start; }
   .proj__case .arrow { margin-left: 0; }
+}
+/* 放在基础规则之后：760 的堆叠要覆盖 980 的 200px 左列 */
+@media (max-width: 760px) {
+  .about__grid { grid-template-columns: 1fr; gap: 24px; }
+  .about__paras p:first-child { font-size: 17px; }
+  .proj__item { grid-template-columns: 1fr; gap: 10px; }
+  .proj__name { display: inline-flex; align-items: center; min-height: 44px; }
+  .craft__item { grid-template-columns: 1fr; gap: 4px; }
 }

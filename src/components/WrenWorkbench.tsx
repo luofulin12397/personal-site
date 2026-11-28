@@ -190,7 +190,7 @@ export default function WrenWorkbench() {
     if (!next) return;
     setSelectedId(id);
     writeSelection(next);
-    if (revealInspector && window.matchMedia('(max-width: 1100px)').matches) {
+    if (revealInspector && window.matchMedia('(max-width: 980px)').matches) {
       const targetId = compact ? `wren-inspector-inline-${id}` : 'wren-inspector';
       window.requestAnimationFrame(() => {
         document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });

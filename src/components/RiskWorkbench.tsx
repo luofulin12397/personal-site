@@ -85,7 +85,7 @@ export default function RiskWorkbench() {
     let next: Node | undefined;
     if (e.key === 'Home') next = RISK_NODES[0];
     else if (e.key === 'End') next = RISK_NODES[RISK_NODES.length - 1];
-    else if (window.matchMedia('(max-width: 620px)').matches) {
+    else if (window.matchMedia('(max-width: 760px)').matches) {
       if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
       const index = RISK_NODES.findIndex((node) => node.id === id);
       next = RISK_NODES[index + (e.key === 'ArrowUp' ? -1 : 1)];

@@ -72,6 +72,7 @@
 *, *::before, *::after { box-sizing: border-box; }
 
 html {
+  color-scheme: dark;
   scroll-behavior: smooth;
   scroll-padding-top: 84px;
   -webkit-text-size-adjust: 100%;
@@ -94,6 +95,7 @@ h1, h2, h3, h4, p, dl, dd, ol, ul, figure, pre { margin: 0; }
 ol, ul { padding: 0; list-style: none; }
 a { color: inherit; text-decoration: none; }
 button { color: inherit; font: inherit; background: none; border: 0; cursor: pointer; }
+a, button, input, select, textarea { touch-action: manipulation; }
 code, kbd { font-family: var(--font-mono); }
 svg { display: block; }
 ::selection { background: var(--signal); color: var(--signal-ink); }
@@ -181,6 +183,7 @@ code {
   color: var(--muted);
   font-size: 15px;
   line-height: 1.85;
+  text-wrap: pretty;
 }
 .section__intro a {
   color: var(--signal);
