@@ -1,4 +1,4 @@
-// 首页内容。文案沿用 v2 已核验事实；只把「这一页本身」改写为 v3 真实情况。
+// 首页内容。区块顺序按 ADR 0002；03 的条目直接来自 writing 数据。
 // 顺序原则：先讲这个人，再讲做的项目与想分享的东西，技术取舍与实现细节靠后。
 
 import { CASE_URL, PROJECTS_URL, RISK_CASE_URL, WRITING_URL, site } from '../lib/site';
@@ -10,7 +10,15 @@ export const HERO = {
   title: ['先画边界，', '再写代码。'],
   lede: '我叫罗富麟，写后端，做大模型应用和它底下那层系统。这个站放我做的东西、做的时候怎么想，以及还在写、没写完的笔记。',
   meta: '罗富麟 · 后端 · 检索链路与异步任务',
+  cta: '进入 02 项目拆解',
 };
+
+/* 首屏右栏的三分区索引：一句话说清每个分区回答什么，链接直接到位。 */
+export const SECTIONS = [
+  { no: '01', label: '这里讲人和项目', desc: '我是谁、做过什么、在写什么。', href: '#about', cta: '看关于我' },
+  { no: '02', label: '三篇项目拆解', desc: 'RAG 知识库、医疗风控、WrenAI 源码学习。', href: PROJECTS_URL, cta: '进入目录' },
+  { no: '03', label: '文章与学习资源', desc: '一篇长文、两份学习地图、三个排队题目。', href: WRITING_URL, cta: '去读' },
+];
 
 /* ------------------------------------------------------------ 这个人 */
 
@@ -29,25 +37,15 @@ export const ABOUT = {
   ],
 };
 
-/* ------------------------------------------------------------ 站点第二条分支 */
+/* ------------------------------------------------------------ 站点数字 */
 
-// 项目拆解不是项目列表里的一行小字，是和 01 主页并列的一层。
-export const BRANCH = {
-  kicker: 'BRANCH 02 / PROJECT BREAKDOWN',
-  eyebrow: '从项目看系统设计',
-  title: '项目拆解',
-  desc: '沿着真实代码看系统怎么搭：业务边界在哪、请求怎么走、为什么在关键位置设门。每篇拆解都给出可以回到源码核对的证据。',
-  meta: '带权限的 RAG 知识库 · 规则与模型双轨的医疗风控',
-  cta: '看 RAG 项目拆解',
-  href: PROJECTS_URL,
-  note: '按项目读，按源码核对',
-};
-
+/* 只放关于本站 / 本人的数字；不放任何单个项目的内部指标。
+   仓库数按 GitHub 上的公开仓库计，WrenAI 是上游源码学习，不算在内。 */
 export const FACTS = [
-  ['02', '独立服务进程'],
-  ['07', '文档导入节点'],
-  ['12', '问答编排节点'],
-  ['04', '权限控制维度'],
+  ['03', '篇项目拆解'],
+  ['01', '篇长文'],
+  ['06', '个公开仓库'],
+  ['03', '个分区'],
 ];
 
 export type Tradeoff = {
@@ -96,9 +94,9 @@ export const TRADEOFFS: Tradeoff[] = [
 
 // v3 里这一页是 React + Vite，不再是零构建。只写这一版真实成立的手艺。
 export const CRAFT = [
-  { key: '两条分支', val: '顶栏常驻 01 主页 / 02 项目拆解，当前所在分区实心高亮。首页讲人、项目与分享，二层把系统图做成可点的节点；不是同一页里塞两种内容。' },
+  { key: '三个分区', val: '顶栏常驻 01 主页 / 02 项目拆解 / 03 文章，当前分区信号色实心。01 讲人和项目，02 把系统图做成可点的节点，03 放长文与学习资源；同一个入口不在这页出现三次。' },
   { key: '真终端', val: 'help / ls / cat / explain / open / clear 都能跑，↑↓ 翻历史，Tab 补公共前缀。不是装饰，是一个真的命令解析器。' },
-  { key: '可核对', val: '节点详情里每条判断都挂一条指向具体源码文件的链接。工作台的 9 个节点、三处条件分叉，对应 knowledge-base 里 12 个真实图节点。' },
+  { key: '可核对', val: '拆解页每条判断都挂一条指向具体源码文件的链接。RAG 工作台的 9 个视图节点，对应 knowledge-base 里 12 个真实图节点。' },
   { key: '字体', val: '拉丁用 Archivo 和 Azeret Mono，中文按页面实际用字把 Noto Sans SC 子集成三个字重，全部自托管。断网不掉字形，Windows 与 macOS 断行一致。' },
   { key: '可读性', val: '正文对比度不低于 4.5:1，任何文字不小于 12px，节点选中同时有描边和角点，全部交互可用键盘完成，尊重 prefers-reduced-motion。' },
 ];
@@ -111,36 +109,35 @@ export type Project = {
   desc: string;
   facts: string;
   caseHref?: string;
+  tag?: string;
 };
 
 const WREN_CASE = {
   name: 'WrenAI', href: 'https://github.com/Canner/WrenAI', lang: 'Python · Rust · DuckDB',
+  tag: '上游源码学习',
   desc: '上游项目的源码学习：Agent 写出模型 SQL 后，Wren 如何按 MDL 展开查询，再用本地 DuckDB 实测规划、校验与执行的边界。',
   facts: '上游固定提交 48de0b6 · wrenai 0.18.0 · wren-core-py 0.8.2 · DuckDB 1.5.0 · 3 条合成订单',
   caseHref: site('projects/wrenai/'),
 };
 
+/* 顺序 = 首页呈现顺序：先三条带完整拆解的主线，再其余仓库。
+   WrenAI 是上游源码学习，标 tag，不占「我的仓库」数量。 */
 export const PROJECTS: Project[] = [
-  WREN_CASE,
-  {
-    name: 'ai-learning-site', href: `${GH}/ai-learning-site`, lang: 'HTML · JavaScript',
-    desc: '把一本 407 页的教程拆成可跳转的静态知识库：四块主线互相引用，公式推导单独成页。零依赖、零构建，push 就到 Pages 和 Vercel。',
-    facts: '7 个页面 · 5,024 行手写 HTML/JS/CSS · 21 章 · 双渠道自动发布',
-  },
   {
     name: 'knowledge-base', href: `${GH}/self`, lang: 'Python · FastAPI · LangGraph', path: 'self / public/knowledge-base',
     desc: '带权限的 RAG 知识库。查询图十二个节点，双路召回 + RRF + 精排 + 四维权限；导入侧吃 PDF 和网页，切完推进 Milvus。SSE 流式返回，每段耗时都埋了点。',
     facts: '143 个文件 · 12,172 行 · 23 条路由 · Milvus + MongoDB + MinIO + Redis', caseHref: CASE_URL,
   },
   {
-    name: 'smart-bi', href: `${GH}/self`, lang: 'Python · PostgreSQL', path: 'self / public/smart-bi',
-    desc: '用自然语言问经营指标。模型只输出意图，服务端按白名单编译查询计划；数据库侧只读事务、固定角色、绝对期限。mypy strict 全绿，测试里有一条专门跑浏览器端到端。',
-    facts: '49 个文件 · 6,592 行 · 108 个测试 · 17 个测试文件 · strict mypy',
-  },
-  {
     name: 'AI_RISK_HEALTH', href: `${GH}/AI_RISK_HEALTH`, lang: 'Python · XGBoost',
     desc: '医疗风控：复用电商风控的决策引擎，重写医保结算、处方审核、挂号、药品代购四个业务场景，由规则和 XGBoost 共同评分。',
     facts: '92 个文件 · 17,607 行 · 25 维特征 · 19 条规则 · 40 个测试文件', caseHref: RISK_CASE_URL,
+  },
+  WREN_CASE,
+  {
+    name: 'smart-bi', href: `${GH}/self`, lang: 'Python · PostgreSQL', path: 'self / public/smart-bi',
+    desc: '用自然语言问经营指标。模型只输出意图，服务端按白名单编译查询计划；数据库侧只读事务、固定角色、绝对期限。mypy strict 全绿，测试里有一条专门跑浏览器端到端。',
+    facts: '49 个文件 · 6,592 行 · 108 个测试 · 17 个测试文件 · strict mypy',
   },
   {
     name: 'log-patrol', href: `${GH}/self`, lang: 'Node · 无框架', path: 'self / public/log-patrol',
@@ -148,19 +145,14 @@ export const PROJECTS: Project[] = [
     facts: 'spool 队列 · 单写入边界 · 可换 provider · 自带 selftest',
   },
   {
-    name: 'personal-site', href: `${GH}/personal-site`, lang: 'Astro · TypeScript',
-    desc: '这个主页旁边那条正经的博客线：Markdown 进内容集合，出 RSS、主题页和精选位。发布规则写成了会跑的测试，不是一句「记得改 draft」。',
-    facts: 'Astro 6 · 内容集合 · RSS · 发布规则有测试',
+    name: 'ai-learning-site', href: `${GH}/ai-learning-site`, lang: 'HTML · JavaScript',
+    desc: '把一本 407 页的教程拆成可跳转的静态知识库：四块主线互相引用，公式推导单独成页。零依赖、零构建，push 就到 Pages 和 Vercel。',
+    facts: '7 个页面 · 5,024 行手写 HTML/JS/CSS · 21 章 · 双渠道自动发布',
   },
 ];
 
-/* href 有值 = 已成篇，在 03 里有全文；没值 = 还在写，只在这里留一句。 */
-export const NOTES: Array<{ title: string; text: string; href?: string }> = [
-  { title: 'Ontology 不是知识图谱的升级版', text: '啃完一门 13 集的本体论实战课，按集记下判据、Turtle / SHACL 代码和验收动作，留了六个自己的判断。三万字，其中一个 Milvus 对照实验还没跑。', href: `${WRITING_URL}?p=ontology-not-an-upgrade` },
-  { title: 'AI 全栈笔记', text: '21 章已经落到静态站上，还在补推导链和交叉引用。写得慢，因为每章都要先在本地跑一遍。' },
-  { title: 'HNSW 参数实验', text: 'Docker 里跑 Milvus 2.6 和 MinIO，调 M 与 efConstruction，看召回率和内存怎么互相挤。数据还没攒够，不敢下结论。' },
-  { title: '读 SkillOpt 的源码', text: '看它怎么组织技能、怎么决定一次工具调用该不该发生。还没形成结论。' },
-];
+/* 03 的条目直接由 src/data/writing.ts 的 ARTICLES / LEARNING_RESOURCES / QUEUE 渲染，
+   这里不再维护第二份笔记清单。 */
 
 /* ------------------------------------------------------------ 真终端数据 */
 
@@ -250,6 +242,6 @@ export const COMMANDS: Record<string, () => string[]> = {
 };
 
 export const SCROLL_TARGETS: Record<string, string> = {
-  about: '#about', branch: '#branch', tradeoffs: '#tradeoffs',
+  about: '#about', tradeoffs: '#tradeoffs',
   craft: '#craft', work: '#work', notes: '#notes',
 };

@@ -762,7 +762,7 @@
   align-items: start;
 }
 
-@media (min-width: 861px) {
+@media (min-width: 981px) {
   .wren-grid.wren-result {
     grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
   }
@@ -872,10 +872,6 @@
 
 /* ---------- 响应式断点 ---------- */
 @media (max-width: 1100px) {
-  .wren-case .workbench__grid.wren-workbench-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
   .wren-lane__nodes--build,
   .wren-lane__nodes--query {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -883,6 +879,14 @@
 }
 
 @media (max-width: 980px) {
+  .wren-case .workbench__grid.wren-workbench-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .wren-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .wren-head__grid,
   .wren-trace-grid,
   .wren-control-spread,
@@ -928,21 +932,15 @@
   }
 }
 
-@media (max-width: 860px) {
-  .wren-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
 @media (max-width: 760px) {
   html {
-    scroll-padding-top: 148px;
+    scroll-padding-top: 124px;
   }
 
   .wren-anchor-target,
   .wren-lane,
   .wren-experiment {
-    scroll-margin-top: 148px;
+    scroll-margin-top: 124px;
   }
 
   .wren-lane__nodes--build,

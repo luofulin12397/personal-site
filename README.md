@@ -162,9 +162,9 @@ VITE_BASE=personal-site npm run preview -- --host 127.0.0.1 --port 4173 --strict
 SHOOT_PREFIX=personal-site node scripts/shoot.cjs --out .shots-pages
 ```
 
-脚本对 `http://127.0.0.1:4173` 跑四个页面（首页 / 项目拆解 / 文章目录 / 文章详情）、1440px 与 390px 两个视口，检查：横向溢出、<12px 文字、SVG 内文字换算后字号、字体是否加载、七组对比度、断链、控制台报错、代码面板三个 Tab 高度一致性；另跑一组交互测试（终端 `help` / `explain perm` / Tab 公共前缀补全、CTA 跨页跳转、工作台自由探索与 Inspector 联动、代码 Tab 内容切换）。首页依次截 `#top / #about / #work / #notes / #branch / #tradeoffs / #craft`，二层截七个 section，三层截 `.w-head / #list / #queue / #how`，文章详情截 `.art__head / .art__body / .art__src`，输出到 `.shots/`（已 gitignore）。
+脚本对 `http://127.0.0.1:4173` 跑七个页面（首页 / 项目拆解目录 / RAG / 医疗风控 / WrenAI / 文章目录 / 文章详情）、1440px 与 390px 两个视口，检查：横向溢出、<12px 文字、SVG 内文字换算后字号、字体是否加载、七组对比度、断链、控制台报错、代码面板三个 Tab 高度一致性。01 主页与 02 项目拆解另跑 ADR 0002 的版式检查：首屏可见名字 / 主 CTA / 三个分区入口、同屏信号色实心块 ≤2、首页指向 `/projects/` 的主按钮唯一、每篇拆解在首页至多一个入口、正文段落 ≤68ch、`.section` 与 `.wrap` 等宽、区块标题左边界误差 ≤1px、首页事实条不出现单个项目内部指标。另跑一组交互测试（终端 `help` / `explain perm` / Tab 公共前缀补全、CTA 跨页跳转、工作台自由探索与 Inspector 联动、代码 Tab 内容切换）。首页依次截 `#top / #about / #work / #notes / #terminal / #tradeoffs / #craft`，三个拆解页与目录页各截自己的 section，三层截 `.w-head / #list / #queue / #how`，文章详情截 `.art__head / .art__body / .art__src`，输出到 `.shots/`（已 gitignore）。
 
-最近一次结果（2026-11-23，13 集长文扩充 + 中文字体重新子集化后复跑）：四个页面在 `1440/1440` 与 `390/390` 下均无横向溢出，无 <12px 文字，最低对比度 `7.02:1`，代码面板 `560 / 560 / 560`，控制台零报错，`ALL GREEN`。另用 CDP 抽查文章标题 / 导语 / 正文 / 表格与首页正文，系统字体回退字形数全为 0。
+最近一次结果（2026-11-28，首页重排 + 断点收拢 + 医疗风控编号后）：七个页面在 `1440/1440` 与 `390/390` 下均无横向溢出，无 <12px 文字，七组对比度最低 `7.02:1`，代码面板 `560 / 560 / 560`，控制台零报错；首页、项目目录、RAG、医疗风控、WrenAI 的五组版式检查全部通过，`ALL GREEN`。
 
 上一次结果（2026-11-21，加入 03 文章后）：同样四个页面、`ALL GREEN`。
 
@@ -195,9 +195,9 @@ WrenAI 案例固定上游 `48de0b6`，与 RAG、医疗风控共用 `.wrap` 全�
 - 内容原则已放宽（不再要求每个数字可核验），但目前页面仍全部沿用 v2 已核验事实，没有主动加入未核数字。
 - 中文只覆盖当前用字，加新文案要重新子集化。
 - 代码面板固定 `height: 560px` 并内部滚动，短片段下方会留白——换「切换不跳高度」付的代价。
-- 窄屏（≤620px）System Map 隐藏 SVG 连线，9 个节点改为双列卡片，最后一个兜底节点跨整行。自由探索时，选中卡片下方有「查看详情」；选择节点或用方向键切换不会跳到详情，只有打开这个链接才会跳转。
+- 窄屏（≤760px）System Map 隐藏 SVG 连线，9 个节点改为双列卡片，最后一个兜底节点跨整行。自由探索时，选中卡片下方有「查看详情」；选择节点或用方向键切换不会跳到详情，只有打开这个链接才会跳转。
 - 自由探索时，地址栏的 `?node=perm-filter` 等参数跟随选中节点更新，可直接复制分享。打开节点链接会恢复选择并定位到详情；返回推荐路径时移除 `node` 参数。
-- ≤980px 隐藏页面内锚点导航，≤760px 顶栏变两行让分区切换器独占一行；`html` 的 `scroll-padding-top` 在窄屏提到 116px，避免锚点被压住。
+- ≤980px 隐藏页面内锚点导航，≤760px 顶栏变两行让分区切换器独占一行；`html` 的 `scroll-padding-top` 在窄屏提到 124px，避免锚点被压住。
 - `assets/`、`assets/css/main.css`、`assets/js/app.js`、`.nojekyll` 是 v2 遗留，不参与 v3 构建，保留未删。
 - 站内链接不能写死根路径：Pages 在 `/personal-site/` 子路径下，`href="/projects/rag/"` 会跳出站点。所有内部链接经 `site()` 生成，外部 GitHub 链接不受影响。
 - `impeccable detect` 的规则按 v3 之前的视觉禁令编写，v3 已正式解禁 eyebrow / 编号 / CTA，因此**不作为验收门槛**，只当提示看。2026-11-23 对文章页跑过一次，剩 6 条：`hard-offset-shadow` 与 `hero-eyebrow-chip` 是 DESIGN.md 明确允许的设计语言，3 条 `wide-tracking` 落在代码块 `figcaption` 的 mono 标注上（被误判为 body text），1 条 `straggler` 是 advisory。

@@ -2,7 +2,8 @@
    渲染验收（v3 / Vite）
    对 http://127.0.0.1:4173 的 vite preview 跑，需要先 npm run build。
    量测：横向溢出、最小字号、对比度、控制台报错、断链、面板高度、
-        字体加载、移动端；另跑一组交互功能测试。
+        字体加载、移动端；01 / 02 的版式验收（首屏入口、信号稀缺、
+        入口唯一、段落行宽、区块左边界、首页事实归属）；另跑交互测试。
    用法：npm run build && node scripts/shoot.cjs --out .shots
    ========================================================================= */
 const puppeteer = require('puppeteer-core');
@@ -25,7 +26,7 @@ const HOME = {
   sections: [
     ['home-hero', '#top'], ['home-about', '#about'],
     ['home-work', '#work'], ['home-notes', '#notes'],
-    ['home-branch', '#branch'], ['home-tradeoffs', '#tradeoffs'],
+    ['home-terminal', '#terminal'], ['home-tradeoffs', '#tradeoffs'],
     ['home-craft', '#craft'],
   ],
 };
@@ -51,6 +52,31 @@ const ARTICLE = {
     ['a-head', '.art__head'], ['a-body', '.art__body'], ['a-src', '.art__src'],
   ],
 };
+const PROJECTS = {
+  name: 'projects', url: PREFIX + '/projects/', mobSel: '.case-head',
+  sections: [['projects-head', '.case-head'], ['projects-list', '#case-list']],
+};
+const RISK = {
+  name: 'risk', url: PREFIX + '/projects/ai-risk-health/', mobSel: '.case-head',
+  sections: [
+    ['risk-head', '.case-head'], ['risk-boundary', '#boundary'],
+    ['risk-pipeline', '#pipeline'], ['risk-code', '#decision-code'],
+    ['risk-limits', '#limits'],
+  ],
+};
+const WREN = {
+  name: 'wren', url: PREFIX + '/projects/wrenai/', mobSel: '.case-head',
+  sections: [
+    ['wren-head', '.case-head'], ['wren-workbench', '#workbench'],
+    ['wren-boundary', '#boundary'], ['wren-path', '#path'],
+    ['wren-control', '#control'], ['wren-decisions', '#decisions'],
+    ['wren-evidence', '#evidence'], ['wren-limits', '#limits'],
+  ],
+};
+
+/* ADR 0002 的版式验收：只查 01 主页与 02 项目拆解。 */
+const LAYOUT_NAMES = new Set(['home', 'projects', 'case', 'risk', 'wren']);
+const CASE_PATHS = ['/projects/rag/', '/projects/ai-risk-health/', '/projects/wrenai/'];
 
 function luminance(hex) {
   const h = hex.replace('#', '');
@@ -94,6 +120,117 @@ async function measure(page) {
   });
 }
 
+async function auditLayout(page, name, prefix) {
+  if (!LAYOUT_NAMES.has(name)) return [];
+  return page.evaluate(({ name, prefix, casePaths }) => {
+    const out = [];
+    const norm = (p) => p.replace(/\/+$/, '') + '/';
+    const visible = (el) => {
+      if (!el) return false;
+      const cs = getComputedStyle(el);
+      if (cs.display === 'none' || cs.visibility === 'hidden' || cs.opacity === '0') return false;
+      const r = el.getBoundingClientRect();
+      return r.width > 0 && r.height > 0;
+    };
+
+    const main = document.querySelector('main.wrap');
+    if (!main) return ['main.wrap missing'];
+    const ms = getComputedStyle(main);
+    const wrapWidth = main.getBoundingClientRect().width
+      - parseFloat(ms.paddingLeft) - parseFloat(ms.paddingRight);
+
+    /* .section 必须与 .wrap 内容等宽；区块标题共左边界。 */
+    const sections = [...main.querySelectorAll('.section')].filter(visible);
+    for (const section of sections) {
+      const w = section.getBoundingClientRect().width;
+      if (Math.abs(w - wrapWidth) > 1) {
+        out.push(`section ${section.id || section.className} width ${Math.round(w)} != wrap ${Math.round(wrapWidth)}`);
+      }
+    }
+    const headLefts = [...document.querySelectorAll('main .section__head')]
+      .filter(visible)
+      .map((el) => el.getBoundingClientRect().left);
+    if (headLefts.length > 1) {
+      const drift = Math.max(...headLefts) - Math.min(...headLefts);
+      if (drift > 1) out.push(`section head left edges drift ${drift.toFixed(1)}px`);
+    }
+
+    /* 正文段落 ≤ 68ch；按 ADR 口径 68ch ≈ 68 × 字号，短标签不参与。 */
+    const wide = [];
+    for (const el of main.querySelectorAll('p')) {
+      if (!visible(el)) continue;
+      if (/(^|\s)(kicker|subhead|eyebrow|case-meta|hero__meta|log__meta|proj__facts|row__no|row__tag)(\s|$)/.test(String(el.className))) continue;
+      const text = el.textContent.trim();
+      if (text.length < 40) continue;
+      const fs = parseFloat(getComputedStyle(el).fontSize);
+      const w = el.getBoundingClientRect().width;
+      if (w > fs * 68 + 1) {
+        wide.push(`${el.className || el.tagName} ${Math.round(w)}px > ${Math.round(fs * 68)}px`);
+      }
+    }
+    if (wide.length) out.push(`paragraph over 68ch: ${wide.slice(0, 4).join(' | ')}`);
+
+    if (name === 'home') {
+      const nameEl = document.querySelector('.hero__meta');
+      if (!visible(nameEl) || !nameEl.textContent.includes('罗富麟')) {
+        out.push('first screen: name missing');
+      }
+
+      const cta = document.querySelector('.hero a.primary-action');
+      const cr = cta && cta.getBoundingClientRect();
+      if (!visible(cta) || cr.top < 0 || cr.bottom > innerHeight) {
+        out.push('first screen: primary CTA not visible');
+      }
+
+      const entries = [...document.querySelectorAll('.hero__index-item')];
+      if (entries.length !== 3) out.push(`first screen: ${entries.length} section entries (want 3)`);
+      entries.forEach((el, i) => {
+        const r = el.getBoundingClientRect();
+        if (!visible(el) || r.top < 0 || r.bottom > innerHeight) {
+          out.push(`first screen: section entry ${i + 1} not fully visible`);
+        }
+      });
+
+      /* 信号色实心块：排除 12px 品牌方标这类图形标记，只数 ≥20×20 的面。 */
+      const signal = [];
+      for (const el of document.querySelectorAll('body *')) {
+        if (el.closest('svg')) continue;
+        if (getComputedStyle(el).backgroundColor !== 'rgb(210, 243, 67)') continue;
+        if (!visible(el)) continue;
+        const r = el.getBoundingClientRect();
+        if (r.width < 20 || r.height < 20) continue;
+        if (r.bottom <= 0 || r.top >= innerHeight || r.right <= 0 || r.left >= innerWidth) continue;
+        signal.push(`${el.tagName}.${String(el.className).slice(0, 24)}`);
+      }
+      if (signal.length > 2) {
+        out.push(`first screen: ${signal.length} signal solid blocks (${signal.join(', ')})`);
+      }
+
+      const paths = [...document.querySelectorAll('a[href]')].map((a) => {
+        try { return norm(new URL(a.getAttribute('href'), location.href).pathname); } catch { return ''; }
+      });
+      const projectDir = norm(new URL(prefix + '/projects/', location.href).pathname);
+      const primaryToDir = [...document.querySelectorAll('a.primary-action')].filter((a) => {
+        try { return norm(new URL(a.getAttribute('href'), location.href).pathname) === projectDir; } catch { return false; }
+      }).length;
+      if (primaryToDir !== 1) out.push(`home: ${primaryToDir} primary buttons to /projects/ (want 1)`);
+
+      for (const cp of casePaths) {
+        const n = paths.filter((p) => p === norm(cp)).length;
+        if (n > 1) out.push(`home: case ${cp} has ${n} entries (max 1)`);
+      }
+
+      const factLabels = [...document.querySelectorAll('.facts dt')].map((el) => el.textContent.trim());
+      if (!factLabels.length) out.push('home: facts strip missing');
+      const internal = ['进程', '节点', '路由', '文件', '维度', '特征', '规则', '测试'];
+      const bad = factLabels.filter((label) => internal.some((word) => label.includes(word)));
+      if (bad.length) out.push(`home: facts contain project metrics (${bad.join(', ')})`);
+    }
+
+    return out;
+  }, { name, prefix, casePaths: CASE_PATHS });
+}
+
 async function shoot(page, name, selector, dir) {
   const el = await page.$(selector);
   if (!el) return `MISSING ${selector}`;
@@ -112,7 +249,7 @@ async function shoot(page, name, selector, dir) {
   });
 
   const problems = [];
-  for (const spec of [HOME, CASE, WRITING, ARTICLE]) {
+  for (const spec of [HOME, PROJECTS, CASE, RISK, WREN, WRITING, ARTICLE]) {
     const page = await browser.newPage();
     await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
     const errors = [];
@@ -149,6 +286,12 @@ async function shoot(page, name, selector, dir) {
     console.log('contrast:', pairs.map(([k, a, b]) => `${k} ${contrast(a, b).toFixed(2)}:1`).join(' | '));
     const worst = Math.min(...pairs.map(([, a, b]) => contrast(a, b)));
     if (worst < 4.5) problems.push(`${spec.name}: contrast below 4.5 (${worst.toFixed(2)})`);
+
+    const layout = await auditLayout(page, spec.name, PREFIX);
+    if (LAYOUT_NAMES.has(spec.name)) {
+      console.log(`layout ${spec.name}:`, layout.length ? JSON.stringify(layout) : 'ok');
+      for (const item of layout) problems.push(`${spec.name}: layout: ${item}`);
+    }
 
     for (const [name, sel] of spec.sections) {
       console.log(`  shot ${name}: ${await shoot(page, name, sel, OUT)}`);
@@ -200,7 +343,10 @@ async function shoot(page, name, selector, dir) {
   await p.waitForNavigation({ waitUntil: 'networkidle0' }).catch(() => {});
   const h1 = await p.$eval('h1', (e) => e.textContent.replace(/\s+/g, ''));
   console.log('CTA ->', p.url(), '| h1:', h1);
-  if (!h1.includes('一次提问')) problems.push('cross-page link failed');
+  if (!h1.includes('项目拆解')) problems.push('home CTA did not reach 02 index');
+
+  await p.goto(BASE + PREFIX + '/projects/rag/', { waitUntil: 'networkidle0' });
+  await new Promise((r) => setTimeout(r, 400));
 
   await p.click('.mode-toggle');
   const interactive = await p.$eval('.map-node', (e) => !e.disabled);

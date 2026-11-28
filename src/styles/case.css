@@ -279,7 +279,7 @@
   border: 1px solid var(--signal);
 }
 .note h3 { font-size: 16px; font-weight: 700; line-height: 1.5; }
-.note p { margin-top: 6px; font-size: 13.5px; color: var(--muted); line-height: 1.8; }
+.note p { margin-top: 6px; max-width: 68ch; font-size: 13.5px; color: var(--muted); line-height: 1.8; }
 
 /* ---------- 代码面板 ---------- */
 .codepanel { border: 1px solid var(--line-2); background: var(--surface); }
@@ -331,6 +331,9 @@
 .evidence i { font-style: normal; color: var(--signal); font-size: 18px; text-align: right; }
 
 @media (max-width: 1100px) {
+  .guided__options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 980px) {
   .workbench__grid { grid-template-columns: minmax(0, 1fr); }
   .inspector { min-height: 0; }
 }
@@ -341,16 +344,12 @@
   .guided__option { min-height: 0; }
   .boundary { grid-template-columns: 1fr; }
   .stages li { flex-basis: calc(50% - 10px); }
-  /* 固定高度，不让 aspect-ratio 与 min-height 反推出宽度 */
-  .map__canvas { aspect-ratio: auto; height: 340px; min-height: 0; }
   .map-node { padding: 5px 6px; }
   .node__sub { font-size: 12px; }
   .node__label { font-size: 12px; }
   .map__meta, .map__help { font-size: 12px; }
   .flow__parallel { grid-template-columns: 1fr; }
   .code { height: 460px; }
-}
-@media (max-width: 620px) {
   /* 窄屏下绝对定位节点会被压成 60px 一格，改成双列流程卡片；连线隐藏 */
   .map__canvas {
     aspect-ratio: auto;

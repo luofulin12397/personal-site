@@ -110,6 +110,7 @@ export default function RiskWorkbench() {
   return (
     <section className="section workbench" id="pipeline" aria-labelledby="risk-map-title">
       <div className="section__head">
+        <p className="kicker">02 / PIPELINE</p>
         <h2 id="risk-map-title">一次风险检查怎么走</h2>
         <p className="section__intro">这笔示例请求未命中黑名单，进入常规检查。跟着它看低模型分会不会改变最终结果。</p>
       </div>

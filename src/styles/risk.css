@@ -51,11 +51,11 @@ button.risk-node__tile:hover { border-color: var(--signal); }
   .risk-workbench .inspector { position: sticky; top: 84px; }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 980px) {
   .risk-analysis { grid-template-columns: minmax(0, 1fr); }
 }
 
-@media (max-width: 620px) {
+@media (max-width: 760px) {
   .risk-graph { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; gap: 12px; margin: 12px; }
   .risk-graph__group { display: grid; min-width: 0; gap: 8px; padding: 12px; border: var(--rule); }
   .risk-node { grid-area: auto; padding: 0; }

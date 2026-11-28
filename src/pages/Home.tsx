@@ -1,8 +1,8 @@
 import Terminal from '../components/Terminal';
 import { Footer, Masthead, SkipLink } from '../components/Shell';
-import { ABOUT, BRANCH, CRAFT, FACTS, GH, HERO, NOTES, PROJECTS, TRADEOFFS } from '../data/home';
-import { CASE_URL } from '../lib/site';
-import { WRITING_URL } from '../lib/site';
+import { ABOUT, CRAFT, FACTS, GH, HERO, PROJECTS, SECTIONS, TRADEOFFS, type Project } from '../data/home';
+import { ARTICLES, LEARNING_RESOURCES, QUEUE, charCount, readingMinutes } from '../data/writing';
+import { PROJECTS_URL, WRITING_URL, articleUrl } from '../lib/site';
 
 const NAV = [
   { label: '关于我', href: '#about' },
@@ -12,12 +12,43 @@ const NAV = [
   { label: '这一页', href: '#craft' },
 ];
 
+/* 项目条目按「有没有完整拆解」分两组；渲染形状同一条 A 骨架横行。 */
+const WITH_CASE = PROJECTS.filter((p) => p.caseHref);
+const OTHER = PROJECTS.filter((p) => !p.caseHref);
+
+function ProjectRow({ p, compact = false }: { p: Project; compact?: boolean }) {
+  return (
+    <li className={compact ? 'proj__item proj__item--compact' : 'proj__item'}>
+      <div>
+        <a className="proj__name" href={p.href} target="_blank" rel="noopener">
+          {p.name}<span className="arrow" aria-hidden="true">↗</span>
+        </a>
+        {p.tag && <p className="proj__tag">{p.tag}</p>}
+        <p className="proj__lang">{p.lang}</p>
+        {p.path && <p className="proj__path">{p.path}</p>}
+      </div>
+      <div>
+        <p className="proj__desc">{p.desc}</p>
+        <p className="proj__facts">{p.facts}</p>
+        {p.caseHref && (
+          <a className="proj__case" href={p.caseHref}>
+            <span className="proj__case-tag">BRANCH 02</span>
+            <span>项目拆解：看边界、决定与源码</span>
+            <span className="arrow" aria-hidden="true">→</span>
+          </a>
+        )}
+      </div>
+    </li>
+  );
+}
+
 export default function Home() {
   return (
     <>
       <SkipLink />
       <Masthead items={NAV} branch="home" />
       <main id="main" className="wrap">
+        {/* 首屏：名字、命题、唯一主 CTA、三个分区索引。终端移到第 4 个区块。 */}
         <section className="hero" id="top">
           <div className="hero__intro">
             <div>
@@ -31,25 +62,25 @@ export default function Home() {
                 <span>{HERO.meta}</span>
               </p>
             </div>
-            <div>
+            <div className="hero__aside">
               <p className="hero__lede">{HERO.lede}</p>
-              <a className="primary-action hero__cta" href={CASE_URL}>
-                <span>{BRANCH.cta}</span><span className="arrow" aria-hidden="true">↗</span>
+              <a className="primary-action hero__cta" href={PROJECTS_URL}>
+                <span>{HERO.cta}</span><span className="arrow" aria-hidden="true">↗</span>
               </a>
-            </div>
-          </div>
-
-          <div className="hero__bench">
-            <Terminal />
-            <div className="bench__aside">
-              <p className="bench__label">01 主页 / 从终端开始</p>
-              <p className="bench__claim">这个站分三处：<em>这里讲人和项目</em>，02 讲一个系统怎么搭，03 放我读和写的东西。</p>
-              <p className="bench__note">右边这个终端是真的：能敲 <code>help</code>、<code>explain perm</code>、<code>open case</code>，↑↓ 翻历史，Tab 补公共前缀。</p>
-              <div className="bench__facts">
-                <dl className="facts">
-                  {FACTS.map(([n, label]) => <div key={label}><dt>{label}</dt><dd>{n}</dd></div>)}
-                </dl>
-              </div>
+              <ul className="hero__index">
+                {SECTIONS.map((s) => (
+                  <li className="hero__index-item" key={s.no}>
+                    <span className="hero__index-no">{s.no}</span>
+                    <span className="hero__index-body">
+                      <span className="hero__index-label">{s.label}</span>
+                      <span className="hero__index-desc">{s.desc}</span>
+                    </span>
+                    <a className="hero__index-link" href={s.href}>
+                      {s.cta}<span className="arrow" aria-hidden="true">→</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </section>
@@ -70,83 +101,100 @@ export default function Home() {
           </div>
         </section>
 
-        {/* 02 我做的项目 */}
+        {/* 02 项目：有拆解的在前，其余仓库紧凑横行 */}
         <section className="section" id="work">
           <div className="section__head">
             <p className="kicker">02 / WHAT I BUILD</p>
             <h2>我做的项目</h2>
-            <p className="section__intro">分布在四个仓库里，另外两个仓库还是空的，就不列了。数字是数出来的，不是估的；点名字进仓库，代码、测试、部署文件都在里面。带拆解的项目另有一条完整主线，讲结构和当时的决定。</p>
+            <p className="section__intro">六个公开仓库，三个带完整拆解。WrenAI 是对上游 Canner/WrenAI 固定提交的源码学习，不算我的仓库；名字点进去是仓库，带拆解的项目另有一条从边界到源码的主线。</p>
           </div>
-          <ul>
-            {PROJECTS.map((p) => (
-              <li className="proj__item" key={p.name}>
-                <div>
-                  <a className="proj__name" href={p.href} target="_blank" rel="noopener">
-                    {p.name}<span className="arrow" aria-hidden="true">↗</span>
-                  </a>
-                  <p className="proj__lang">{p.lang}</p>
-                  {p.path && <p className="proj__path">{p.path}</p>}
-                </div>
-                <div>
-                  <p className="proj__desc">{p.desc}</p>
-                  <p className="proj__facts">{p.facts}</p>
-                  {p.caseHref && (
-                    <a className="proj__case" href={p.caseHref}>
-                      <span className="proj__case-tag">BRANCH 02</span>
-                      <span>项目拆解：看边界、决定与源码</span>
-                      <span className="arrow" aria-hidden="true">→</span>
-                    </a>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
+
+          <div className="proj__group">
+            <p className="subhead">有完整拆解 · {WITH_CASE.length}</p>
+            <ul>
+              {WITH_CASE.map((p) => <ProjectRow key={p.name} p={p} />)}
+            </ul>
+          </div>
+
+          <div className="proj__group">
+            <p className="subhead">其余仓库 · {OTHER.length}</p>
+            <ul>
+              {OTHER.map((p) => <ProjectRow key={p.name} p={p} compact />)}
+            </ul>
+          </div>
         </section>
 
-        {/* 03 在写、想分享的：已成篇的给出入口，没成篇的只留一句现状 */}
+        {/* 03 在写与分享：直接由 03 的数据渲染，不在首页维护第二份清单 */}
         <section className="section" id="notes">
           <div className="section__head">
             <p className="kicker">03 / WRITING &amp; NOTES</p>
             <h2>在写，也在分享</h2>
-            <p className="section__intro">笔记、实验和正在读的源码。成篇的在<a href={WRITING_URL}>03 文章</a>里有全文，没成篇的就在这儿留一句进度。</p>
+            <p className="section__intro">成篇的在<a href={WRITING_URL}>03 文章</a>里有全文；学习资源是已经能打开的东西；没成篇的只在这里留一句进度，不装作完成。</p>
           </div>
-          <ul className="log">
-            {NOTES.map((n) => (
-              <li className="log__item" key={n.title}>
-                {n.href ? (
-                  <a className="log__link" href={n.href}>
-                    <b>{n.title}</b>：{n.text}
+
+          <div className="notes__group">
+            <p className="subhead">已成篇 · {ARTICLES.length}</p>
+            <ul className="log">
+              {ARTICLES.map((a) => (
+                <li className="log__item" key={a.slug}>
+                  <a className="log__link" href={articleUrl(a.slug)}>
+                    <b>{a.title}</b>
                     <span className="log__go">读全文 <span className="arrow" aria-hidden="true">→</span></span>
                   </a>
-                ) : (
-                  <><b>{n.title}</b>：{n.text}</>
-                )}
-              </li>
-            ))}
-          </ul>
+                  <p className="log__judge">{a.takeaway}</p>
+                  <p className="log__meta">{a.kicker} · {charCount(a)} 字 · 约 {readingMinutes(a)} 分钟</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="notes__group">
+            <p className="subhead">学习资源 · {LEARNING_RESOURCES.length}</p>
+            <ul className="log">
+              {LEARNING_RESOURCES.map((r) => (
+                <li className="log__item" key={r.title}>
+                  <a className="log__link" href={r.primary.href} target="_blank" rel="noopener">
+                    <b>{r.title}</b>
+                    <span className="log__go">{r.primary.label} <span className="arrow" aria-hidden="true">↗</span></span>
+                  </a>
+                  <p className="log__meta">{r.kind}</p>
+                  <p className="log__judge">{r.description}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="notes__group">
+            <p className="subhead">排队中 · {QUEUE.length}</p>
+            <ul className="log">
+              {QUEUE.map((q) => (
+                <li className="log__item" key={q.title}>
+                  <span className="log__queue-text"><b>{q.title}</b>：{q.note}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
           <p className="log__more">
             <a className="text-action" href={WRITING_URL}>03 文章 · 目录与排队中 <span className="arrow" aria-hidden="true">↗</span></a>
           </p>
         </section>
 
-        {/* 站点级第二条分支：整块入口，不藏在列表的一行小字里 */}
-        <section className="section" id="branch">
+        {/* 真终端：从首屏移到第 4 位，说明里的方位写对 */}
+        <section className="section" id="terminal">
           <div className="section__head">
-            <p className="kicker">{BRANCH.kicker}</p>
-            <h2>{BRANCH.eyebrow}</h2>
+            <p className="kicker">TERMINAL / LIVE COMMANDS</p>
+            <h2>会跑的命令行</h2>
           </div>
-          <div className="branch-entry">
-            <div>
-              <p className="branch-entry__eyebrow">{BRANCH.note}</p>
-              <h3 className="branch-entry__title">{BRANCH.title}</h3>
-              <p className="branch-entry__desc">{BRANCH.desc}</p>
-              <p className="branch-entry__meta">{BRANCH.meta}</p>
-            </div>
-            <div className="branch-entry__go">
-              <span className="branch-entry__no" aria-hidden="true">02</span>
-              <a className="primary-action" href={BRANCH.href}>
-                <span>查看项目拆解目录</span><span className="arrow" aria-hidden="true">↗</span>
-              </a>
+          <div className="term-section">
+            <Terminal />
+            <div className="term-section__aside">
+              <p className="term-section__label">01 主页 / 从这里开始</p>
+              <p className="term-section__claim">这个站分三处：<em>这里讲人和项目</em>，02 讲一个系统怎么搭，03 放我读和写的东西。</p>
+              <p className="term-section__note">左边这个终端是真的：能敲 <code>help</code>、<code>explain perm</code>、<code>open case</code>，↑↓ 翻历史，Tab 补公共前缀。</p>
+              <dl className="facts">
+                {FACTS.map(([n, label]) => <div key={label}><dt>{label}</dt><dd>{n}</dd></div>)}
+              </dl>
             </div>
           </div>
         </section>
@@ -156,7 +204,7 @@ export default function Home() {
           <div className="section__head">
             <p className="kicker">04 / TRADEOFFS</p>
             <h2>四个取舍</h2>
-            <p className="section__intro">都来自上面那几个仓库，改动前后的代码都还在。这里只写判断：为什么这么选、什么时候会失效。结构和代码片段放在<a href={BRANCH.href}>02 项目拆解</a>里。</p>
+            <p className="section__intro">都来自上面那几个仓库，改动前后的代码都还在。这里只写判断：为什么这么选、什么时候会失效。结构和代码片段放在<a href={PROJECTS_URL}>02 项目拆解</a>里。</p>
           </div>
           <div className="rows">
             {TRADEOFFS.map((t, i) => (
@@ -184,7 +232,7 @@ export default function Home() {
           <div className="section__head">
             <p className="kicker">05 / HOW THIS PAGE IS BUILT</p>
             <h2>这一页本身</h2>
-            <p className="section__intro">React + Vite，没有 CDN，没有外部组件库。两层共用一套组件与色板，源码在 <a href={GH + '/personal-site'} target="_blank" rel="noopener">personal-site</a> 里可以逐行对。</p>
+            <p className="section__intro">React + Vite，没有 CDN，没有外部组件库。三个分区共用一套组件与色板，源码在 <a href={GH + '/personal-site'} target="_blank" rel="noopener">personal-site</a> 里可以逐行对。</p>
           </div>
           <ul className="craft">
             {CRAFT.map((c) => (

@@ -38,7 +38,9 @@ createRoot(document.getElementById('root')!).render(
 
       <section className="section" id="boundary">
         <div className="section__head">
+          <p className="kicker">01 / BOUNDARY</p>
           <h2>换业务，不重写风控骨架</h2>
+          <p className="section__intro">医疗业务层重写，风控核心保留。这里先划清哪些是复用、哪些是替换，后面的链路和取舍都挂在这条边界上。</p>
         </div>
         <div className="boundary">
           <article className="boundary__card boundary__card--focus">
@@ -57,6 +59,7 @@ createRoot(document.getElementById('root')!).render(
 
       <section className="section" id="decision-code" aria-labelledby="risk-code-title">
         <div className="section__head">
+          <p className="kicker">03 / DECISIONS</p>
           <h2 id="risk-code-title">为什么一票否决要放在融合之后？</h2>
           <p className="section__intro">提高规则分，再和模型分加权，并不能保证结果仍是「拒绝」。实现先算分、按场景阈值映射决策，再执行硬否决。</p>
         </div>
@@ -79,7 +82,11 @@ createRoot(document.getElementById('root')!).render(
       </section>
 
       <section className="section" id="limits" aria-labelledby="risk-limit-title">
-        <div className="section__head"><h2 id="risk-limit-title">代码能证明什么，还不能证明什么</h2></div>
+        <div className="section__head">
+          <p className="kicker">04 / LIMITS</p>
+          <h2 id="risk-limit-title">代码能证明什么，还不能证明什么</h2>
+          <p className="section__intro">这里区分三件事：源码里能读到的行为、演示数据能说明的范围，以及还没有测过的部分。</p>
+        </div>
         <dl className="risk-tradeoff">
           <div>
             <dt>已知局限：推理失败不等于只走规则</dt>
